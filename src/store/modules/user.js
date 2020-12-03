@@ -80,7 +80,7 @@ const user = {
           //   },
           // ]
 
-          // commit('SET_USER', user);
+          // commit('SET_USER', user.vue);
           // let route = store.getters.addRoutes;
           // console.log("1111111111")
           // console.log(route)

@@ -104,7 +104,7 @@ export const asyncRoutes = {
   },
   'UserInfo': {
     path:"user",
-    component: () => import('@/views/user/UserList'),
+    component: () => import('@/views/user.vue/UserList'),
     name: 'UserInfo',
   },
   'department': {
@@ -154,12 +154,12 @@ export const asyncRoutes = {
   },
   'myinfo': {
     path: 'myinfo',
-    component: () => import('@/views/user/MyInfo'),
+    component: () => import('@/views/user.vue/MyInfo'),
     name: 'MyInfo',
   },
   'modifyPassword': {
     path: 'modifyPassword',
-    component: () => import('@/views/user/ModifyPassword'),
+    component: () => import('@/views/user.vue/ModifyPassword'),
     name: 'ModifyPassword',
   },
   'Administrator': {

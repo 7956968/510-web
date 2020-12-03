@@ -6,5 +6,8 @@ const page = "page";
 const button = "button";
 export default {
   menuType,
+  menu,
+  page,
+  button,
 }
 </script>

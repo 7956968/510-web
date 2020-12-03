@@ -188,7 +188,7 @@ export default {
     handleMethod(ms) {
       this[ms]();
     },
-    sreach() {
+    search() {
       this.getDictList();
     },
     add() {

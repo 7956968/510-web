@@ -120,7 +120,7 @@ export const asyncRouterMap = [
   //   ]
   // },
   // {
-  //   path: '/user',
+  //   path: '/user.vue',
   //   component: Layout,
   //   alwaysShow: true, // will always show the root menu
   //   name:"员工管理",
@@ -133,8 +133,8 @@ export const asyncRouterMap = [
   //   },
   //   children: [
   //     {
-  //       path:"user",
-  //       component: () => import('@/views/user/UserList'),
+  //       path:"user.vue",
+  //       component: () => import('@/views/user.vue/UserList'),
   //       name: 'UserInfo',
   //       meta: { name: '员工信息',title: 'UserInfo', icon: 'people', noCache: true,permission: ['m_userInfo'] }
   //     },
@@ -288,29 +288,29 @@ export const asyncRouterMap = [
   //
   //
   // {
-  //   path: '/user',
+  //   path: '/user.vue',
   //   component: Layout,
   //   meta: { permission: ['u_myInfo'] },
   //   children: [
   //     {
   //       path: 'myinfo',
-  //       component: () => import('@/views/user/MyInfo'),
+  //       component: () => import('@/views/user.vue/MyInfo'),
   //       name: 'MyInfo',
-  //       meta: { name: '我的资料', title: 'MyInfo', icon: 'user', noCache: true }
+  //       meta: { name: '我的资料', title: 'MyInfo', icon: 'user.vue', noCache: true }
   //     }
   //
   //   ]
   // },
   //
   // {
-  //   path: '/user',
+  //   path: '/user.vue',
   //   component: Layout,
   //   hidden: true,//不再菜单中显示
   //   name:'修改密码',
   //   children: [
   //     {
   //       path: 'modifyPassword',
-  //       component: () => import('@/views/user/ModifyPassword'),
+  //       component: () => import('@/views/user.vue/ModifyPassword'),
   //       name: 'ModifyPassword',
   //       meta: { name: '修改密码', title: 'modifyPassword',  noCache: true }
   //     }
@@ -649,7 +649,7 @@ export const asyncRouterMap = [
   //   ]
   // },
   // {
-  //   path: '/user',
+  //   path: '/user.vue',
   //   component: Layout,
   //   meta: { permission: ['m_user'] },
   //   name:'用户管理',
@@ -658,7 +658,7 @@ export const asyncRouterMap = [
   //       path: 'index',
   //       component: () => import('@/views/accessRecord/index'),
   //       name: 'AccessRecord',
-  //       meta: { name: '用户管理', title: '用户管理', icon: 'user', noCache: true ,permission: ['m_index13']}
+  //       meta: { name: '用户管理', title: '用户管理', icon: 'user.vue', noCache: true ,permission: ['m_index13']}
   //     }
   //   ]
   // },

@@ -24,28 +24,30 @@
             <el-option v-for="item in dicts" :label="item.name" :key="item.id" :value="item.code"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="路径" prop="path" v-show="!isMenu">
+        <el-form-item label="路径" prop="path" v-show="!isButton">
           <el-input v-model="form.path" placeholder="路径" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="顺序" prop="sortOrder">
           <el-input type="number" min="1" v-model="form.sortOrder" placeholder="顺序" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="控件" prop="component" v-show="!isMenu">
+        <el-form-item label="控件" prop="component" v-show="!isButton">
           <el-input v-model="form.component" placeholder="控件" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="名称" prop="name" v-show="!isMenu">
+<!--        <el-form-item label="名称" prop="name" v-show="!isButton">-->
+        <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="名称" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="标题" prop="title">
           <el-input v-model="form.title" placeholder="标题" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="事件"  v-show="isMenu">
+        <el-form-item label="事件"  v-show="isButton">
           <el-input v-model="form.method" placeholder="事件" style="width: auto"></el-input>
+           填入: add / delete / search , 分别表示"新增", "删除", "查找"
         </el-form-item>
         <el-form-item label="图标" >
           <el-input v-model="form.icon" placeholder="图标" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="重定向"  v-show="!isMenu">
+        <el-form-item label="重定向"  v-show="!isButton">
           <el-input v-model="form.redirect" placeholder="重定向路径" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="父节点" v-show="isParentShow">
@@ -60,7 +62,7 @@
             :normalizer="normalizer"
           />
         </el-form-item>
-        <el-form-item label="是否在菜单隐藏" v-show="!isMenu">
+        <el-form-item label="是否在菜单隐藏" v-show="!isButton">
           <el-radio-group v-model="form.hidden">
             <el-radio :label="1">是</el-radio>
             <el-radio :label="0">否</el-radio>
@@ -114,7 +116,7 @@ export default {
       bttn: [],
       dicts: [],
       data: [],
-      isMenu: false,
+      isButton: false,
       isParentShow: true,
       dialogName: '新增',
       labelPosition: 'left',
@@ -230,9 +232,9 @@ export default {
     },
     selectChanged(value) {
       if (value == dictType.button) {
-        this.isMenu = true;
+        this.isButton = true;
       } else {
-        this.isMenu = false;
+        this.isButton = false;
       }
       this.form = {
         id:null,
@@ -251,7 +253,7 @@ export default {
     handleMethod(ms) {
       this[ms]();
     },
-    sreach() {
+    search() {
       this.getDictList();
     },
     add() {
@@ -268,7 +270,7 @@ export default {
         hidden: 0,
       };
       this.isParentShow = true;
-      this.isMenu = false;
+      this.isButton = false;
       this.dialogName = "新增";
       this.dialogFormVisible = true;
       this.$refs.dialogForm.clearValidate();//清除校验结果
@@ -340,6 +342,13 @@ export default {
     this.bttn = this.$route.meta.btnPermission;
     this.selectByParentCode(dictType.menuType);
     this.getList();
+  },
+  watch: {
+    isMenu: function (){
+      if(this.isButton==true) {
+        this.formRules.method[0].required = true;
+      }
+    }
   }
 }
 </script>

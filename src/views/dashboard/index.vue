@@ -15,7 +15,7 @@
           </el-col>
           <el-col  class="container" v-show="hasPermission('m_user')" >
             <img src="@/assets/yuangong.png" alt="Norway" width="1000" height="300"  >
-            <div class="center" @click="router_jump('/user/user')">员工管理</div>
+            <div class="center" @click="router_jump('/user.vue/user.vue')">员工管理</div>
           </el-col>
           <el-col  class="container" v-show="hasPermission('m_device')">
             <img src="@/assets/device.png" alt="Norway" width="1000" height="300">

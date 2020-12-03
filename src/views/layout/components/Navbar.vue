@@ -18,9 +18,9 @@
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="avatar-wrapper">
          <!--<span class="svg-container ">-->
-          <!--<svg-icon icon-class="user" />-->
+          <!--<svg-icon icon-class="user.vue" />-->
         <!--</span>-->
-          <!--<img src="@/assets/head1.jpg" class="user-avatar">-->
+          <!--<img src="@/assets/head1.jpg" class="user.vue-avatar">-->
           <span >
             {{userInfo.name}}
           </span>

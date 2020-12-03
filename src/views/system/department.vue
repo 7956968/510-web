@@ -26,29 +26,9 @@
         <el-form-item label="描述" prop="name">
           <el-input v-model="form.name" placeholder="描述" style="width: auto"></el-input>
         </el-form-item>
-<!--        <el-form-item label="是否可修改">-->
-<!--          <el-radio-group v-model="form.isUpdate">-->
-<!--            <el-radio :label="1">是</el-radio>-->
-<!--            <el-radio :label="0">否</el-radio>-->
-<!--          </el-radio-group>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="是否可删除">-->
-<!--          <el-radio-group v-model="form.isDelete">-->
-<!--            <el-radio :label="1">是</el-radio>-->
-<!--            <el-radio :label="0">否</el-radio>-->
-<!--          </el-radio-group>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="是否隐藏">-->
-<!--          <el-radio-group v-model="form.isDelete">-->
-<!--            <el-radio :label="1">是</el-radio>-->
-<!--            <el-radio :label="0">否</el-radio>-->
-<!--          </el-radio-group>-->
-<!--        </el-form-item>-->
 
-<!--        <el-form-item label="菜单操作权限">-->
-<!--          -->
-<!--        </el-form-item>-->
       </el-form>
+
       <div>
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -59,42 +39,18 @@
 
 <script>
 import treeTable from '@/components/TreeTable';
-import {getRoleList, add, updateById, deleteById} from '@/api/role';
-import {listToTree, copyProperties} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import dictType from '@/components/type';
+import {getDeptList, add, updateById, deleteById} from '@/api/department';
+import {listToTree, copyProperties} from '@/utils';
 
 export default {
-  name: "role",
+  name: "department",
   components: {
     Dialog,
     treeTable,
   },
   data() {
-    let updateOpen = (row) => {
-      delete row.children;
-      row.pid = null;
-      // this.form = copyProperties(row,this.form);
-      // console.log(this.form);
-      this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
-      //this.form.pid = null;
-      this.form.isUpdate = row.isUpdate == true ? 1 : 0;
-      this.form.isDelete = row.isDelete == true ? 1 : 0;
-
-      this.codeReadonly = true;
-      this.dialogName = "修改";
-      this.dialogFormVisible = true;
-      this.$refs.dialogForm.clearValidate();//清除校验结果
-    }
-    let deleteOption = (row) => {
-      this.delete(row);
-    }
-    let isUpdateShow = (row) => {
-      return row.isUpdate == 1;
-    }
-    let isDeleteShow = (row) => {
-      return row.isDelete == 1 && (!row.children || row.children.length == 0);
-    }
     return {
       bttns: [],
       options: [],
@@ -105,6 +61,7 @@ export default {
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
         description: [{required: true, trigger: 'blur', message: "请输入描述"}],
+        //// 待补充
       },
       param:{
         // 查询的关键字
@@ -115,6 +72,7 @@ export default {
         name: '',
         description: '',
         createTime: '',
+        ////待补充
       },
       columns: [
         {
@@ -129,6 +87,7 @@ export default {
           text: '创建时间',
           value: 'createTime'
         },
+        /// 待补充
       ],
       tableOption: [
         {
@@ -148,21 +107,8 @@ export default {
     handleMethod(ms) {
       this[ms]();
     },
-    search() {
-      this.getRoleList();
-    },
-    add() {
-      this.form = {
-        name: '',
-        description: '',
-      /////  角色权限
-      };
-      this.dialogName = "新增";
-      this.dialogFormVisible = true;
-      this.$refs.dialogForm.clearValidate();//清除校验结果
-    },
-    getRoleList() {
-      getRoleList(this.param).then(res => {
+    getDeptList() {
+      getDeptList(this.param).then(res => {
         if (res.data.errorCode == 200) {
           let a = res.data.data;
           this.data = listToTree(a);
@@ -175,36 +121,6 @@ export default {
         }
       })
     },
-    submitForm() {
-      this.$refs.dialogForm.validate(valid => {
-        if (!valid) {
-          return;
-        }
-        // this.form.isDelete = this.form.isDelete == 1 ? true : false;
-        // this.form.isUpdate = this.form.isUpdate == 1 ? true : false;
-        if (this.dialogName.indexOf("新增") != -1) {//添加操作
-          add(this.form).then(res => {
-            if (res.data.errorCode == 200) {
-              this.getRoleList();
-              this.dialogFormVisible = false;
-            }
-            this.$message.success(res.data.errorMsg);
-          })
-        } else {//修改操作
-          // this.form.isDelete = this.form.isDelete == 1 ? true : false;
-          // this.form.isUpdate = this.form.isUpdate == 1 ? true : false;
-          // console.log(this.form)
-          updateById(this.form).then(res => {
-            if (res.data.errorCode == 200) {
-              this.getRoleList();
-              this.dialogFormVisible = false;
-            }
-            this.$message.success(res.data.errorMsg);
-          })
-        }
-      })
-
-    },
     delete(row) {
       this.$confirm('即将删除' + row.name + ', 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -213,20 +129,19 @@ export default {
       }).then(() => {
         deleteById(row.id).then(res => {
           if (res.data.errorCode == 200) {
-            this.getRoleList();
+            this.getDeptList();
           }
           this.$message.success(res.data.errorMsg);
         });
       });
     },
   },
-
   created() {
     this.bttns = this.$route.meta.btnPermission;
 
     this.bttns.forEach(function (value, index, array) {
     })
-    this.getRoleList();
+    this.getDeptList();
   },
   mounted() {
 
@@ -235,7 +150,5 @@ export default {
 </script>
 
 <style scoped>
-.item-lable {
-  width: 17%;
-}
+
 </style>
