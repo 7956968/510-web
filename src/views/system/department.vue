@@ -26,7 +26,18 @@
         <el-form-item label="描述" prop="name">
           <el-input v-model="form.name" placeholder="描述" style="width: auto"></el-input>
         </el-form-item>
-
+        <el-form-item label="父节点">
+          <selectTree
+            style="width: 79%"
+            placeholder="请选择"
+            ref="selectTree"
+            :options="data"
+            v-model="form.pid"
+            clearable
+            accordion="true"
+            :normalizer="normalizer"
+          />
+        </el-form-item>
       </el-form>
 
       <div>
@@ -40,28 +51,31 @@
 <script>
 import treeTable from '@/components/TreeTable';
 import Dialog from '@/components/dialog/index';
-import dictType from '@/components/type';
-import {getDeptList, add, updateById, deleteById} from '@/api/department';
+import {getDepartmentList, add, updateById, deleteById} from '@/api/department';
 import {listToTree, copyProperties} from '@/utils';
+import selectTree from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+
 
 export default {
   name: "department",
   components: {
     Dialog,
     treeTable,
+    selectTree
   },
   data() {
     return {
+      data: [],
       bttns: [],
       options: [],
       labelPosition: 'left',
       dialogFormVisible: false, // 弹窗不可见
       dialogName: '新增', // 弹窗名
-      data: [],
+
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
         description: [{required: true, trigger: 'blur', message: "请输入描述"}],
-        //// 待补充
       },
       param:{
         // 查询的关键字
@@ -71,8 +85,8 @@ export default {
         id: null,
         name: '',
         description: '',
+        pid: null,  // 父部门的id
         createTime: '',
-        ////待补充
       },
       columns: [
         {
@@ -87,7 +101,6 @@ export default {
           text: '创建时间',
           value: 'createTime'
         },
-        /// 待补充
       ],
       tableOption: [
         {
@@ -104,11 +117,23 @@ export default {
     }
   },
   methods: {
+    // 后台返回的数据和VueTreeselect要求的数据结构不同，需要进行转换
+    normalizer(node) {
+      //去掉children=[]的children属性
+      if (node.children && !node.children.length) {
+        delete node.children;
+      }
+      return {
+        id: node.id,
+        label: node.name,
+        children: node.children
+      }
+    },
     handleMethod(ms) {
       this[ms]();
     },
-    getDeptList() {
-      getDeptList(this.param).then(res => {
+    getDepartmentList() {
+      getDepartList(this.param).then(res => {
         if (res.data.errorCode == 200) {
           let a = res.data.data;
           this.data = listToTree(a);
@@ -129,7 +154,7 @@ export default {
       }).then(() => {
         deleteById(row.id).then(res => {
           if (res.data.errorCode == 200) {
-            this.getDeptList();
+            this.getDepartList();
           }
           this.$message.success(res.data.errorMsg);
         });
@@ -141,7 +166,7 @@ export default {
 
     this.bttns.forEach(function (value, index, array) {
     })
-    this.getDeptList();
+    this.getDepartmentList();
   },
   mounted() {
 

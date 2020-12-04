@@ -24,10 +24,16 @@
           <el-input v-model="form.name" placeholder="姓名" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="性别">-->
-          <el-radio-group v-model="form.">
-            <el-radio :label="1">是</el-radio>
-            <el-radio :label="0">否</el-radio>
+          <el-radio-group v-model="form.gender">
+            <el-radio :label="1">男</el-radio>
+            <el-radio :label="0">女</el-radio>
           </el-radio-group>
+        </el-form-item>
+        <el-form-item label="工号" prop="jobNumber">
+          <el-input v-model="form.jobNumber" placeholder="工号" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="职位" prop="career">
+          <el-input v-model="form.career" placeholder="职位" style="width: auto"></el-input>
         </el-form-item>
       </el-form>
       <div>
@@ -85,11 +91,14 @@ export default {
       data: [],
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入姓名"}],
-        gender: [{required: true, trigger: 'blur', message: "请选择性别"}],
         jobNumber: [{required: true, trigger: 'blur', message: "请输入工号"}],
-        career: [{required: true, trigger: 'blur', message: "请输入职位"}],
-        role: [{required: true, trigger: 'blur', message: "请输入角色"}],
+        gender: [{required: true, trigger: 'blur', message: "请选择性别"}],
         phone: [{required: true, trigger: 'blur', message: "请输入手机号"}],
+        email:  [{required: true, trigger: 'blur', message: "请输入邮箱"}],
+        career: [{required: true, trigger: 'blur', message: "请选择职位"}],
+        role: [{required: true, trigger: 'blur', message: "请选择角色"}],
+        department: [{required: true, trigger: 'blur', message: "请选择部门"}],
+        state: [{required: true, trigger: 'blur', message: "请选择状态"}],
       },
       param:{
         // 检索用的关键字
@@ -98,8 +107,14 @@ export default {
       form: {
         id: null,
         name: '',
-
-        createTime: '',
+        jobNumber: null,
+        gender: '',
+        phone: '',
+        email: '',
+        password:'',
+        career: '',
+        role: '',
+        department: '',
       },
       columns: [
         {
@@ -150,7 +165,7 @@ export default {
       this[ms]();
     },
     search() {
-      this.getRoleList();
+      this.getUserList();
     },
     add() {
       this.form = {

@@ -24,7 +24,8 @@
             <el-option v-for="item in dicts" :label="item.name" :key="item.id" :value="item.code"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="路径" prop="path" v-show="!isButton">
+<!--        <el-form-item label="路径" prop="path" v-show="!isButton">-->
+        <el-form-item label="路径" prop="path">
           <el-input v-model="form.path" placeholder="路径" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="顺序" prop="sortOrder">
@@ -57,7 +58,7 @@
             ref="selectTree"
             :options="data"
             v-model="form.pid"
-            clearable="true"
+            clearable
             accordion="true"
             :normalizer="normalizer"
           />
@@ -81,6 +82,8 @@
 import treeTable from '@/components/TreeTable'
 import dictType from '@/components/type'
 import {getList, add,updateById,deleteById} from '@/api/permission'
+import {getUser} from '@/utils/auth'
+import {getRolePermissionList, add as addRolePermission, deleteById as deleteRolePermissionById} from '@/api/rolePermission'
 import {selectByParentCode} from '@/api/dict'
 import {listToTree, copyProperties} from '@/utils'
 import selectTree from '@riophae/vue-treeselect'
@@ -116,6 +119,8 @@ export default {
       bttn: [],
       dicts: [],
       data: [],
+      // 当前登录用户的角色id
+      currentRoleId: null,
       isButton: false,
       isParentShow: true,
       dialogName: '新增',
@@ -231,11 +236,6 @@ export default {
       }
     },
     selectChanged(value) {
-      if (value == dictType.button) {
-        this.isButton = true;
-      } else {
-        this.isButton = false;
-      }
       this.form = {
         id:null,
         type: value,
@@ -249,6 +249,19 @@ export default {
         icon: '',
         hidden: 0,
       };
+
+      if (value == dictType.button) {
+        this.isButton = true;
+        // this.form.path = '/' + '在此处填入父节点对应路径' + '/add';
+      } else if (value == dictType.page) {
+        this.isButton = false;
+
+      } else if (value == dictType.menu) {
+        this.isButton = false;
+      } else {
+        this.isButton = false;
+      }
+
     },
     handleMethod(ms) {
       this[ms]();
@@ -258,6 +271,7 @@ export default {
     },
     add() {
       this.form = {
+        // roleId: this.currentRoleId, // 创建者ID
         type: this.dicts[0].code,
         path: '/',
         sortOrder: 1,
@@ -312,8 +326,13 @@ export default {
             }else{
               this.$message.error(res.data.errorMsg);
             }
-
           })
+          // 为创建者赋予被创建对象的权限
+          // 考虑与上述add()合并为原子操作
+          // addRolePermission(
+          //   {roleId:this.currentRoleId, permissionId: }
+          // )
+
         }else{
           updateById(this.form).then(res=>{
             if (res.data.errorCode == 200){
@@ -342,13 +361,10 @@ export default {
     this.bttn = this.$route.meta.btnPermission;
     this.selectByParentCode(dictType.menuType);
     this.getList();
+    this.currentRoleId = JSON.parse(getUser()).roleId;
   },
   watch: {
-    isMenu: function (){
-      if(this.isButton==true) {
-        this.formRules.method[0].required = true;
-      }
-    }
+
   }
 }
 </script>

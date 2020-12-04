@@ -23,31 +23,19 @@
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="名称" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="描述" prop="name">
-          <el-input v-model="form.name" placeholder="描述" style="width: auto"></el-input>
+        <el-form-item label="描述" prop="description">
+          <el-input v-model="form.description" placeholder="描述" style="width: auto"></el-input>
         </el-form-item>
-<!--        <el-form-item label="是否可修改">-->
-<!--          <el-radio-group v-model="form.isUpdate">-->
-<!--            <el-radio :label="1">是</el-radio>-->
-<!--            <el-radio :label="0">否</el-radio>-->
-<!--          </el-radio-group>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="是否可删除">-->
-<!--          <el-radio-group v-model="form.isDelete">-->
-<!--            <el-radio :label="1">是</el-radio>-->
-<!--            <el-radio :label="0">否</el-radio>-->
-<!--          </el-radio-group>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="是否隐藏">-->
-<!--          <el-radio-group v-model="form.isDelete">-->
-<!--            <el-radio :label="1">是</el-radio>-->
-<!--            <el-radio :label="0">否</el-radio>-->
-<!--          </el-radio-group>-->
-<!--        </el-form-item>-->
-
-<!--        <el-form-item label="菜单操作权限">-->
-<!--          -->
-<!--        </el-form-item>-->
+        <el-form-item label="菜单操作权限">
+          <el-tree
+            style="width: 79%"
+            placeholder="请选择"
+            :data="permissionList"
+            v-model="form.permissions"
+            show-checkbox
+            default-expand-all
+          />
+        </el-form-item>
       </el-form>
       <div>
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -60,24 +48,28 @@
 <script>
 import treeTable from '@/components/TreeTable';
 import {getRoleList, add, updateById, deleteById} from '@/api/role';
+import {getPermissionListByRoleId, add as addRP, deleteById as deleteRPById} from '@/api/rolePermission';
 import {listToTree, copyProperties} from '@/utils';
 import Dialog from '@/components/dialog/index';
-import dictType from '@/components/type';
+import selectTree from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import {getUser} from '@/utils/auth'
 
 export default {
   name: "role",
   components: {
     Dialog,
     treeTable,
+    selectTree
   },
   data() {
     let updateOpen = (row) => {
       delete row.children;
       row.pid = null;
       // this.form = copyProperties(row,this.form);
-      // console.log(this.form);
+
       this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
-      //this.form.pid = null;
+
       this.form.isUpdate = row.isUpdate == true ? 1 : 0;
       this.form.isDelete = row.isDelete == true ? 1 : 0;
 
@@ -102,6 +94,9 @@ export default {
       dialogFormVisible: false, // 弹窗不可见
       dialogName: '新增', // 弹窗名
       data: [],
+      currentRoleId: null,
+      // 当前登录角色所拥有的权限列表
+      permissionList: [],
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
         description: [{required: true, trigger: 'blur', message: "请输入描述"}],
@@ -114,7 +109,8 @@ export default {
         id: null,
         name: '',
         description: '',
-        createTime: '',
+        // 赋予新增角色的权限
+        permissions: [],
       },
       columns: [
         {
@@ -145,6 +141,18 @@ export default {
     }
   },
   methods: {
+    // 后台返回的数据和VueTreeselect要求的数据结构不同，需要进行转换
+    // normalizer(node) {
+    //   //去掉children=[]的children属性
+    //   if (node.children && !node.children.length) {
+    //     delete node.children;
+    //   }
+    //   return {
+    //     id: node.id,
+    //     label: node.title,
+    //     children: node.children
+    //   }
+    // },
     handleMethod(ms) {
       this[ms]();
     },
@@ -159,7 +167,18 @@ export default {
       };
       this.dialogName = "新增";
       this.dialogFormVisible = true;
-      this.$refs.dialogForm.clearValidate();//清除校验结果
+      // this.$refs.dialogForm.clearValidate();//清除校验结果
+      // 获取当前角色的权限列表, 提供给“新建角色”的表单
+      getPermissionListByRoleId(this.currentRoleId).then(res =>{
+        if (res.data.errorCode == 200) {
+          let a = res.data.data;
+          this.permissionList = listToTree(a);
+          console.log(this.permissionList)
+          // this.permissionList = a;
+        }
+        this.$message.success(res.data.errorMsg);
+      })
+      console.log(this.permissionList)
     },
     getRoleList() {
       getRoleList(this.param).then(res => {
@@ -223,10 +242,11 @@ export default {
 
   created() {
     this.bttns = this.$route.meta.btnPermission;
-
     this.bttns.forEach(function (value, index, array) {
     })
     this.getRoleList();
+    // console.log(JSON.parse(getUser()))
+    this.currentRoleId = JSON.parse(getUser()).roleId;
   },
   mounted() {
 

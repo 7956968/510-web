@@ -1,36 +1,29 @@
 import request from '@/utils/request'
 
 /**
- * 角色管理的接口
+ * 角色与权限相关接口
  *
  */
 
 
-export function getRoleList(params) {
+export function getPermissionListByRoleId(roleId) {
   return request({
-    url: '/role/select',
+    url: '/role_permission/select_by_role_id',
     method: 'get',
-    params
+    params:{roleId:roleId}
   })
 }
 
 export function add(params) {
   return request({
-    url: '/role/add',
-    method: 'post',
-    params
-  })
-}
-export function updateById(params) {
-  return request({
-    url: '/role/update_by_id',
+    url: '/role_permission/add',
     method: 'post',
     params
   })
 }
 export function deleteById(id) {
   return request({
-    url: '/role/delete_by_id',
+    url: '/role_permission/delete_by_id',
     method: 'post',
     params:{id:id}
   })

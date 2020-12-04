@@ -1,5 +1,9 @@
 import request from '@/utils/request'
 
+/**
+ * 部门管理的接口
+ *
+ */
 
 
 export function getDepartmentList(params) {

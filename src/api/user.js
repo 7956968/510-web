@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 
 
-export function getUsermentList(params) {
+export function getUserList(params) {
   return request({
     url: '/user/select',
     method: 'get',

@@ -32,7 +32,7 @@
             ref="selectTree"
             :options="data"
             v-model="form.pid"
-            clearable="true"
+            clearable
             accordion="true"
             :normalizer="normalizer"
           />
@@ -251,6 +251,7 @@ export default {
     },
   },
   created() {
+    // console.log(this.$route)
     this.bttn = this.$route.meta.btnPermission;
 
     this.bttn.forEach(function (value, index, array) {
