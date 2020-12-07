@@ -28,7 +28,7 @@ export function deleteById(id) {
   return request({
     url: '/user/delete_by_id',
     method: 'post',
-    params:{id:id}
+    data:{id:id}
   })
 }
 

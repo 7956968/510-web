@@ -21,11 +21,19 @@ export function add(params) {
     params
   })
 }
+export function addAll(data) {
+  console.log(data)
+  return request({
+    url: '/role_permission/add_all',
+    method: 'post',
+    data: data
+  })
+}
 export function deleteById(id) {
   return request({
     url: '/role_permission/delete_by_id',
     method: 'post',
-    params:{id:id}
+    data:{id:id}
   })
 }
 

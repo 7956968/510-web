@@ -135,7 +135,7 @@ export default {
         pid: null,
         path: '/',
         sortOrder: 1,
-        component: 'Layout',
+        component: 'Layout',// layout is 主菜单，system/xxx is 页面, '' is button
         redirect: '',
         name: '',
         title: '',
@@ -252,6 +252,8 @@ export default {
 
       if (value == dictType.button) {
         this.isButton = true;
+        this.formRules.component = false;
+        this.form.component = '';
         // this.form.path = '/' + '在此处填入父节点对应路径' + '/add';
       } else if (value == dictType.page) {
         this.isButton = false;

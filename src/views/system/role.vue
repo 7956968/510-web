@@ -31,9 +31,11 @@
             style="width: 79%"
             placeholder="请选择"
             :data="permissionList"
-            v-model="form.permissions"
+            v-model="permissionsIdSelected"
             show-checkbox
             default-expand-all
+            node-key="id"
+            ref="tree"
           />
         </el-form-item>
       </el-form>
@@ -48,7 +50,7 @@
 <script>
 import treeTable from '@/components/TreeTable';
 import {getRoleList, add, updateById, deleteById} from '@/api/role';
-import {getPermissionListByRoleId, add as addRP, deleteById as deleteRPById} from '@/api/rolePermission';
+import {getPermissionListByRoleId, add as addRP, addAll as addRPAll, deleteById as deleteRPById} from '@/api/rolePermission';
 import {listToTree, copyProperties} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from '@riophae/vue-treeselect'
@@ -94,9 +96,8 @@ export default {
       dialogFormVisible: false, // 弹窗不可见
       dialogName: '新增', // 弹窗名
       data: [],
-      currentRoleId: null,
-      // 当前登录角色所拥有的权限列表
-      permissionList: [],
+      currentRoleId: null,  // 当前登录角色id
+      permissionList: [],   // 当前登录角色所拥有的权限列表
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
         description: [{required: true, trigger: 'blur', message: "请输入描述"}],
@@ -105,13 +106,15 @@ export default {
         // 查询的关键字
         keyword:''
       },
+
       form: {
         id: null,
         name: '',
         description: '',
-        // 赋予新增角色的权限
-        permissions: [],
       },
+      // 赋予新增角色的权限
+      permissionsIdSelected: [],
+
       columns: [
         {
           text: '名称',
@@ -126,6 +129,7 @@ export default {
           value: 'createTime'
         },
       ],
+      // 表格右边的操作按钮
       tableOption: [
         {
           text: '修改',
@@ -163,8 +167,8 @@ export default {
       this.form = {
         name: '',
         description: '',
-      /////  角色权限
       };
+
       this.dialogName = "新增";
       this.dialogFormVisible = true;
       // this.$refs.dialogForm.clearValidate();//清除校验结果
@@ -172,19 +176,21 @@ export default {
       getPermissionListByRoleId(this.currentRoleId).then(res =>{
         if (res.data.errorCode == 200) {
           let a = res.data.data;
+          // 将权限名字赋值给label属性
+          for (let i = 0; i< a.length; i++){
+            a[i].label = a[i].title
+          }
+          // 数组转树
           this.permissionList = listToTree(a);
-          console.log(this.permissionList)
-          // this.permissionList = a;
         }
         this.$message.success(res.data.errorMsg);
       })
-      console.log(this.permissionList)
     },
     getRoleList() {
       getRoleList(this.param).then(res => {
         if (res.data.errorCode == 200) {
           let a = res.data.data;
-          this.data = listToTree(a);
+          this.data = listToTree(a);  // 这一句可能不需要
           if (this.data != null && this.data.length > 0) {
             for (let i = 0; i < this.data.length; i++) {
               this.data[i].pid = 0;
@@ -202,17 +208,29 @@ export default {
         // this.form.isDelete = this.form.isDelete == 1 ? true : false;
         // this.form.isUpdate = this.form.isUpdate == 1 ? true : false;
         if (this.dialogName.indexOf("新增") != -1) {//添加操作
+          // 添加角色入role表
           add(this.form).then(res => {
             if (res.data.errorCode == 200) {
               this.getRoleList();
-              this.dialogFormVisible = false;
+              let addedRoleId = this.data[this.data.length-1].id;// 需要同步
+              console.log(addedRoleId)
+              // 添加角色对应的权限
+              let pmsIdList = this.$refs.tree.getCheckedKeys()
+              addRPAll({roleId: addedRoleId, pmsIdList: pmsIdList}).then(res1 =>{
+                if (res1.data.errorCode == 200) {
+                  this.getRoleList();
+                }
+                this.$message.success(res1.data.errorMsg);
+              })
             }
             this.$message.success(res.data.errorMsg);
           })
+          this.dialogFormVisible = false; // 隐藏"新增"弹窗
+          // 清空form?
+          // 清空keyword?
         } else {//修改操作
           // this.form.isDelete = this.form.isDelete == 1 ? true : false;
           // this.form.isUpdate = this.form.isUpdate == 1 ? true : false;
-          // console.log(this.form)
           updateById(this.form).then(res => {
             if (res.data.errorCode == 200) {
               this.getRoleList();
