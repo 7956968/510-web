@@ -21,19 +21,53 @@ export function add(params) {
     params
   })
 }
+
+/**
+ * 批量添加角色权限
+ * @param data
+ *    {roleId:roleId, permissionId:permissionId}
+ */
 export function addAll(data) {
-  console.log(data)
   return request({
     url: '/role_permission/add_all',
     method: 'post',
     data: data
   })
 }
-export function deleteById(id) {
+
+/**
+ * 删除id对应的rolepermission
+ * @param id
+ */
+// export function deleteById(id) {
+//   return request({
+//     url: '/role_permission/delete_by_id',
+//     method: 'post',
+//     data:{id:id}
+//   })
+// }
+
+/**
+ * 删除roleId的部分     （待修复）
+ * @param data
+ *    {roleId:roleId, permissionId:permissionId}
+ */
+export function deleteAll(data) {
   return request({
-    url: '/role_permission/delete_by_id',
+    url: '/role_permission/delete_all',
     method: 'post',
-    data:{id:id}
+    data:data
   })
 }
-
+/**
+ * 删除roleId的所有权限
+ * @param data
+ *    {roleId:roleId}
+ */
+export function deleteByRoleId(roleId) {
+  return request({
+    url: '/role_permission/delete_by_role_id',
+    method: 'post',
+    data: {roleId:roleId}
+  })
+}

@@ -297,7 +297,11 @@ export function uniqueArr(arr) {
   return Array.from(new Set(arr))
 }
 
-
+/**
+ * 将列表转化为树形结构
+ * @param list
+ * @returns {[]}
+ */
 export function listToTree(list){
   function exists(list, parentId){
     for(let i=0; i<list.length; i++){
@@ -338,6 +342,40 @@ export function listToTree(list){
   }
   return nodes;
 }
+
+// /**
+//  * 求父数组和子数组的相同元素，并为父数组的元素添加intersect为true
+//  * 传入的数组保证id升序,保证父子关系
+//  * @param a 父数组
+//  * @param b 子数组
+//  */
+// export function findIntersection(a, b){
+//   for(let i=0, j=0; i < b.length; i++){
+//     while(j<a.length && a[j].id !== b[i]){
+//       j++;
+//     }
+//     if(j>=a.length)
+//       break;
+//     else{
+//       a[j]["intersect"] = true;
+//     }
+//   }
+//   return a;
+// }
+
+/**
+ *
+ * @param a
+ * @param b
+ */
+export function findIntersection(a, b){}
+
+/**
+ * 将每个用户放入部门数组
+ * @param de
+ * @param user
+ * @returns {*}
+ */
 export function f(de,user) {
   for (let i = 0; i < de.length; i++){
     let d = de[i];
