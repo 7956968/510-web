@@ -35,6 +35,24 @@
         <el-form-item label="职位" prop="career">
           <el-input v-model="form.career" placeholder="职位" style="width: auto"></el-input>
         </el-form-item>
+        <el-form-item label="角色" prop="role">
+          <el-input v-model="form.role" placeholder="角色" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="form.phone" placeholder="手机号" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="状态" prop="state">
+          <el-select placeholder="请选择状态"
+                     v-model="form.state"
+                     style="width: 79%">
+            <el-option
+              v-for="(item,idx) in stateOptions"
+              :key="item.value"
+              :label="item.value"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <div>
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -49,38 +67,34 @@ import treeTable from '@/components/TreeTable';
 import {getUserList, add, updateById, deleteById} from '@/api/user';
 import {listToTree, copyProperties} from '@/utils';
 import Dialog from '@/components/dialog/index';
-import dictType from '@/components/type';
+import selectTree from "@riophae/vue-treeselect";
 
 export default {
   name: "user",
   components:{
     Dialog,
     treeTable,
+    selectTree
   },
   data() {
     let updateOpen = (row) => {
       delete row.children;
       row.pid = null;
-      // this.form = copyProperties(row,this.form);
-      // console.log(this.form);
       this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
       //this.form.pid = null;
-      this.form.isUpdate = row.isUpdate == true ? 1 : 0;
-      this.form.isDelete = row.isDelete == true ? 1 : 0;
-
-      this.codeReadonly = true;
       this.dialogName = "修改";
       this.dialogFormVisible = true;
-      this.$refs.dialogForm.clearValidate();//清除校验结果
+      // 清除校验结果
+      this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     }
     let deleteOption = (row) => {
       this.delete(row);
     }
     let isUpdateShow = (row) => {
-      return row.isUpdate == 1;
+      return true;
     }
     let isDeleteShow = (row) => {
-      return row.isDelete == 1 && (!row.children || row.children.length == 0);
+      return true;
     }
     return {
       bttns: [],
@@ -89,12 +103,13 @@ export default {
       dialogFormVisible: false, // 弹窗不可见
       dialogName: '新增', // 弹窗名
       data: [],
+      stateOptions: ['正常', '已删除'],  // 用户状态选择表
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入姓名"}],
         jobNumber: [{required: true, trigger: 'blur', message: "请输入工号"}],
         gender: [{required: true, trigger: 'blur', message: "请选择性别"}],
-        phone: [{required: true, trigger: 'blur', message: "请输入手机号"}],
-        email:  [{required: true, trigger: 'blur', message: "请输入邮箱"}],
+        // phone: [{required: true, trigger: 'blur', message: "请输入手机号"}],
+        // email:  [{required: true, trigger: 'blur', message: "请输入邮箱"}],
         career: [{required: true, trigger: 'blur', message: "请选择职位"}],
         role: [{required: true, trigger: 'blur', message: "请选择角色"}],
         department: [{required: true, trigger: 'blur', message: "请选择部门"}],
@@ -152,11 +167,11 @@ export default {
           onclick: updateOpen,
           isShow: isUpdateShow,
         },
-        // {
-        //   text: '删除',
-        //   onclick: deleteOption,
-        //   isShow: isDeleteShow,
-        // }
+        {
+          text: '删除',
+          onclick: deleteOption,
+          isShow: isDeleteShow,
+        }
       ],
     }
   },

@@ -20,22 +20,35 @@
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
       <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
                size="mini">
+        <el-form-item label="厂家" prop="manufacturers">
+          <el-input v-model="form.manufacturers" placeholder="厂家" style="width: auto"></el-input>
+        </el-form-item>
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="名称" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="form.description" placeholder="描述" style="width: auto"></el-input>
+        <el-form-item label="序列号" prop="serialNumber">
+          <el-input v-model="form.serialNumber" placeholder="序列号" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="菜单操作权限">
-          <el-tree
-            style="width: 79%"
+        <el-form-item label="设备类型" prop="type">
+          <el-select
             placeholder="请选择"
-            :data="permissionList"
-            show-checkbox
-            default-expand-all
-            node-key="id"
-            ref="tree"
-          />
+            v-model="form.type"
+            filterable
+            allow-create
+            style="width: 79%">
+            <el-option
+              v-for="(item,idx) in deviceTypeOptions"
+              :key="item.value"
+              :label="item.value"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="IP" prop="ip">
+          <el-input v-model="form.ip" placeholder="请输入IP" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="端口" prop="prot">
+          <el-input v-model="form.prot" placeholder="请输入端口号" style="width: auto"></el-input>
         </el-form-item>
       </el-form>
       <div>
@@ -48,16 +61,14 @@
 
 <script>
 import treeTable from '@/components/TreeTable';
-import {getRoleList, add, updateById, deleteById, getLast} from '@/api/role';
-import {getPermissionListByRoleId, addAll as addRPAll, deleteByRoleId} from '@/api/rolePermission';
-import {listToTree, copyProperties, findIntersect} from '@/utils';
+import {listToTree} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth'
 
 export default {
-  name: "role",
+name: "device",
   components: {
     Dialog,
     treeTable,
@@ -67,72 +78,75 @@ export default {
     let updateOpen = (row) => {
       delete row.children;
       row.pid = null;
-      this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
+      this.form = JSON.parse(JSON.stringify(row));// 解除数据绑定
       this.dialogName = "修改";
       this.dialogFormVisible = true;
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     }
-    let viewOptions = (row) => {
-      this.showPermissionList(row.id)
-      this.dialogName = "查看权限";
-      this.dialogFormVisible = true;
-      //////
-      getPermissionListByRoleId(row.id).then(res => {
-        this.permissionListTmp = res.data.data.
-      })
-
-    }
     let deleteOption = (row) => {
       this.delete(row);
     }
     let isUpdateShow = (row) => {
-      return row.changeable;
+      return true;
     }
     let isDeleteShow = (row) => {
-      return row.deleteable
+      return true;
     }
     return {
       bttns: [],
       labelPosition: 'left',
       dialogFormVisible: false, // 弹窗不可见
       dialogName: '新增', // 弹窗名
-      data: [],
+      data: [],   // 展示的表格数据
       currentRoleId: null,  // 当前登录角色id
-      permissionList: [],   // 当前登录角色所拥有的权限列表
-      addedRoleId: null,    // 新增角色的id
-      permissionListTmp: [],   // 缓存的权限列表
+      deviceTypeOptions: ['摄像头', '报警设备'],
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
-        description: [{required: true, trigger: 'blur', message: "请输入描述"}],
+        /////
       },
       param:{
-        // 查询的关键字
-        keyword:''
+        keyword:'',   // 关键字
+        groupId:null, // 组id
+
       },
       form: {
         id: null,
+        manufacturers: '',   // 厂家
         name: '',
-        description: '',
+        serialNumber: '', // 序列号
+        type: '',
+        ip: '',
+        prot: '',
       },
-      // 赋予新增角色的权限
-      // permissionsIdSelected: [],
       columns: [
         {
           text: '序号',
           value: 'id'
         },
         {
-          text: '名称',
+          text: '厂家',
+          value: 'manufacturers'
+        },
+        {
+          text: '设备名称',
           value: 'name'
         },
         {
-          text: '描述',
-          value: 'description'
+          text: '设备类型',
+          value: 'type'
         },
         {
-          text: '创建时间',
-          value: 'createTime'
+          text: 'IP',
+          value: 'ip'
+        },
+        {
+          text: '端口',
+          value: 'prot'
+        },
+        {
+          text: '序列号',
+          value: 'serialNumber'
         },
       ],
       // 表格右边的操作按钮
@@ -141,11 +155,6 @@ export default {
           text: '修改',
           onclick: updateOpen,
           isShow: isUpdateShow,
-        },
-        {
-          text: '查看权限',
-          onclick: viewOptions,
-          isShow: ()=>true,
         },
         {
           text: '删除',
@@ -160,7 +169,7 @@ export default {
       this[ms]();
     },
     search() {
-      this.getRoleList();
+      this.getDeviceList();
     },
     add() {
       this.form = {
@@ -177,51 +186,12 @@ export default {
       // 获取当前角色的权限列表, 提供给“新建角色”的表单
       this.showPermissionList(this.currentRoleId)
     },
-    /**
-     * 展示当前角色权限列表
-     * @param roleId
-     */
-    showMyPermissionList() {
-      getPermissionListByRoleId(this.currentRoleId).then(res =>{
-        if (res.data.errorCode == 200) {
-          this.$message.success(res.data.errorMsg);
-          let a = res.data.data;
-          // 将权限名字赋值给label属性
-          for (let i = 0; i< a.length; i++){
-            a[i].label = a[i].title
-          }
-          // 数组转树
-          this.permissionList = listToTree(a);
-        }else{
-          this.$message.error(res.data.errorMsg);
-        }
-      })
-    },
-    /**
-     * 展示某角色相对于当前管理员的列表
-     * @param roleId
-     */
-    showPermissionList(roleId) {
-      getPermissionListByRoleId(roleId).then(res =>{
-        if (res.data.errorCode == 200) {
-          let a = res.data.data;
-          // 将权限名字赋值给label属性
-          for (let i = 0; i< a.length; i++){
-            a[i].label = a[i].title
-          }
-          // 数组转树
-          this.permissionList = listToTree(a);
-        }
-        this.$message.success(res.data.errorMsg);
-      })
-    },
 
-
-    getRoleList() {
-      getRoleList(this.param).then(res => {
+    getDeviceList() {
+      getDeviceList(this.param).then(res => {
         if (res.data.errorCode == 200) {
           let a = res.data.data;
-          this.data = listToTree(a);  // 这一句可能不需要
+          this.data = listToTree(a);
           if (this.data != null && this.data.length > 0) {
             for (let i = 0; i < this.data.length; i++) {
               this.data[i].pid = 0;
@@ -236,25 +206,8 @@ export default {
           return;
         }
         if (this.dialogName.indexOf("新增") != -1) {//添加操作
-          /////// 多重调用地狱，需要修改
-          // 添加角色入role表
           add(this.form).then(res => {
             if (res.data.errorCode == 200) {
-              // 获取新增角色id
-              getLast().then(res2 => {
-                if (res2.data.errorCode == 200) {
-                  this.addedRoleId = res2.data.data.id;
-                  // 添加角色对应的权限
-                  let pmsIdList = this.$refs.tree.getCheckedKeys()
-                  addRPAll({roleId: this.addedRoleId, pmsIdList: pmsIdList}).then(res1 =>{
-                    if (res1.data.errorCode == 200) {
-                      this.getRoleList();
-                    }
-                    this.$message.success(res1.data.errorMsg);
-                  })
-                }
-                this.$message.success(res2.data.errorMsg);
-              })
               this.$message.success(res.data.errorMsg);
             }else{
               this.$message.error(res.data.errorMsg);
@@ -266,7 +219,7 @@ export default {
         } else {//修改操作
           updateById(this.form).then(res => {
             if (res.data.errorCode == 200) {
-              this.getRoleList();
+              this.getDeviceList();
               this.dialogFormVisible = false;
             }
             this.$message.success(res.data.errorMsg);
@@ -281,29 +234,15 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(()=>{
-        deleteByRoleId(row.id).then(res => {
-          if (res.data.errorCode === 200) {
-            deleteById(row.id).then(res2 => {
-              if (res2.data.errorCode === 200) {
-                this.$message.success(res.data.errorMsg);
-                this.getRoleList();
-              }else{
-                this.$message.error(res2.data.errorMsg);
-              }
-            });
-          }else{
-            this.$message.error(res.data.errorMsg);
-          }
-        });
+        // 删除设备，删除分组，删除通道
       });
     },
   },
 
   created() {
     this.bttns = this.$route.meta.btnPermission;
-    this.bttns.forEach(function (value, index, array) {
-    })
-    this.getRoleList();
+    this.bttns.forEach(function (value, index, array) {})
+    this.getDeviceList();
     /////// 这里获取用户有问题
     this.currentRoleId = JSON.parse(getUser()).roleId;
   },

@@ -26,11 +26,11 @@
         <el-form-item label="描述" prop="name">
           <el-input v-model="form.name" placeholder="描述" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="父节点">
+        <el-form-item label="父部门">
           <selectTree
             style="width: 79%"
             placeholder="请选择"
-            ref="selectTree"
+            ref="selectTreeDept"
             :options="data"
             v-model="form.pid"
             clearable
@@ -65,6 +65,25 @@ export default {
     selectTree
   },
   data() {
+    let updateOpen = (row) => {
+      delete row.children;
+      row.pid = null;
+      this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
+      //this.form.pid = null;
+      this.dialogName = "修改";
+      this.dialogFormVisible = true;
+      // 清除校验结果
+      this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
+    }
+    let deleteOption = (row) => {
+      this.delete(row);
+    }
+    let isUpdateShow = (row) => {
+      return true;
+    }
+    let isDeleteShow = (row) => {
+      return true;
+    }
     return {
       data: [],
       bttns: [],
@@ -86,7 +105,6 @@ export default {
         name: '',
         description: '',
         pid: null,  // 父部门的id
-        createTime: '',
       },
       columns: [
         {
@@ -146,6 +164,36 @@ export default {
         }
       })
     },
+    submitForm() {
+      this.$refs.dialogForm.validate(valid => {
+        if (!valid) {
+          return;
+        }
+        if (this.dialogName.indexOf("新增") != -1) {//添加操作
+          add(this.form).then(res => {
+            if (res.data.errorCode == 200) {
+              this.$message.success(res.data.errorMsg);
+            }else{
+              this.$message.error(res.data.errorMsg);
+            }
+          })
+          this.dialogFormVisible = false; // 隐藏"新增"弹窗
+          // 清空form?
+          // 清空keyword?
+        } else {//修改操作
+          updateById(this.form).then(res => {
+            if (res.data.errorCode == 200) {
+              this.$message.success(res.data.errorMsg);
+              this.getDepartmentList();
+              this.dialogFormVisible = false;
+            }else{
+              this.$message.error(res.data.errorMsg);
+            }
+          })
+        }
+      })
+
+    },
     delete(row) {
       this.$confirm('即将删除' + row.name + ', 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -154,7 +202,7 @@ export default {
       }).then(() => {
         deleteById(row.id).then(res => {
           if (res.data.errorCode == 200) {
-            this.getDepartList();
+            this.getDepartmentList();
           }
           this.$message.success(res.data.errorMsg);
         });
@@ -163,9 +211,7 @@ export default {
   },
   created() {
     this.bttns = this.$route.meta.btnPermission;
-
-    this.bttns.forEach(function (value, index, array) {
-    })
+    this.bttns.forEach(function (value, index, array) {})
     this.getDepartmentList();
   },
   mounted() {
