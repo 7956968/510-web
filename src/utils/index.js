@@ -364,11 +364,24 @@ export function listToTree(list){
 // }
 
 /**
- *
+ * 求数组的差集
  * @param a
  * @param b
+ * @return a-b
  */
-export function findIntersection(a, b){}
+export function minus(a, b){
+  return a.filter(function(v){ return b.indexOf(v) === -1 })
+}
+
+/**
+ * 求数组的交集
+ * @param a
+ * @param b
+ * @returns a^b
+ */
+export function intersect(a, b){
+  return a.filter(function(v){ return b.indexOf(v) > -1 })
+}
 
 /**
  * 将每个用户放入部门数组

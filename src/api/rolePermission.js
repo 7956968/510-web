@@ -14,18 +14,26 @@ export function getPermissionListByRoleId(roleId) {
   })
 }
 
-export function add(params) {
+export function getPmsIdListByRoleId(roleId) {
   return request({
-    url: '/role_permission/add',
-    method: 'post',
-    params
+    url: '/role_permission/select_pmsId_by_role_id',
+    method: 'get',
+    params:{roleId:roleId}
   })
 }
+
+// export function add(params) {
+//   return request({
+//     url: '/role_permission/add',
+//     method: 'post',
+//     params
+//   })
+// }
 
 /**
  * 批量添加角色权限
  * @param data
- *    {roleId:roleId, permissionId:permissionId}
+ *    {roleId:roleId, pmsIdList: pmsIdList}
  */
 export function addAll(data) {
   return request({
@@ -48,17 +56,17 @@ export function addAll(data) {
 // }
 
 /**
- * 删除roleId的部分     （待修复）
+ * 删除roleId的部分权限
  * @param data
  *    {roleId:roleId, permissionId:permissionId}
  */
-export function deleteAll(data) {
-  return request({
-    url: '/role_permission/delete_all',
-    method: 'post',
-    data:data
-  })
-}
+// export function deleteAll(data) {
+//   return request({
+//     url: '/role_permission/delete_all',
+//     method: 'post',
+//     data:data
+//   })
+// }
 /**
  * 删除roleId的所有权限
  * @param data
