@@ -6,7 +6,7 @@
           <el-input v-model="param.keyword" placeholder="请输入关键字" clearable></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button v-for="item in bttn" type="primary" size="mini" :icon="item.icon"
+          <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
                      @click="handleMethod(item.methodd)">{{ item.name }}
           </el-button>
         </el-form-item>
@@ -116,7 +116,7 @@ export default {
       return !row.children || row.children.length == 0;
     }
     return {
-      bttn: [],
+      bttns: [],
       dicts: [],
       data: [],
       // 当前登录用户的角色id
@@ -360,7 +360,7 @@ export default {
     }
   },
   created() {
-    this.bttn = this.$route.meta.btnPermission;
+    this.bttns = this.$route.meta.btnPermission;
     this.selectByParentCode(dictType.menuType);
     this.getList();
     this.currentRoleId = JSON.parse(getUser()).roleId;

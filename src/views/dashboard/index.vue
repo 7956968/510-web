@@ -95,8 +95,8 @@
       ])
     },
     methods: {
-        isShow(){
-        },
+      isShow(){
+      },
       hasPermission,
       handleSetLineChartData(type) {
 

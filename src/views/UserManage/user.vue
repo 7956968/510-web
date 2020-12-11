@@ -6,7 +6,7 @@
           <el-input v-model="param.keyword" placeholder="请输入关键字" clearable></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button v-for="item in bttns" type="primary" size="mini" :icon="item.icon"
+          <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
                      @click="handleMethod(item.methodd)">{{ item.name }}
           </el-button>
         </el-form-item>
@@ -23,7 +23,7 @@
         <el-form-item label="姓名" prop="name">
           <el-input v-model="form.name" placeholder="姓名" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="性别">-->
+        <el-form-item label="性别">
           <el-radio-group v-model="form.gender">
             <el-radio :label="1">男</el-radio>
             <el-radio :label="0">女</el-radio>
@@ -53,6 +53,17 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="部门" prop="deptId">
+          <el-tree
+            :data="departmentList"
+            default-expand-all
+            node-key="id"
+            ref="treeDept"
+            :props="defaultProps"
+            empty-text="无任何部门"
+            @node-click="deptChose"
+          />
+        </el-form-item>
       </el-form>
       <div>
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -65,6 +76,7 @@
 <script>
 import treeTable from '@/components/TreeTable';
 import {getUserList, add, updateById, deleteById} from '@/api/user';
+import {getDepartmentList } from '@/api/department';
 import {listToTree, copyProperties} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from "@riophae/vue-treeselect";
@@ -87,32 +99,30 @@ export default {
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     }
-    let deleteOption = (row) => {
-      this.delete(row);
-    }
-    let isUpdateShow = (row) => {
-      return true;
-    }
-    let isDeleteShow = (row) => {
-      return true;
-    }
+    let deleteOption = (row) => {this.delete(row);}
+    let isUpdateShow = (row) => {return true;}
+    let isDeleteShow = (row) => {return true;}
     return {
       bttns: [],
       options: [],
       labelPosition: 'left',
       dialogFormVisible: false, // 弹窗不可见
       dialogName: '新增', // 弹窗名
-      data: [],
+      data: [],           // 表格数据
       stateOptions: ['正常', '已删除'],  // 用户状态选择表
+      departmentList: [],   // 部门列表
+      defaultProps:{  // el-tree的props
+        label: 'name',   // 权限列表的name作为展示文字
+      },
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入姓名"}],
         jobNumber: [{required: true, trigger: 'blur', message: "请输入工号"}],
         gender: [{required: true, trigger: 'blur', message: "请选择性别"}],
         // phone: [{required: true, trigger: 'blur', message: "请输入手机号"}],
         // email:  [{required: true, trigger: 'blur', message: "请输入邮箱"}],
-        career: [{required: true, trigger: 'blur', message: "请选择职位"}],
+        // career: [{required: true, trigger: 'blur', message: "请选择职位"}],
         role: [{required: true, trigger: 'blur', message: "请选择角色"}],
-        department: [{required: true, trigger: 'blur', message: "请选择部门"}],
+        deptId: [{required: true, trigger: 'blur', message: "请选择部门"}],
         state: [{required: true, trigger: 'blur', message: "请选择状态"}],
       },
       param:{
@@ -129,7 +139,8 @@ export default {
         password:'',
         career: '',
         role: '',
-        department: '',
+        deptId: null,
+        state: '',
       },
       columns: [
         {
@@ -184,13 +195,22 @@ export default {
     },
     add() {
       this.form = {
+        id: null,
         name: '',
-
-        /////  待补充
+        jobNumber: null,
+        gender: '',
+        phone: '',
+        email: '',
+        password:'',
+        career: '',
+        role: '',
+        deptId: '',
+        state: '',
       };
       this.dialogName = "新增";
       this.dialogFormVisible = true;
-      this.$refs.dialogForm.clearValidate();//清除校验结果
+      // 清除校验结果
+      this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     },
     getUserList() {
       getUserList(this.param).then(res => {
@@ -208,29 +228,26 @@ export default {
     },
     submitForm() {
       this.$refs.dialogForm.validate(valid => {
-        if (!valid) {
-          return;
-        }
-        // this.form.isDelete = this.form.isDelete == 1 ? true : false;
-        // this.form.isUpdate = this.form.isUpdate == 1 ? true : false;
-        if (this.dialogName.indexOf("新增") != -1) {//添加操作
+        if (!valid) {return;}
+        if (this.dialogName.indexOf("新增") !== -1) {//添加操作
           add(this.form).then(res => {
-            if (res.data.errorCode == 200) {
+            if (res.data.errorCode === 200) {
+              this.$message.success(res.data.errorMsg);
               this.getUserList();
               this.dialogFormVisible = false;
+            }else{
+              this.$message.error(res.data.errorMsg);
             }
-            this.$message.success(res.data.errorMsg);
           })
         } else {//修改操作
-          // this.form.isDelete = this.form.isDelete == 1 ? true : false;
-          // this.form.isUpdate = this.form.isUpdate == 1 ? true : false;
-          // console.log(this.form)
           updateById(this.form).then(res => {
-            if (res.data.errorCode == 200) {
+            if (res.data.errorCode === 200) {
+              this.$message.success(res.data.errorMsg);
               this.getUserList();
               this.dialogFormVisible = false;
+            }else{
+              this.$message.error(res.data.errorMsg);
             }
-            this.$message.success(res.data.errorMsg);
           })
         }
       })
@@ -251,6 +268,24 @@ export default {
       });
     },
   },
+  created() {
+    this.bttns = this.$route.meta.btnPermission;
+    // this.bttns.forEach(function (value, index, array) {})
+    this.getUserList();
+    // 将部门列表存放
+    getDepartmentList({}).then(res => {
+      if (res.data.errorCode == 200) {
+        let a = res.data.data;
+        this.departmentList = listToTree(a);
+        if (this.data != null && this.data.length > 0) {
+          for (let i = 0; i < this.data.length; i++) {
+            this.data[i].pid = 0;
+          }
+        }
+        //this.options = re.data.data;
+      }
+    })
+  }
 }
 </script>
 

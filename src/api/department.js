@@ -32,7 +32,7 @@ export function deleteById(id) {
   return request({
     url: '/department/delete_by_id',
     method: 'post',
-    data:{id:id}
+    params:{id:id}
   })
 }
 

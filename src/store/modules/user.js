@@ -27,64 +27,9 @@ const user = {
           const data = response.data;
           let user = data.principal;
            let permission = user.routers;
-          // let permission = [
-          //   {
-          //     "path": '/attendance',
-          //     "component": "Layout",
-          //     "redirect": "noRedirect",
-          //     "name":"考勤管理",
-          //     "meta": {
-          //       "title": 'AttendanceManagement',
-          //       "icon": 'dealWith'
-          //     },
-          //     "children": [
-          //       {
-          //         "path":"index",
-          //         "component": "system/dict",
-          //         "name": 'AttendanceRecord',
-          //         "meta": { "name": '考勤记录',"title": 'AttendanceRecord',"noCache": "true","btnPermissions": ['admin','supper','normal']}
-          //       },
-          //       {
-          //         "path":"statistics",
-          //         "component": "attendance/statisticsNew",
-          //         "name": 'AttendanceRecord',
-          //         "meta": { "name": '统计报表',"title": '统计报表',"noCache": "true","btnPermissions": ['admin','supper']}
-          //       },
-          //
-          //       {
-          //         "path":"setting",
-          //         "component": "attendance/settingNew",
-          //         "name": 'AttendanceRecord',
-          //         "meta": { "name": '考勤设置',"title": '考勤设置', "noCache": "true"}
-          //       },
-          //       {
-          //         "path":"squadPeriodSetting",
-          //         "component": "attendance/spuadPeriodSetting",
-          //         "name": 'squadPeriodSetting',
-          //         "meta": { "name": '班段设置',"title": '班段设置',"noCache": "true"}
-          //       },
-          //
-          //       {
-          //         "path":"vacation",
-          //         "component": "attendance/vacation",
-          //         "name": 'AttendanceRecord',
-          //         "meta": { "name": '假期设置',"title": '假期设置',"noCache": "true"}
-          //       },
-          //       {
-          //         "path":"attendanceLocation",
-          //         "component": "attendance/attendanceLocation",
-          //         "name": 'attendanceLocation',
-          //         "meta": { "name": '考勤位置',"title": '考勤位置', "noCache": "true"}
-          //       },
-          //     ]
-          //   },
-          // ]
-
-          // commit('SET_USER', user.vue);
-          // let route = store.getters.addRoutes;
-          // console.log("1111111111")
-          // console.log(route)
           commit('SET_PERMISSIONS', permission);
+          user.authorities = null;
+          user.routers = null;
           Cookies.set("Admin-Token",user);
           resolve()
         }).catch(error => {
@@ -103,60 +48,10 @@ const user = {
           const data = response.data.data;
           let user = data.principal;
           let permission = user.routers;
-          // let permission = [
-          //   {
-          //     "path": '/attendance',
-          //     "component": "Layout",
-          //     "redirect": "noRedirect",
-          //     "name":"考勤管理",
-          //     "meta": {
-          //       "title": 'AttendanceManagement',
-          //       "icon": 'dealWith'
-          //     },
-          //     "children": [
-          //       {
-          //         "path":"index",
-          //         "component": "system/dict",
-          //         "name": 'AttendanceRecord',
-          //         "meta": { "name": '考勤记录',"title": 'AttendanceRecord',"noCache": "true","btnPermissions": ['admin','supper','normal']}
-          //       },
-          //       {
-          //         "path":"statistics",
-          //         "component": "attendance/statisticsNew",
-          //         "name": 'AttendanceRecord',
-          //         "meta": { "name": '统计报表',"title": '统计报表',"noCache": "true"}
-          //       },
-          //
-          //       {
-          //         "path":"setting",
-          //         "component": "attendance/settingNew",
-          //         "name": 'AttendanceRecord',
-          //         "meta": { "name": '考勤设置',"title": '考勤设置', "noCache": "true"}
-          //       },
-          //       {
-          //         "path":"squadPeriodSetting",
-          //         "component": "attendance/spuadPeriodSetting",
-          //         "name": 'squadPeriodSetting',
-          //         "meta": { "name": '班段设置',"title": '班段设置',"noCache": "true"}
-          //       },
-          //
-          //       {
-          //         "path":"vacation",
-          //         "component": "attendance/vacation",
-          //         "name": 'AttendanceRecord',
-          //         "meta": { "name": '假期设置',"title": '假期设置',"noCache": "true"}
-          //       },
-          //       {
-          //         "path":"attendanceLocation",
-          //         "component": "attendance/attendanceLocation",
-          //         "name": 'attendanceLocation',
-          //         "meta": { "name": '考勤位置',"title": '考勤位置', "noCache": "true"}
-          //       },
-          //     ]
-          //   },
-          // ]
-          commit('SET_USER', user);
           commit('SET_PERMISSIONS', permission);
+          user.authorities = null;
+          user.routers = null;
+          commit('SET_USER', user);
 
           resolve(response);
         }).catch(error => {

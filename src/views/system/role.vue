@@ -85,6 +85,23 @@ export default {
       this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
       this.dialogName = "修改";
       this.dialogFormVisible = true;
+      // 设置已有权限, 并设置为勾选状态
+      getPmsIdListByRoleId(row.id)
+        .then(res=>{
+          if (res.data.errorCode == 200) {
+            this.chosenRowPmsIdList = res.data.data
+            // this.$refs.tree.setCheckedKeys(this.chosenRowPmsIdList)
+            // 设置勾选
+            this.setCheckedAll(this.permissionList);
+
+            this.$message.success(res.data.errorMsg);
+          }else{
+            return Promise.reject('获取选中角色权限失败')
+          }
+        })
+        .catch(err => {
+          this.$message.error(err)
+        })
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     }
@@ -106,6 +123,7 @@ export default {
         .catch(err => {
           console.log(err)
         })
+
     }
     let deleteOption = (row) => {
       this.delete(row);
@@ -204,7 +222,6 @@ export default {
     },
     /**
      * 获取当前登录角色权限列表
-     * @param roleId
      */
     getMyPermissionList() {
       getPermissionListByRoleId(this.currentRoleId).then(res =>{
@@ -225,21 +242,30 @@ export default {
         }
       });
     },
-    // getChosenRowPmsIdList(roleId){
-    //   getPmsIdListByRoleId(roleId)
-    //     .then(res=>{
-    //       if (res.data.errorCode == 200) {
-    //         this.chosenRowPmsIdList = res.data.data
-    //         this.$message.success(res.data.errorMsg);
-    //       }else{
-    //         return Promise.reject('获取选中角色权限失败')
-    //       }
-    //     })
-    //     .catch(err => {
-    //       console.log(err)
-    //     })
-    // },
+    // 将已有权限勾选
+    getChosenRowPmsIdList(roleId){
+      getPmsIdListByRoleId(roleId)
+        .then(res=>{
+          if (res.data.errorCode == 200) {
+            this.chosenRowPmsIdList = res.data.data
+            this.$message.success(res.data.errorMsg);
+          }else{
+            return Promise.reject('获取选中角色权限失败')
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
 
+    setCheckedAll(arr){
+      for (let i = 0; i < arr.length; i++) {
+        this.$refs.tree.setChecked(arr[i].id, this.chosenRowPmsIdList.includes(arr[i].id), false)
+        if (arr[i].children && arr[i].children.length > 0) {
+          this.setCheckedAll(arr[i].children)
+        }
+      }
+    },
     /**
      * 设置权限表中的部分数据不可被勾选
      * @param arr
@@ -368,13 +394,14 @@ export default {
           //   }
           // })
           // 更新名字和描述
-          // updateById(this.form).then(res => {
-          //   if (res.data.errorCode == 200) {
-          //     this.getRoleList();
-          //     this.dialogFormVisible = false;
-          //   }
-          //   this.$message.success(res.data.errorMsg);
-          // })
+          updateById(this.form).then(res => {
+            if (res.data.errorCode === 200) {
+              this.getRoleList();
+              this.$message.success(res.data.errorMsg);
+            }else {
+              this.$message.error(res.data.errorMsg);
+            }
+          })
           this.dialogFormVisible = false;
         }
       })

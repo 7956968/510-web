@@ -6,7 +6,7 @@
           <el-input v-model="param.keyword" placeholder="请输入关键字" clearable></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button v-for="item in bttns" type="primary" size="mini" :icon="item.icon"
+          <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
                      @click="handleMethod(item.methodd)">{{ item.name }}
           </el-button>
         </el-form-item>
@@ -14,17 +14,22 @@
     </div>
 
     <div>
-      <tree-table :data="data" :columns="columns" :options="tableOption" border/>
+      <tree-table :data="data" :columns="columns" :options="tableOption" border expandAll
+                  @selection-change="handleSelectionChange"/>
     </div>
 
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
-      <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
+      <el-form :model="form"
+               ref="dialogForm"
+               :rules="formRules"
+               :label-position="labelPosition"
+               label-width="100px"
                size="mini">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="名称" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="描述" prop="name">
-          <el-input v-model="form.name" placeholder="描述" style="width: auto"></el-input>
+        <el-form-item label="描述" prop="description">
+          <el-input v-model="form.description" placeholder="描述" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="父部门">
           <selectTree
@@ -55,10 +60,11 @@ import {getDepartmentList, add, updateById, deleteById} from '@/api/department';
 import {listToTree, copyProperties} from '@/utils';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import {getUser} from '@/utils/auth'
 
 
 export default {
-  name: "department",
+  name: "index",
   components: {
     Dialog,
     treeTable,
@@ -69,7 +75,7 @@ export default {
       delete row.children;
       row.pid = null;
       this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
-      //this.form.pid = null;
+      this.form.updateUser = this.currentUserId
       this.dialogName = "修改";
       this.dialogFormVisible = true;
       // 清除校验结果
@@ -82,7 +88,7 @@ export default {
       return true;
     }
     let isDeleteShow = (row) => {
-      return true;
+      return (!row.children || row.children.length === 0);
     }
     return {
       data: [],
@@ -91,7 +97,7 @@ export default {
       labelPosition: 'left',
       dialogFormVisible: false, // 弹窗不可见
       dialogName: '新增', // 弹窗名
-
+      currentUserId: null,    // 当前用户id
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
         description: [{required: true, trigger: 'blur', message: "请输入描述"}],
@@ -103,13 +109,16 @@ export default {
       form: {
         id: null,
         name: '',
-        description: '',
         pid: null,  // 父部门的id
+        description: '',
+        createUser: null,
+        updateUser: this.currentUserId,
       },
       columns: [
         {
           text: '名称',
-          value: 'name'
+          value: 'name',
+          align: 'right'
         },
         {
           text: '描述',
@@ -150,9 +159,29 @@ export default {
     handleMethod(ms) {
       this[ms]();
     },
+    handleSelectionChange(val){
+      console.log(val)
+    },
+    add() {
+      this.form = {
+        id: null,
+        name: '',
+        pid: null,
+        description: '',
+        createUser: this.currentUserId,
+        updateUser: this.currentUserId
+      };
+      this.dialogName = "新增";
+      this.dialogFormVisible = true;
+      // 清除校验结果
+      this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
+    },
+    search() {
+      this.getDepartmentList();
+    },
     getDepartmentList() {
-      getDepartList(this.param).then(res => {
-        if (res.data.errorCode == 200) {
+      getDepartmentList(this.param).then(res => {
+        if (res.data.errorCode === 200) {
           let a = res.data.data;
           this.data = listToTree(a);
           if (this.data != null && this.data.length > 0) {
@@ -169,10 +198,11 @@ export default {
         if (!valid) {
           return;
         }
-        if (this.dialogName.indexOf("新增") != -1) {//添加操作
+        if (this.dialogName.indexOf("新增") !== -1) {//添加操作
           add(this.form).then(res => {
-            if (res.data.errorCode == 200) {
+            if (res.data.errorCode === 200) {
               this.$message.success(res.data.errorMsg);
+              this.getDepartmentList()
             }else{
               this.$message.error(res.data.errorMsg);
             }
@@ -182,14 +212,14 @@ export default {
           // 清空keyword?
         } else {//修改操作
           updateById(this.form).then(res => {
-            if (res.data.errorCode == 200) {
+            if (res.data.errorCode === 200) {
               this.$message.success(res.data.errorMsg);
               this.getDepartmentList();
-              this.dialogFormVisible = false;
             }else{
               this.$message.error(res.data.errorMsg);
             }
           })
+          this.dialogFormVisible = false;
         }
       })
 
@@ -201,18 +231,21 @@ export default {
         type: 'warning'
       }).then(() => {
         deleteById(row.id).then(res => {
-          if (res.data.errorCode == 200) {
+          if (res.data.errorCode === 200) {
             this.getDepartmentList();
+            this.$message.success(res.data.errorMsg);
+          }else{
+            this.$message.error(res.data.errorMsg);
           }
-          this.$message.success(res.data.errorMsg);
         });
       });
     },
   },
   created() {
     this.bttns = this.$route.meta.btnPermission;
-    this.bttns.forEach(function (value, index, array) {})
+    // this.bttns.forEach(function (value, index, array) {})
     this.getDepartmentList();
+    this.currentUserId = JSON.parse(getUser()).id;
   },
   mounted() {
 
