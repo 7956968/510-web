@@ -4,29 +4,34 @@ import request from '@/utils/request'
 
 export function getUserList(params) {
   return request({
-    url: '/user/select',
+    url: '/user_manage/select',
     method: 'get',
     params
   })
+  // return request({
+  //   url: '/device/select',
+  //   method: 'get',
+  //   params
+  // })
 }
 
 export function add(params) {
   return request({
-    url: '/user/add',
+    url: '/user_manage/add',
     method: 'post',
     params
   })
 }
 export function updateById(params) {
   return request({
-    url: '/user/update_by_id',
+    url: '/user_manage/update_by_id',
     method: 'post',
     params
   })
 }
 export function deleteById(id) {
   return request({
-    url: '/user/delete_by_id',
+    url: '/user_manage/delete_by_id',
     method: 'post',
     params:{id:id}
   })

@@ -81,9 +81,9 @@
 <script>
 import treeTable from '@/components/TreeTable'
 import dictType from '@/components/type'
-import {getList, add,updateById,deleteById} from '@/api/permission'
+import {getList, add,updateById,deleteById,getLast} from '@/api/permission'
 import {getUser} from '@/utils/auth'
-import {getRolePermissionList, add as addRolePermission, deleteById as deleteRolePermissionById} from '@/api/rolePermission'
+import {getRolePermissionList, add as addRP} from '@/api/rolePermission'
 import {selectByParentCode} from '@/api/dict'
 import {listToTree, copyProperties} from '@/utils'
 import selectTree from '@riophae/vue-treeselect'
@@ -320,20 +320,43 @@ export default {
         }
         this.form.hidden = this.form.hidden == 1 ? true : false;
         if (this.dialogName.indexOf("新增") != -1) {//添加操作
+          // add(this.form).then(res => {
+          //   if (res.data.errorCode == 200){
+          //     this.getList();
+          //     this.dialogFormVisible = false;
+          //     this.$message.success(res.data.errorMsg)
+          //   }else{
+          //     this.$message.error(res.data.errorMsg);
+          //   }
+          // })
+
+          // 添加权限->获取最后添加的权限->为当前角色赋予权限
           add(this.form).then(res => {
             if (res.data.errorCode == 200){
+              // this.getList();
+              // this.dialogFormVisible = false;
+              return getLast()
+            }else{
+              return Promise.reject(new Error(res.data.errorMsg));
+            }
+          }).then(res => {
+            if (res.data.errorCode === 200){
+              return addRP({roleId:this.currentRoleId,permissionId:res.data.data.id})
+            }else{
+              return Promise.reject(new Error("获取被添加权限失败"));
+            }
+          }).then(res => {
+            if (res.data.errorCode === 200){
+              this.$message.success(res.data.errorMsg)
               this.getList();
               this.dialogFormVisible = false;
-              this.$message.success(res.data.errorMsg)
             }else{
-              this.$message.error(res.data.errorMsg);
+              return Promise.reject(new Error("为当前角色添加权限失败"));
             }
+          }).catch(err => {
+            console.log(err)
+            this.$message.error(err.message)
           })
-          // 为创建者赋予被创建对象的权限
-          // 考虑与上述add()合并为原子操作
-          // addRolePermission(
-          //   {roleId:this.currentRoleId, permissionId: }
-          // )
 
         }else{
           updateById(this.form).then(res=>{

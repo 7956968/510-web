@@ -25,43 +25,63 @@
         </el-form-item>
         <el-form-item label="性别">
           <el-radio-group v-model="form.gender">
-            <el-radio :label="1">男</el-radio>
-            <el-radio :label="0">女</el-radio>
+            <el-radio label="男">男</el-radio>
+            <el-radio label="女">女</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="工号" prop="jobNumber">
-          <el-input v-model="form.jobNumber" placeholder="工号" style="width: auto"></el-input>
+          <el-input v-model="form.jobNumber" placeholder="请输入工号" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="职位" prop="career">
-          <el-input v-model="form.career" placeholder="职位" style="width: auto"></el-input>
+        <el-form-item label="职位" prop="position">
+          <el-input v-model="form.position" placeholder="请输入职位" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="角色" prop="role">
-          <el-input v-model="form.role" placeholder="角色" style="width: auto"></el-input>
-        </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="form.phone" placeholder="手机号" style="width: auto"></el-input>
-        </el-form-item>
-        <el-form-item label="状态" prop="state">
-          <el-select placeholder="请选择状态"
-                     v-model="form.state"
-                     style="width: 79%">
+        <el-form-item label="角色" prop="roleId">
+          <el-select placeholder="请选择角色"
+                     v-model="form.roleId"
+                     >
             <el-option
-              v-for="(item,idx) in stateOptions"
-              :key="item.value"
-              :label="item.value"
-              :value="item.value">
+              v-for="(item,idx) in roleList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="部门" prop="deptId">
-          <el-tree
-            :data="departmentList"
-            default-expand-all
-            node-key="id"
-            ref="treeDept"
-            :props="defaultProps"
-            empty-text="无任何部门"
-            @node-click="deptChose"
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="form.phone" placeholder="请输入手机号" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="form.email" placeholder="请输入邮箱" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="form.password" placeholder="请输入密码" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码" prop="passwordAgain">
+          <el-input v-model="form.passwordAgain" placeholder="请再次输入密码" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="状态" prop="itemStatus">
+          <el-select placeholder="请选择状态"
+                     v-model="form.itemStatus"
+                     style="width: auto">
+            <el-option
+              v-for="(item,idx) in statusOptions"
+              :key="idx"
+              :value="item.value"
+              :label="item.label"
+              >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="部门" prop="departmentId">
+          <selectTree
+            style="width: 50%"
+            placeholder="请选择部门"
+            ref="selectTreeDept"
+            :options="departmentList"
+            v-model="form.departmentId"
+            clearable
+            :defaultExpandLevel="4"
+            :normalizer="normalizer"
           />
         </el-form-item>
       </el-form>
@@ -75,14 +95,15 @@
 
 <script>
 import treeTable from '@/components/TreeTable';
-import {getUserList, add, updateById, deleteById} from '@/api/user';
+import {getUserList, add, updateById, deleteById} from '@/api/userManage';
 import {getDepartmentList } from '@/api/department';
+import {getRoleList } from '@/api/role';
 import {listToTree, copyProperties} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from "@riophae/vue-treeselect";
 
 export default {
-  name: "user",
+  name: "userManage",
   components:{
     Dialog,
     treeTable,
@@ -90,10 +111,7 @@ export default {
   },
   data() {
     let updateOpen = (row) => {
-      delete row.children;
-      row.pid = null;
       this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
-      //this.form.pid = null;
       this.dialogName = "修改";
       this.dialogFormVisible = true;
       // 清除校验结果
@@ -101,7 +119,16 @@ export default {
     }
     let deleteOption = (row) => {this.delete(row);}
     let isUpdateShow = (row) => {return true;}
-    let isDeleteShow = (row) => {return true;}
+    let isDeleteShow = (row) => {return false;}
+    let validatePsw2 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'));
+      } else if (value !== this.form.password) {
+        callback(new Error('两次输入密码不一致!'));
+      } else {
+        callback();
+      }
+    };
     return {
       bttns: [],
       options: [],
@@ -109,8 +136,19 @@ export default {
       dialogFormVisible: false, // 弹窗不可见
       dialogName: '新增', // 弹窗名
       data: [],           // 表格数据
-      stateOptions: ['正常', '已删除'],  // 用户状态选择表
+      statusOptions: [    // 用户状态选择表
+        {
+          value:1,
+          label:'正常',
+        },
+        {
+          value:2,
+          label:'已删除',
+        }
+      ],
+
       departmentList: [],   // 部门列表
+      roleList: [],       // 角色列表
       defaultProps:{  // el-tree的props
         label: 'name',   // 权限列表的name作为展示文字
       },
@@ -118,12 +156,14 @@ export default {
         name: [{required: true, trigger: 'blur', message: "请输入姓名"}],
         jobNumber: [{required: true, trigger: 'blur', message: "请输入工号"}],
         gender: [{required: true, trigger: 'blur', message: "请选择性别"}],
+        // career: [{required: true, trigger: 'blur', message: "请填写职位"}],
         // phone: [{required: true, trigger: 'blur', message: "请输入手机号"}],
         // email:  [{required: true, trigger: 'blur', message: "请输入邮箱"}],
-        // career: [{required: true, trigger: 'blur', message: "请选择职位"}],
-        role: [{required: true, trigger: 'blur', message: "请选择角色"}],
-        deptId: [{required: true, trigger: 'blur', message: "请选择部门"}],
-        state: [{required: true, trigger: 'blur', message: "请选择状态"}],
+        password: [{required: true, trigger: 'blur', message: "请输入密码"}],
+        passwordAgain: [{validator: validatePsw2, required: true, trigger: 'blur', message: "请再次输入密码"}],
+        roleId: [{required: true, trigger: 'blur', message: "请选择角色"}],
+        departmentId: [{required: true, trigger: 'blur', message: "请选择部门"}],
+        itemStatus: [{required: true, trigger: 'blur', message: "请选择状态"}],
       },
       param:{
         // 检索用的关键字
@@ -131,16 +171,17 @@ export default {
       },
       form: {
         id: null,
+        roleId: '',
+        jobNumber: '',
+        position: '',
         name: '',
-        jobNumber: null,
+        password: '',
+        passwordAgain:'',
         gender: '',
         phone: '',
         email: '',
-        password:'',
-        career: '',
-        role: '',
-        deptId: null,
-        state: '',
+        departmentId: null,
+        itemStatus: '',
       },
       columns: [
         {
@@ -169,7 +210,7 @@ export default {
         },
         {
           text: '状态',
-          value: 'state'
+          value: 'itemStatus'
         },
       ],
       tableOption: [
@@ -187,6 +228,17 @@ export default {
     }
   },
   methods: {
+    normalizer(node) {
+      //去掉children=[]的children属性
+      if (node.children && !node.children.length) {
+        delete node.children;
+      }
+      return {
+        id: node.id,
+        label: node.name,
+        children: node.children
+      }
+    },
     handleMethod(ms) {
       this[ms]();
     },
@@ -196,16 +248,17 @@ export default {
     add() {
       this.form = {
         id: null,
+        roleId: '',
+        jobNumber: '',
+        position: '',
         name: '',
-        jobNumber: null,
+        password: '',
+        passwordAgain:'',
         gender: '',
         phone: '',
         email: '',
-        password:'',
-        career: '',
-        role: '',
-        deptId: '',
-        state: '',
+        departmentId: null,
+        itemStatus: '',
       };
       this.dialogName = "新增";
       this.dialogFormVisible = true;
@@ -214,7 +267,7 @@ export default {
     },
     getUserList() {
       getUserList(this.param).then(res => {
-        if (res.data.errorCode == 200) {
+        if (res.data.errorCode === 200) {
           let a = res.data.data;
           this.data = listToTree(a);
           if (this.data != null && this.data.length > 0) {
@@ -227,30 +280,31 @@ export default {
       })
     },
     submitForm() {
-      this.$refs.dialogForm.validate(valid => {
-        if (!valid) {return;}
-        if (this.dialogName.indexOf("新增") !== -1) {//添加操作
-          add(this.form).then(res => {
-            if (res.data.errorCode === 200) {
-              this.$message.success(res.data.errorMsg);
-              this.getUserList();
-              this.dialogFormVisible = false;
-            }else{
-              this.$message.error(res.data.errorMsg);
-            }
-          })
-        } else {//修改操作
-          updateById(this.form).then(res => {
-            if (res.data.errorCode === 200) {
-              this.$message.success(res.data.errorMsg);
-              this.getUserList();
-              this.dialogFormVisible = false;
-            }else{
-              this.$message.error(res.data.errorMsg);
-            }
-          })
-        }
-      })
+      console.log(this.form)
+      // this.$refs.dialogForm.validate(valid => {
+      //   if (!valid) {return;}
+      //   if (this.dialogName.indexOf("新增") !== -1) {//添加操作
+      //     add(this.form).then(res => {
+      //       if (res.data.errorCode === 200) {
+      //         this.$message.success(res.data.errorMsg);
+      //         this.getUserList();
+      //         this.dialogFormVisible = false;
+      //       }else{
+      //         this.$message.error(res.data.errorMsg);
+      //       }
+      //     })
+      //   } else {//修改操作
+      //     updateById(this.form).then(res => {
+      //       if (res.data.errorCode === 200) {
+      //         this.$message.success(res.data.errorMsg);
+      //         this.getUserList();
+      //         this.dialogFormVisible = false;
+      //       }else{
+      //         this.$message.error(res.data.errorMsg);
+      //       }
+      //     })
+      //   }
+      // })
 
     },
     delete(row) {
@@ -259,13 +313,17 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteById(row.id).then(res => {
-          if (res.data.errorCode == 200) {
-            this.getUserList();
-          }
-          this.$message.success(res.data.errorMsg);
-        });
+        // deleteById(row.id).then(res => {
+        //   if (res.data.errorCode === 200) {
+        //     this.getUserList();
+        //   }
+        //   this.$message.success(res.data.errorMsg);
+        // });
+        console.log("in delete(row)")
       });
+    },
+    deptChosen(){
+      console.log("in deptChosen")
     },
   },
   created() {
@@ -273,18 +331,21 @@ export default {
     // this.bttns.forEach(function (value, index, array) {})
     this.getUserList();
     // 将部门列表存放
-    getDepartmentList({}).then(res => {
-      if (res.data.errorCode == 200) {
+    getDepartmentList().then(res => {
+      if (res.data.errorCode === 200) {
         let a = res.data.data;
         this.departmentList = listToTree(a);
-        if (this.data != null && this.data.length > 0) {
-          for (let i = 0; i < this.data.length; i++) {
-            this.data[i].pid = 0;
-          }
-        }
-        //this.options = re.data.data;
       }
     })
+    // 将角色列表存放
+    getRoleList().then(res => {
+      if (res.data.errorCode === 200) {
+        let a = res.data.data;
+        this.roleList = listToTree(a);
+      }
+    })
+
+
   }
 }
 </script>

@@ -32,3 +32,14 @@ export function deleteById(id) {
     params:{id:id}
   })
 }
+
+/**
+ * 获取最后一个被添加的权限
+ * @param params
+ */
+export function getLast() {
+  return request({
+    url: '/permission/select_last',
+    method: 'get',
+  })
+}

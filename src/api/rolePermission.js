@@ -22,13 +22,17 @@ export function getPmsIdListByRoleId(roleId) {
   })
 }
 
-// export function add(params) {
-//   return request({
-//     url: '/role_permission/add',
-//     method: 'post',
-//     params
-//   })
-// }
+/**
+ * 为用户增加一项权限
+ * @param params
+ */
+export function add(params) {
+  return request({
+    url: '/role_permission/add',
+    method: 'post',
+    params
+  })
+}
 
 /**
  * 批量添加角色权限
