@@ -40,7 +40,6 @@
             v-model="form.pid"
             clearable
             accordion="true"
-            :defaultExpandLevel=4
             :normalizer="normalizer"
           />
         </el-form-item>
