@@ -384,6 +384,18 @@ export function intersect(a, b){
 }
 
 /**
+ * 将树列表中每一个顶级元素的父序号pid设置为0
+ * @param treeList
+ */
+export function setEachPidZero(treeList){
+  if (treeList != null && treeList.length > 0) {
+    for (let i = 0; i < treeList.length; i++) {
+      treeList[i].pid = 0;
+    }
+  }
+}
+
+/**
  * 将每个用户放入部门数组
  * @param de
  * @param user
@@ -421,6 +433,8 @@ export function copyProperties (inSrcObj,inDestObj,inOverride){
     //   debugger
       if(typeof inDestObj[prop] == "string"){
         inDestObj[prop]=inSrcObj[prop]+"";
+        if(inSrcObj[prop]===null)
+          inDestObj[prop]=null;
       }else{
         inDestObj[prop]=inSrcObj[prop];
       }

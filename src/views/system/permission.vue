@@ -99,12 +99,15 @@ export default {
     let updateOpen = (row) => {
       this.form = copyProperties(row,this.form);
       this.form.pid = null;
+      this.isButton = this.form.type===dictType.button;
+      this.formRules.component[0].required = !this.isButton;
       //this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
       this.form.hidden = row.hidden == true ? 1 : 0;
       this.isParentShow = false;
       this.dialogName = "修改";
       this.dialogFormVisible = true;
-      this.$refs.dialogForm.clearValidate();//清除校验结果
+      // 清除校验结果
+      this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     }
     let deleteOption = (row) => {
       this.deleteById(row);
@@ -135,7 +138,7 @@ export default {
         pid: null,
         path: '/',
         sortOrder: 1,
-        component: 'Layout',// layout is 主菜单，system/xxx is 页面, '' is button
+        component: 'Layout',// layout is 主菜单，xxx/xxx is 页面组件, '' is button
         redirect: '',
         name: '',
         title: '',
@@ -289,7 +292,8 @@ export default {
       this.isButton = false;
       this.dialogName = "新增";
       this.dialogFormVisible = true;
-      this.$refs.dialogForm.clearValidate();//清除校验结果
+      // 清除校验结果
+      this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     },
     getList() {
       getList(this.param).then(res => {

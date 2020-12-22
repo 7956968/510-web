@@ -1,5 +1,19 @@
 <template>
-  <el-table :data="formatData" :row-style="showRow" v-bind="$attrs">
+  <el-table :data="formatData"
+            :row-style="showRow"
+            v-bind="$attrs"
+  >
+<!--    <el-table :data="formatData"-->
+<!--              :row-style="showRow"-->
+<!--              v-bind="$attrs"-->
+<!--              @selection-change="handleSelectionChange"-->
+<!--    >-->
+    <!-- 让勾选框不在第0列内部而是自己独立一列-->
+<!--    <el-table-column-->
+<!--      type="selection"-->
+<!--      width="55"-->
+<!--    />-->
+
     <el-table-column v-if="columns.length===0" >
       <template slot-scope="scope">
         <span v-for="space in scope.row._level" :key="space" class="ms-tree-space"/>
@@ -10,7 +24,8 @@
         {{ scope.$index }}
       </template>
     </el-table-column>
-    <el-table-column v-for="(column, index) in columns" v-else :key="column.value" :label="column.text" :width="column.width" header-align="center" align="center">
+<!--    <el-table-column v-for="(column, index) in columns" v-else :key="column.value" :label="column.text" :width="column.width" header-align="center" align="center">-->
+    <el-table-column v-for="(column, index) in columns" v-else :key="column.value" :label="column.text" :width="column.width" >
       <template slot-scope="scope">
         <!-- Todo -->
         <!-- eslint-disable-next-line vue/no-confusing-v-for-v-if -->
@@ -25,7 +40,8 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="操作" header-align="center" align="center">
+<!--    <el-table-column label="操作" header-align="center" align="center">-->
+    <el-table-column label="操作" >
       <template slot-scope="scope">
         <!--操作按钮区域-->
         <el-button type="text"   v-for="option in options" :key="option.text" v-show="option.isShow(scope.row)" @click="option.onclick(scope.row)">{{option.text}}</el-button>
@@ -110,6 +126,10 @@ export default {
 
       }
     },
+    // 让勾选框不在第0列内部而是自己独立一列
+    // handleSelectionChange(val){
+    //   console.log(val)
+    // }
   }
 }
 </script>

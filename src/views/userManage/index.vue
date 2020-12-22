@@ -3,7 +3,7 @@
     <div>
       <el-form :label-position="labelPosition" :inline="true" :model="form" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
-          <el-input v-model="param.keyword" placeholder="请输入关键字" clearable></el-input>
+          <el-input v-model="param.keyword" placeholder="请输入关键字" clearable @blur="getUserList"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
@@ -15,6 +15,17 @@
 
     <div>
       <tree-table :data="data" :columns="columns" :options="tableOption" border/>
+<!--      <el-table :data="data" border>-->
+<!--        <el-table-column-->
+<!--          v-for="(column, index) in columns"-->
+<!--          :key="column.value"-->
+<!--          :label="column.text"-->
+<!--          :width="column.width "-->
+<!--        >-->
+
+<!--        </el-table-column>-->
+<!--      </el-table>-->
+
     </div>
 
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
@@ -23,10 +34,11 @@
         <el-form-item label="姓名" prop="name">
           <el-input v-model="form.name" placeholder="姓名" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="性别">
-          <el-radio-group v-model="form.gender">
-            <el-radio label="男">男</el-radio>
-            <el-radio label="女">女</el-radio>
+        <el-form-item label="性别" prop="gender">
+          <el-radio-group v-model="form.gender" size="small">
+            <el-radio-button :label="0">暂时不填</el-radio-button>
+            <el-radio-button :label="1">男</el-radio-button>
+            <el-radio-button :label="2">女</el-radio-button>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="工号" prop="jobNumber">
@@ -54,10 +66,14 @@
           <el-input v-model="form.email" placeholder="请输入邮箱" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" placeholder="请输入密码" style="width: auto"></el-input>
+          <el-input v-model="form.password" placeholder="请输入密码" style="width: auto" >
+<!--            <i slot="suffix" class="el-input_icon el-icon-view" @click="showPsw"></i>-->
+          </el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="passwordAgain">
-          <el-input v-model="form.passwordAgain" placeholder="请再次输入密码" style="width: auto"></el-input>
+          <el-input v-model="form.passwordAgain" placeholder="请再次输入密码" style="width: auto" >
+
+          </el-input>
         </el-form-item>
         <el-form-item label="状态" prop="itemStatus">
           <el-select placeholder="请选择状态"
@@ -74,13 +90,14 @@
         </el-form-item>
         <el-form-item label="部门" prop="departmentId">
           <selectTree
-            style="width: 50%"
+            style="width: 79%"
             placeholder="请选择部门"
             ref="selectTreeDept"
             :options="departmentList"
             v-model="form.departmentId"
             clearable
-            :defaultExpandLevel="4"
+            :defaultExpandLevel="3"
+            accordion="true"
             :normalizer="normalizer"
           />
         </el-form-item>
@@ -103,7 +120,7 @@ import Dialog from '@/components/dialog/index';
 import selectTree from "@riophae/vue-treeselect";
 
 export default {
-  name: "userManage",
+  name: "index",
   components:{
     Dialog,
     treeTable,
@@ -112,15 +129,22 @@ export default {
   data() {
     let updateOpen = (row) => {
       this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
+      this.formRules.password[0].required = false;
+      this.formRules.passwordAgain[0].required = false;
       this.dialogName = "修改";
       this.dialogFormVisible = true;
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     }
     let deleteOption = (row) => {this.delete(row);}
-    let isUpdateShow = (row) => {return true;}
-    let isDeleteShow = (row) => {return false;}
+    let isUpdateShow = (row) => {
+      return this.canUpdate;
+    }
+    let isDeleteShow = (row) => {return row.deleteable;}
     let validatePsw2 = (rule, value, callback) => {
+      if( ! this.formRules.password[0].required){
+        callback();
+      }else
       if (value === '') {
         callback(new Error('请再次输入密码'));
       } else if (value !== this.form.password) {
@@ -131,6 +155,8 @@ export default {
     };
     return {
       bttns: [],
+      canUpdate: true, // 当前登录角色的修改权限
+      canDelete: true, // 同上，删除
       options: [],
       labelPosition: 'left',
       dialogFormVisible: false, // 弹窗不可见
@@ -138,11 +164,11 @@ export default {
       data: [],           // 表格数据
       statusOptions: [    // 用户状态选择表
         {
-          value:1,
+          value:true,
           label:'正常',
         },
         {
-          value:2,
+          value:false,
           label:'已删除',
         }
       ],
@@ -160,9 +186,9 @@ export default {
         // phone: [{required: true, trigger: 'blur', message: "请输入手机号"}],
         // email:  [{required: true, trigger: 'blur', message: "请输入邮箱"}],
         password: [{required: true, trigger: 'blur', message: "请输入密码"}],
-        passwordAgain: [{validator: validatePsw2, required: true, trigger: 'blur', message: "请再次输入密码"}],
+        passwordAgain: [{validator: validatePsw2, required: true, trigger: 'blur' }],
         roleId: [{required: true, trigger: 'blur', message: "请选择角色"}],
-        departmentId: [{required: true, trigger: 'blur', message: "请选择部门"}],
+        // departmentId: [{required: true, trigger: 'blur', message: "请选择部门"}],
         itemStatus: [{required: true, trigger: 'blur', message: "请选择状态"}],
       },
       param:{
@@ -177,7 +203,7 @@ export default {
         name: '',
         password: '',
         passwordAgain:'',
-        gender: '',
+        gender: null,
         phone: '',
         email: '',
         departmentId: null,
@@ -198,11 +224,11 @@ export default {
         },
         {
           text: '职位',
-          value: 'career'
+          value: 'position'
         },
         {
           text: '角色',
-          value: 'role'
+          value: 'roleId'
         },
         {
           text: '手机号',
@@ -210,7 +236,7 @@ export default {
         },
         {
           text: '状态',
-          value: 'itemStatus'
+          value: 'itemStatus',
         },
       ],
       tableOption: [
@@ -254,12 +280,14 @@ export default {
         name: '',
         password: '',
         passwordAgain:'',
-        gender: '',
+        gender: null,
         phone: '',
         email: '',
         departmentId: null,
-        itemStatus: '',
+        itemStatus: true,
       };
+      this.formRules.password[0].required = true;
+      this.formRules.passwordAgain[0].required = true;
       this.dialogName = "新增";
       this.dialogFormVisible = true;
       // 清除校验结果
@@ -281,30 +309,30 @@ export default {
     },
     submitForm() {
       console.log(this.form)
-      // this.$refs.dialogForm.validate(valid => {
-      //   if (!valid) {return;}
-      //   if (this.dialogName.indexOf("新增") !== -1) {//添加操作
-      //     add(this.form).then(res => {
-      //       if (res.data.errorCode === 200) {
-      //         this.$message.success(res.data.errorMsg);
-      //         this.getUserList();
-      //         this.dialogFormVisible = false;
-      //       }else{
-      //         this.$message.error(res.data.errorMsg);
-      //       }
-      //     })
-      //   } else {//修改操作
-      //     updateById(this.form).then(res => {
-      //       if (res.data.errorCode === 200) {
-      //         this.$message.success(res.data.errorMsg);
-      //         this.getUserList();
-      //         this.dialogFormVisible = false;
-      //       }else{
-      //         this.$message.error(res.data.errorMsg);
-      //       }
-      //     })
-      //   }
-      // })
+      this.$refs.dialogForm.validate(valid => {
+        if (!valid) {return;}
+        if (this.dialogName.indexOf("新增") !== -1) {//添加操作
+          add(this.form).then(res => {
+            if (res.data.errorCode === 200) {
+              this.$message.success(res.data.errorMsg);
+              this.getUserList();
+              this.dialogFormVisible = false;
+            }else{
+              this.$message.error(res.data.errorMsg);
+            }
+          })
+        } else {//修改操作
+          updateById(this.form).then(res => {
+            if (res.data.errorCode === 200) {
+              this.$message.success(res.data.errorMsg);
+              this.getUserList();
+              this.dialogFormVisible = false;
+            }else{
+              this.$message.error(res.data.errorMsg);
+            }
+          })
+        }
+      })
 
     },
     delete(row) {
@@ -313,18 +341,20 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // deleteById(row.id).then(res => {
-        //   if (res.data.errorCode === 200) {
-        //     this.getUserList();
-        //   }
-        //   this.$message.success(res.data.errorMsg);
-        // });
-        console.log("in delete(row)")
+        deleteById(row.id).then(res => {
+          if (res.data.errorCode === 200) {
+            this.getUserList();
+          }
+          this.$message.success(res.data.errorMsg);
+        });
       });
     },
     deptChosen(){
       console.log("in deptChosen")
     },
+    showPsw(){
+      console.log("in showPsw")
+    }
   },
   created() {
     this.bttns = this.$route.meta.btnPermission;

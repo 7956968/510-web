@@ -78,9 +78,6 @@ export default {
     isExternalLink(routePath) {
       return validateURL(routePath)
     },
-    aaa(a){
-      return a
-    },
     clickLink(routePath, e) {
       if (!this.isExternalLink(routePath)) {
         e.preventDefault()

@@ -1,9 +1,18 @@
 <template>
   <div class="content_container">
+
+    <!-- 侧边分组 -->
+    <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
+      <el-tree :data="groupList" :props="defaultProps" @node-click="handleGroupNodeClick"></el-tree>
+    </el-aside>
+
+
+
+    <!-- 顶栏按钮 -->
     <div>
       <el-form :label-position="labelPosition" :inline="true" :model="form" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
-          <el-input v-model="param.keyword" placeholder="请输入关键字" clearable></el-input>
+          <el-input v-model="param.keyword" placeholder="请输入关键字" clearable @blur="getDeviceList"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
@@ -19,32 +28,60 @@
     </div>
 
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
-      <el-form :model="form"
-               ref="dialogForm"
-               :rules="formRules"
-               :label-position="labelPosition"
-               label-width="100px"
+      <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
                size="mini">
-        <el-form-item label="名称" prop="name">
+        <el-form-item label="厂家" prop="manufacturers">
+          <el-select
+            placeholder="请选择厂家"
+            v-model="form.manufacturers"
+            filterable
+            allow-create
+            @change.native="selectManufacturersBlur"
+            @blur.native="selectManufacturersBlur"
+            style="width: 79%">
+            <el-option
+              v-for="(item,idx) in manufacturersOptions"
+              :key="item"
+              :label="item"
+              :value="item"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="设备名称" prop="name">
           <el-input v-model="form.name" placeholder="名称" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="form.description" placeholder="描述" style="width: auto"></el-input>
-        </el-form-item>
-        <el-form-item label="父部门">
-          <selectTree
-            style="width: 79%"
+        <el-form-item label="设备类型" prop="type">
+          <el-select
             placeholder="请选择"
-            ref="selectTreeDept"
-            :options="data"
-            v-model="form.pid"
-            clearable
-            accordion="true"
-            :normalizer="normalizer"
-          />
+            v-model="form.type"
+            filterable
+            allow-create
+            @change.native="selectDeviceTypeBlur"
+            @blur.native="selectDeviceTypeBlur"
+            style="width: 79%">
+            <el-option
+              v-for="(item,idx) in deviceTypeOptions"
+              :key="item"
+              :label="item"
+              :value="item"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="序列号" prop="serialNumber">
+          <el-input v-model="form.serialNumber" placeholder="序列号" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="IP" prop="ip">
+          <el-input v-model="form.ip" placeholder="请输入IP" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="form.password" placeholder="请输入密码" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="端口" prop="prot">
+          <el-input v-model="form.prot" placeholder="请输入端口号" style="width: auto"></el-input>
         </el-form-item>
       </el-form>
-
       <div>
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -56,11 +93,11 @@
 <script>
 import treeTable from '@/components/TreeTable';
 import Dialog from '@/components/dialog/index';
-import {getDepartmentList, add, updateById, deleteById} from '@/api/department';
-import {listToTree, copyProperties} from '@/utils';
+import {listToTree, copyProperties, setEachPidZero} from '@/utils';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth'
+import {getDeviceList, add, updateById, deleteById, getGroupList, addGroup, updateGroupById, deleteGroupById} from '@/api/device';
 
 
 export default {
@@ -72,8 +109,6 @@ export default {
   },
   data() {
     let updateOpen = (row) => {
-      delete row.children;
-      row.pid = null;
       this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
       this.form.updateUser = this.currentUserId
       this.dialogName = "修改";
@@ -98,20 +133,41 @@ export default {
       dialogFormVisible: false, // 弹窗不可见
       dialogName: '新增', // 弹窗名
       currentUserId: null,    // 当前用户id
+      manufacturersOptions: [
+        "海康",
+        "豪恩",
+        "华拓",
+      ],
+      deviceTypeOptions: [
+        "摄像头",
+        "温感报警器",
+        "烟感报警器",
+        "手动报警按钮",
+        "门禁读卡器",
+      ],
+      groupList: [],
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
-        description: [{required: true, trigger: 'blur', message: "请输入描述"}],
+        // serialNumber: [{required: true, trigger: 'blur', message: "请输入序列号"}],
+      },
+      defaultProps:{  // el-tree的props
+        label: 'name',   // name作为展示文字
       },
       param:{
-        // 查询的关键字
-        keyword:''
+        keyword:'',   // 关键字
+        groupId:null, // 组id
       },
       form: {
         id: null,
+        manufacturers: '',   // 厂家
         name: '',
-        pid: null,  // 父部门的id
-        description: '',
-        createUser: null,
+        serialNumber: '', // 序列号
+        type: '',
+        ip: '',
+        prot: '',       // 端口号
+        loginName: '',
+        password: '',
+        createUser: this.currentUserId,
         updateUser: this.currentUserId,
       },
       columns: [
@@ -121,13 +177,33 @@ export default {
           align: 'right'
         },
         {
-          text: '描述',
-          value: 'description'
+          text: '厂家',
+          value: 'manufacturers'
         },
         {
-          text: '创建时间',
-          value: 'createTime'
+          text: '序列号',
+          value: 'serialNumber'
         },
+        {
+          text: '类型',
+          value: 'type'
+        },
+        {
+          text: 'IP',
+          value: 'ip'
+        },
+        {
+          text: '端口号',
+          value: 'prot'
+        },
+        // {
+        //   text: '用户名',
+        //   value: 'login_name'
+        // },
+        // {
+        //   text: '密码',
+        //   value: 'password'
+        // },
       ],
       tableOption: [
         {
@@ -162,14 +238,31 @@ export default {
     handleSelectionChange(val){
       console.log(val)
     },
+    // 在失去焦点时，保存用户自己添加的厂家类型
+    selectManufacturersBlur(event){
+      this.form.manufacturers = event.target.value;
+    },
+    // 在失去焦点时，保存用户自己添加的设备类型
+    selectDeviceTypeBlur(event){
+      this.form.type = event.target.value;
+    },
+    // 分组被点击时触发
+    handleGroupNodeClick(){
+      console.log("in handleGroupNodeClick")
+    },
     add() {
       this.form = {
         id: null,
+        manufacturers: '',   // 厂家
         name: '',
-        pid: null,
-        description: '',
+        serialNumber: '', // 序列号
+        type: '',
+        ip: '',
+        prot: '',       // 端口号
+        loginName: '',
+        password: '',
         createUser: this.currentUserId,
-        updateUser: this.currentUserId
+        updateUser: this.currentUserId,
       };
       this.dialogName = "新增";
       this.dialogFormVisible = true;
@@ -177,10 +270,11 @@ export default {
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     },
     search() {
-      this.getDepartmentList();
+      this.getDeviceList();
     },
-    getDepartmentList() {
-      getDepartmentList(this.param).then(res => {
+    // 获取设备列表
+    getDeviceList() {
+      getDeviceList(this.param).then(res => {
         if (res.data.errorCode === 200) {
           let a = res.data.data;
           this.data = listToTree(a);
@@ -189,7 +283,15 @@ export default {
               this.data[i].pid = 0;
             }
           }
-          //this.options = re.data.data;
+        }
+      })
+    },
+    getGroupList(){
+      getGroupList().then(res => {
+        if (res.data.errorCode === 200) {
+          let a = res.data.data;
+          this.groupList = listToTree(a);
+          setEachPidZero(this.groupList);
         }
       })
     },
@@ -202,7 +304,7 @@ export default {
           add(this.form).then(res => {
             if (res.data.errorCode === 200) {
               this.$message.success(res.data.errorMsg);
-              this.getDepartmentList()
+              this.getDeviceList()
             }else{
               this.$message.error(res.data.errorMsg);
             }
@@ -214,7 +316,7 @@ export default {
           updateById(this.form).then(res => {
             if (res.data.errorCode === 200) {
               this.$message.success(res.data.errorMsg);
-              this.getDepartmentList();
+              this.getDeviceList();
             }else{
               this.$message.error(res.data.errorMsg);
             }
@@ -232,7 +334,7 @@ export default {
       }).then(() => {
         deleteById(row.id).then(res => {
           if (res.data.errorCode === 200) {
-            this.getDepartmentList();
+            this.getDeviceList();
             this.$message.success(res.data.errorMsg);
           }else{
             this.$message.error(res.data.errorMsg);
@@ -244,7 +346,8 @@ export default {
   created() {
     this.bttns = this.$route.meta.btnPermission;
     // this.bttns.forEach(function (value, index, array) {})
-    this.getDepartmentList();
+    this.getGroupList();
+    this.getDeviceList();
     this.currentUserId = JSON.parse(getUser()).id;
   },
   mounted() {
