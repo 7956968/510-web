@@ -1,15 +1,8 @@
 <template>
   <div class="content_container">
-
-    <!-- 侧边分组 -->
-    <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-      <el-tree :data="groupList" :props="defaultProps" @node-click="handleGroupNodeClick"></el-tree>
-    </el-aside>
-
-
-
+    <el-container>
     <!-- 顶栏按钮 -->
-    <div>
+    <el-header>
       <el-form :label-position="labelPosition" :inline="true" :model="form" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
           <el-input v-model="param.keyword" placeholder="请输入关键字" clearable @blur="getDeviceList"></el-input>
@@ -20,12 +13,30 @@
           </el-button>
         </el-form-item>
       </el-form>
-    </div>
+    </el-header>
 
-    <div>
-      <tree-table :data="data" :columns="columns" :options="tableOption" border expandAll
-                  @selection-change="handleSelectionChange"/>
-    </div>
+    <el-container >
+      <!-- 侧边分组 -->
+      <el-aside width="150px" style="height: 650px; border: 1px solid #000000">
+        <el-button @click="groupFormVisible=true"
+                   type="info"
+                   icon="el-icon-edit"
+                   size="small"
+        >修改</el-button>
+
+        <el-tree :data="groupList"
+                 :props="defaultProps"
+                 @node-click="handleGroupNodeClick"
+                 highlight-current
+        ></el-tree>
+      </el-aside>
+      <!-- 表格-->
+      <el-main>
+        <tree-table :data="data" :columns="columns" :options="tableOption" border expandAll
+                    @selection-change="handleSelectionChange"/>
+      </el-main>
+    </el-container>
+    </el-container>
 
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
       <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
@@ -87,6 +98,70 @@
         <el-button type="primary" @click="submitForm">确 定</el-button>
       </div>
     </el-dialog>
+
+    <!--  分组修改  -->
+    <el-dialog title="分组修改"
+               :visible.sync="groupFormVisible"
+               @close=""
+               center
+    >
+      <div style="height: 500px;" >
+        <span>
+          <el-tree :data="groupList"
+                 :props="defaultProps"
+                 show-checkbox
+                 default-expand-all
+          >
+            <span class="custom-tree-node" slot-scope="{ node, data }">
+              <span>{{ node.label }}</span>
+              <span>
+                <el-button
+                  size="mini"
+                  @click="() => modifyGroup(data)"
+                  icon="el-icon-edit"
+                >
+                </el-button>
+              </span>
+            </span>
+          </el-tree>
+        </span>
+
+      </div>
+      <!--内层对话框-->
+      <el-dialog
+        width="30%"
+        title="修改"
+        :visible.sync="innerVisible"
+        append-to-body>
+        <el-form :model="groupForm" ref="dialogGroupForm" :rules="groupFormRules" :label-position="labelPosition" label-width="100px"
+                 size="mini">
+          <el-form-item label="分组名" prop="name">
+            <el-input v-model="groupForm.name" placeholder="请输入组名" />
+          </el-form-item>
+          <el-form-item label="父分组" prop="pid">
+            <selectTree
+              style="width: 79%"
+              placeholder="请选择父分组"
+              ref="selectTreeGroup"
+              :options="groupList"
+              v-model="groupForm.pid"
+              clearable
+              accordion="true"
+              :defaultExpandLevel=3
+              :normalizer="normalizer"
+            />
+          </el-form-item>
+        </el-form>
+        <div>
+          <el-button @click="innerVisible=false">取 消</el-button>
+          <el-button type="primary" @click="submitGroupForm">提 交</el-button>
+        </div>
+      </el-dialog>
+      <div>
+        <el-button @click="groupFormVisible = false">关闭窗口</el-button>
+        <el-button type="primary" @click="deleteGroups">删除已勾选分组</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -145,10 +220,16 @@ export default {
         "手动报警按钮",
         "门禁读卡器",
       ],
+      groupFormVisible: false,
+      innerVisible: false,// 分组的内层对话框可见性
       groupList: [],
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
         // serialNumber: [{required: true, trigger: 'blur', message: "请输入序列号"}],
+      },
+      groupFormRules: {
+        name: [{required: true, trigger: 'blur', message: "请输入分组名"}],
+
       },
       defaultProps:{  // el-tree的props
         label: 'name',   // name作为展示文字
@@ -169,6 +250,11 @@ export default {
         password: '',
         createUser: this.currentUserId,
         updateUser: this.currentUserId,
+      },
+      groupForm: {
+        id:null,
+        name:'',
+        pid:null,
       },
       columns: [
         {
@@ -247,7 +333,8 @@ export default {
       this.form.type = event.target.value;
     },
     // 分组被点击时触发
-    handleGroupNodeClick(){
+    handleGroupNodeClick(node){
+      console.log(node)
       console.log("in handleGroupNodeClick")
     },
     add() {
@@ -326,6 +413,28 @@ export default {
       })
 
     },
+    // 提交分组表单
+    submitGroupForm(){
+      console.log("提交分组表单")
+    },
+    // 提交要删除的分组
+    deleteGroups(){
+      console.log("in deleteGroups")
+    },
+    // 添加子组
+    // appendGroup(data){
+    //   console.log(data)
+    //   console.log("in append")
+    // },
+    // 修改分组
+    modifyGroup(data){
+      this.innerVisible = true;
+      this.groupForm={
+        name:data.name,
+        id:data.id,
+        pid:data.pid,
+      }
+    },
     delete(row) {
       this.$confirm('即将删除' + row.name + ', 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -357,5 +466,12 @@ export default {
 </script>
 
 <style scoped>
+
+/*设置高亮的节点样式*/
+/deep/.el-tree--highlight-current
+.el-tree-node.is-current
+> .el-tree-node__content {
+  background-color:  rgba(35, 220, 205, 0.78);
+}
 
 </style>
