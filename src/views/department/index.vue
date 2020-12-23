@@ -58,7 +58,7 @@
 import treeTable from '@/components/TreeTable';
 import Dialog from '@/components/dialog/index';
 import {getDepartmentList, add, updateById, deleteById} from '@/api/department';
-import {listToTree, copyProperties} from '@/utils';
+import {listToTree, copyProperties, normalizer} from '@/utils';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth'
@@ -147,15 +147,7 @@ export default {
   methods: {
     // 后台返回的数据和VueTreeselect要求的数据结构不同，需要进行转换
     normalizer(node) {
-      //去掉children=[]的children属性
-      if (node.children && !node.children.length) {
-        delete node.children;
-      }
-      return {
-        id: node.id,
-        label: node.name,
-        children: node.children
-      }
+      return normalizer(node)
     },
     handleMethod(ms) {
       this[ms]();

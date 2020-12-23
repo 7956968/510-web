@@ -396,6 +396,40 @@ export function setEachPidZero(treeList){
 }
 
 /**
+ * 设置非叶节点的disabled属性为true
+ * @param treeList 树形数组，子节点数组为每个元素的children属性
+ */
+export function setNotLeafDisabled(treeList){
+  if(!treeList || treeList.length===0)
+    return ;
+  treeList.forEach(node => {
+    if(!node.children || node.children.length===0){
+      node.disabled = false;
+    }else {
+      node.disabled = true;
+      setNotLeafDisabled(node.children)
+    }
+  })
+}
+
+/**
+ * 用于treeselect组件，规范化树数组
+ * @param node
+ * @returns {{children: *, id: *, label: *}}
+ */
+export function normalizer(node) {
+  //去掉children=[]的children属性
+  if (node.children==null || ( node.children && !node.children.length)) {
+    delete node.children;
+  }
+  return {
+    id: node.id,
+    label: node.name,
+    children: node.children
+  }
+}
+
+/**
  * 将每个用户放入部门数组
  * @param de
  * @param user

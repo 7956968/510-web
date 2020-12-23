@@ -115,7 +115,7 @@ import treeTable from '@/components/TreeTable';
 import {getUserList, add, updateById, deleteById} from '@/api/userManage';
 import {getDepartmentList } from '@/api/department';
 import {getRoleList } from '@/api/role';
-import {listToTree, copyProperties} from '@/utils';
+import {listToTree, copyProperties, normalizer} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from "@riophae/vue-treeselect";
 
@@ -255,15 +255,7 @@ export default {
   },
   methods: {
     normalizer(node) {
-      //去掉children=[]的children属性
-      if (node.children && !node.children.length) {
-        delete node.children;
-      }
-      return {
-        id: node.id,
-        label: node.name,
-        children: node.children
-      }
+      return normalizer(node);
     },
     handleMethod(ms) {
       this[ms]();
