@@ -1,7 +1,7 @@
 <template>
   <div class="content_container">
     <div>
-      <el-form :label-position="labelPosition" :inline="true" :model="form" class="demo-form-inline" size="mini">
+      <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
           <el-input v-model="param.keyword" placeholder="请输入关键字" clearable @blur="getUserList"></el-input>
         </el-form-item>

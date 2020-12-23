@@ -118,7 +118,6 @@ export default {
   },
   data() {
     return {
-      dragFlag:0,//判断列表被拖进哪个分屏
       timer: null,
       boxHeight: 0,
       boxWidth: 0, //视频框的宽度，并非是box元素的宽度
@@ -135,52 +134,52 @@ export default {
           label: '子分组 1-1',
           children: [{
             label: '视频1',
-            url: 'http://192.168.100.123:8080/live?port=1986&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8080/live?port=1935&app=live&stream=1985'
           }, {
             label: '视频2',
-            url: 'http://192.168.100.123:8080/live?port=1985&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8081/live?port=1935&app=live&stream=1986'
           },{
             label: '视频3',
-            url: 'http://192.168.100.123:8080/live?port=1986&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8082/live?port=1987&app=live&stream=mystream'
           }, {
             label: '视频4',
-            url: 'http://192.168.100.123:8080/live?port=1985&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8083/live?port=1985&app=live&stream=mystream'
           },{
             label: '视频5',
-            url: 'http://192.168.100.123:8080/live?port=1986&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8084/live?port=1986&app=live&stream=mystream'
           }, {
             label: '视频6',
-            url: 'http://192.168.100.123:8080/live?port=1985&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8085/live?port=1985&app=live&stream=mystream'
           },{
             label: '视频7',
-            url: 'http://192.168.100.123:8080/live?port=1986&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8086/live?port=1986&app=live&stream=mystream'
           }, {
             label: '视频8',
-            url: 'http://192.168.100.123:8080/live?port=1985&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8087/live?port=1985&app=live&stream=mystream'
           },{
             label: '视频9',
             url: 'http://192.168.100.123:8080/live?port=1986&app=live&stream=mystream'
           }, {
             label: '视频10',
-            url: 'http://192.168.100.123:8080/live?port=1985&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8081/live?port=1985&app=live&stream=mystream'
           },{
             label: '视频11',
-            url: 'http://192.168.100.123:8080/live?port=1986&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8082/live?port=1986&app=live&stream=mystream'
           }, {
             label: '视频12',
-            url: 'http://192.168.100.123:8080/live?port=1985&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8083/live?port=1985&app=live&stream=mystream'
           },{
             label: '视频13',
-            url: 'http://192.168.100.123:8080/live?port=1986&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8084/live?port=1986&app=live&stream=mystream'
           }, {
             label: '视频14',
-            url: 'http://192.168.100.123:8080/live?port=1985&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8085/live?port=1985&app=live&stream=mystream'
           },{
             label: '视频15',
-            url: 'http://192.168.100.123:8080/live?port=1986&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8086/live?port=1986&app=live&stream=mystream'
           }, {
             label: '视频16',
-            url: 'http://192.168.100.123:8080/live?port=1985&app=live&stream=mystream'
+            url: 'http://192.168.100.123:8087/live?port=1985&app=live&stream=mystream'
           }]
         }]
       }, {

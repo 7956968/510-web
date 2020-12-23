@@ -55,7 +55,7 @@ export function addGroup(params) {
   })
 }
 
-// 修改分组（的名字）
+// 修改分组(的name，pid)
 export function updateGroupById(params) {
   return request({
     url: '/group/update_by_id',
@@ -70,5 +70,17 @@ export function deleteGroupById(id) {
     url: '/group/delete_by_id',
     method: 'post',
     params:{id:id}
+  })
+}
+
+/**
+ * 删除所有id在data中的分组
+ * @param data {idList: [xxx,xxx,xxx,...]}
+ */
+export function deleteAllGroups(data) {
+  return request({
+    url: '/group/delete_all',
+    method: 'post',
+    data: data,
   })
 }
