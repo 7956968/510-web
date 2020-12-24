@@ -3,9 +3,23 @@
     <el-container>
     <!-- 顶栏按钮 -->
     <el-header>
-      <el-form :label-position="labelPosition" :inline="true" :model="form" class="demo-form-inline" size="mini">
+      <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
           <el-input v-model="param.keyword" placeholder="请输入关键字" clearable @blur="getDeviceList"></el-input>
+        </el-form-item>
+        <el-form-item label="设备类型" prop="">
+          <el-select v-model="param.type"
+                     placeholder="请选择设备类型"
+                     clearable
+                     @blur="getDeviceList"
+          >
+            <el-option
+              v-for="(item,idx) in deviceTypeOptions"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item>
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
@@ -17,17 +31,24 @@
 
     <el-container >
       <!-- 侧边分组 -->
-      <el-aside width="150px" style="height: 650px; border: 1px solid #000000">
+      <el-aside width="200px" style="height: 650px; border: 1px solid #000000">
         <el-button @click="groupFormVisible=true"
-                   type="info"
-                   icon="el-icon-edit"
-                   size="small"
-        >修改</el-button>
+                   style="background:#e3e4f5;"
+                   icon="el-icon-setting"
+                   size="middle"
+        >分组设置</el-button>
+
+        <div style="margin-top:10px;margin-bottom:10px;background:#d7ee0a;height:30px;text-align:center;line-height: 30px">
+          分组列表
+        </div>
 
         <el-tree :data="groupList"
                  :props="defaultProps"
                  @node-click="handleGroupNodeClick"
                  highlight-current
+                 empty-text="当前无分组"
+                 default-expand-all
+                 ref="groupTreeShow"
         ></el-tree>
       </el-aside>
       <!-- 表格-->
@@ -76,8 +97,7 @@
               :key="item"
               :label="item"
               :value="item"
-            >
-            </el-option>
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="序列号" prop="serialNumber">
@@ -99,26 +119,39 @@
       </div>
     </el-dialog>
 
-    <!--  分组修改  -->
-    <el-dialog title="分组修改"
+    <!--  分组设置  -->
+    <el-dialog title="分组设置"
                :visible.sync="groupFormVisible"
                @close=""
                center
     >
       <div style="height: 500px;" >
+        <el-alert
+          title=""
+          type="info"
+          center
+        >
+          点击右侧<i class="el-icon-edit"></i>对分组修改
+        </el-alert>
         <span>
           <el-tree :data="groupList"
-                 :props="defaultProps"
-                 show-checkbox
-                 default-expand-all
+                   :props="defaultProps"
+                   show-checkbox
+                   default-expand-all
+                   ref="groupTree"
+                   node-key="id"
+                   empty-text="当前无分组"
+                   check-strictly
           >
             <span class="custom-tree-node" slot-scope="{ node, data }">
               <span>{{ node.label }}</span>
               <span>
                 <el-button
                   size="mini"
+                  type="primary"
                   @click="() => modifyGroup(data)"
                   icon="el-icon-edit"
+                  circle
                 >
                 </el-button>
               </span>
@@ -130,10 +163,10 @@
       <!--内层对话框-->
       <el-dialog
         width="30%"
-        title="修改"
+        :title="innerDialogTitle"
         :visible.sync="innerVisible"
         append-to-body>
-        <el-form :model="groupForm" ref="dialogGroupForm" :rules="groupFormRules" :label-position="labelPosition" label-width="100px"
+        <el-form :model="groupForm" ref="GroupForm" :rules="groupFormRules" :label-position="labelPosition" label-width="100px"
                  size="mini">
           <el-form-item label="分组名" prop="name">
             <el-input v-model="groupForm.name" placeholder="请输入组名" />
@@ -159,7 +192,8 @@
       </el-dialog>
       <div>
         <el-button @click="groupFormVisible = false">关闭窗口</el-button>
-        <el-button type="primary" @click="deleteGroups">删除已勾选分组</el-button>
+        <el-button type="primary" @click="addGroup">添加分组</el-button>
+        <el-button type="danger" @click="deleteGroups">删除已勾选分组</el-button>
       </div>
     </el-dialog>
   </div>
@@ -168,11 +202,11 @@
 <script>
 import treeTable from '@/components/TreeTable';
 import Dialog from '@/components/dialog/index';
-import {listToTree, copyProperties, setEachPidZero} from '@/utils';
+import {listToTree, copyProperties, setEachPidZero, setNotLeafDisabled, normalizer} from '@/utils';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth'
-import {getDeviceList, add, updateById, deleteById, getGroupList, addGroup, updateGroupById, deleteGroupById} from '@/api/device';
+import {getDeviceList, add, updateById, deleteById, getGroupList, addGroup, updateGroupById, deleteAllGroups} from '@/api/device';
 
 
 export default {
@@ -185,7 +219,8 @@ export default {
   data() {
     let updateOpen = (row) => {
       this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
-      this.form.updateUser = this.currentUserId
+      this.form.updateUser = this.currentUserId;
+      this.form.createUser = null;
       this.dialogName = "修改";
       this.dialogFormVisible = true;
       // 清除校验结果
@@ -200,6 +235,13 @@ export default {
     let isDeleteShow = (row) => {
       return (!row.children || row.children.length === 0);
     }
+    let validatePid = (rule, value, callback) => {
+      if (value && value===this.groupForm.id) {
+        callback(new Error('父分组不可以是它自己'));
+      }else {
+        callback();
+      }
+    };
     return {
       data: [],
       bttns: [],
@@ -221,6 +263,7 @@ export default {
         "门禁读卡器",
       ],
       groupFormVisible: false,
+      innerDialogTitle: '添加分组',
       innerVisible: false,// 分组的内层对话框可见性
       groupList: [],
       formRules: {
@@ -229,7 +272,7 @@ export default {
       },
       groupFormRules: {
         name: [{required: true, trigger: 'blur', message: "请输入分组名"}],
-
+        pid: [{validator: validatePid, trigger: 'blur', }]
       },
       defaultProps:{  // el-tree的props
         label: 'name',   // name作为展示文字
@@ -237,6 +280,7 @@ export default {
       param:{
         keyword:'',   // 关键字
         groupId:null, // 组id
+        type:'',
       },
       form: {
         id: null,
@@ -255,12 +299,13 @@ export default {
         id:null,
         name:'',
         pid:null,
+        createUser: this.currentUserId,
+        updateUser: this.currentUserId,
       },
       columns: [
         {
           text: '名称',
           value: 'name',
-          align: 'right'
         },
         {
           text: '厂家',
@@ -306,21 +351,13 @@ export default {
     }
   },
   methods: {
-    // 后台返回的数据和VueTreeselect要求的数据结构不同，需要进行转换
     normalizer(node) {
-      //去掉children=[]的children属性
-      if (node.children && !node.children.length) {
-        delete node.children;
-      }
-      return {
-        id: node.id,
-        label: node.name,
-        children: node.children
-      }
+      return normalizer(node)
     },
     handleMethod(ms) {
       this[ms]();
     },
+    //// treetable会屏蔽@selection-change,待修改
     handleSelectionChange(val){
       console.log(val)
     },
@@ -334,8 +371,14 @@ export default {
     },
     // 分组被点击时触发
     handleGroupNodeClick(node){
+      if(this.param.groupId){
+        this.param.groupId = null
+        this.$refs.groupTreeShow.setCurrentKey(0);
+        return;
+      }
       console.log(node)
       console.log("in handleGroupNodeClick")
+      this.param.groupId = node.id
     },
     add() {
       this.form = {
@@ -363,6 +406,7 @@ export default {
     getDeviceList() {
       getDeviceList(this.param).then(res => {
         if (res.data.errorCode === 200) {
+          console.log(res.data)
           let a = res.data.data;
           this.data = listToTree(a);
           if (this.data != null && this.data.length > 0) {
@@ -379,14 +423,13 @@ export default {
           let a = res.data.data;
           this.groupList = listToTree(a);
           setEachPidZero(this.groupList);
+          setNotLeafDisabled(this.groupList)
         }
       })
     },
     submitForm() {
       this.$refs.dialogForm.validate(valid => {
-        if (!valid) {
-          return;
-        }
+        if (!valid) {return;}
         if (this.dialogName.indexOf("新增") !== -1) {//添加操作
           add(this.form).then(res => {
             if (res.data.errorCode === 200) {
@@ -415,24 +458,77 @@ export default {
     },
     // 提交分组表单
     submitGroupForm(){
-      console.log("提交分组表单")
+      this.$refs.GroupForm.validate(valid => {
+        if (!valid) {return;}
+        if (this.innerDialogTitle.indexOf("添加分组") !== -1) {//添加分组
+          addGroup(this.groupForm).then(res => {
+            if (res.data.errorCode === 200) {
+              this.$message.success("添加分组成功");
+              this.getGroupList()
+            }else{this.$message.error(res.data.errorMsg);}
+          })
+          this.innerVisible = false; // 隐藏内部弹窗
+        } else { // 修改分组
+          updateGroupById(this.groupForm).then(res => {
+            if (res.data.errorCode === 200) {
+              this.$message.success("修改分组成功");
+              this.getGroupList()
+            }else{this.$message.error(res.data.errorMsg);}
+          })
+          this.innerVisible = false; // 隐藏内部弹窗
+        }
+      })
     },
     // 提交要删除的分组
     deleteGroups(){
-      console.log("in deleteGroups")
+      let deletedNodes = this.$refs.groupTree.getCheckedNodes();
+      // 无勾选项直接返回
+      if(deletedNodes.length === 0){
+        return;
+      }
+      let groupNames = [];
+      deletedNodes.forEach(node=>{
+        groupNames.push(node.name)
+      });
+      this.$confirm('即将删除[' + groupNames + '], 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        let keys = this.$refs.groupTree.getCheckedKeys();
+        deleteAllGroups({idList:keys}).then(res => {
+          if (res.data.errorCode === 200) {
+            this.$message.success("删除分组成功");
+            this.getGroupList();
+          }else{
+            this.$message.error(res.data.errorMsg)
+          }
+        })
+      }).catch(()=>{});
+
     },
-    // 添加子组
-    // appendGroup(data){
-    //   console.log(data)
-    //   console.log("in append")
-    // },
+
+    // 添加分组
+    addGroup(){
+      this.innerDialogTitle = '添加分组'
+      this.innerVisible = true;
+      this.groupForm={
+        name:'',
+        id: null,
+        pid: null,
+        createUser: this.currentUserId,
+        updateUser: this.currentUserId,
+      }
+    },
     // 修改分组
     modifyGroup(data){
+      this.innerDialogTitle = '修改分组'
       this.innerVisible = true;
       this.groupForm={
         name:data.name,
         id:data.id,
         pid:data.pid,
+        updateUser: this.currentUserId,
       }
     },
     delete(row) {
@@ -474,4 +570,13 @@ export default {
   background-color:  rgba(35, 220, 205, 0.78);
 }
 
+/*分组设置中的组树的样式*/
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
 </style>

@@ -31,7 +31,7 @@
         <el-form-item label="描述" prop="description">
           <el-input v-model="form.description" placeholder="描述" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="父部门">
+        <el-form-item label="父部门" prop="pid">
           <selectTree
             style="width: 79%"
             placeholder="请选择"
@@ -91,6 +91,13 @@ export default {
     let isDeleteShow = (row) => {
       return (!row.children || row.children.length === 0);
     }
+    let validatePid = (rule, value, callback) => {
+      if (value && value===this.form.id) {
+        callback(new Error('父部门不可以是它自己'));
+      }else {
+        callback();
+      }
+    };
     return {
       data: [],
       bttns: [],
@@ -102,6 +109,7 @@ export default {
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
         description: [{required: true, trigger: 'blur', message: "请输入描述"}],
+        pid: [{validator: validatePid, trigger: 'blur', }]
       },
       param:{
         // 查询的关键字
