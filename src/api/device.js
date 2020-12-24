@@ -37,6 +37,12 @@ export function deleteById(id) {
   })
 }
 
+/**
+ * 分组设置
+ *
+ */
+
+
 // 获取所有分组
 export function getGroupList(params) {
   return request({
@@ -74,12 +80,53 @@ export function deleteGroupById(id) {
 }
 
 /**
- * 删除所有id在data中的分组
+ * 删除所有id在idList中的分组
  * @param data {idList: [xxx,xxx,xxx,...]}
  */
 export function deleteAllGroups(data) {
   return request({
     url: '/group/delete_all',
+    method: 'post',
+    data: data,
+  })
+}
+
+/**
+ * 分组-设备 关系
+ *
+ */
+
+/**
+ * 把未分组的设备添加到某组
+ * @param data {deviceIdList: [xxx,xxx,xxx,...], groupId: *}
+ */
+// export function addDevicesToGroups(data) {
+//   return request({
+//     url: '/group/add_devices',
+//     method: 'post',
+//     data: data,
+//   })
+// }
+
+/**
+ * 把已分组的设备转移至某组
+ * @param data {deviceIdList: [xxx,xxx,xxx,...], groupId: *}
+ */
+export function moveDevicesToGroups(data) {
+  return request({
+    url: '/group/move_devices',
+    method: 'post',
+    data: data,
+  })
+}
+
+/**
+ * 把已分组的设备移除出某组
+ * @param data {deviceIdList: [xxx,xxx,xxx,...]}
+ */
+export function removeDevices(data) {
+  return request({
+    url: '/group/remove_devices',
     method: 'post',
     data: data,
   })

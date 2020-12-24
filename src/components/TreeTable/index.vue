@@ -11,7 +11,7 @@
     <!-- 让勾选框不在第0列内部而是自己独立一列-->
 <!--    <el-table-column-->
 <!--      type="selection"-->
-<!--      width="55"-->
+<!--      width="32"-->
 <!--    />-->
 
     <el-table-column v-if="columns.length===0" >
@@ -122,9 +122,23 @@ export default {
         }
       }else{
         row._checked = checked;
-        return;
-
       }
+    },
+    // 获取勾选的节点列表
+    getCheckedNodes(){
+      let res = [];
+      res = this.data.filter(item=>item._checked)
+      return res
+    },
+    // 获取勾选的节点的key列表, 属性是id, 待修改
+    getCheckedKeys(){
+      let res = [];
+      this.data.forEach(item => {
+        if(item._checked){
+          res.push(item.id)
+        }
+      })
+      return res
     },
     // 让勾选框不在第0列内部而是自己独立一列
     // handleSelectionChange(val){

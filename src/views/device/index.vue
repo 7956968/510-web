@@ -5,13 +5,15 @@
     <el-header>
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
-          <el-input v-model="param.keyword" placeholder="请输入关键字" clearable @blur="getDeviceList"></el-input>
+          <!-- 失去焦点触发可以添加属性@blur="getDeviceList"-->
+          <el-input v-model="param.keyword" placeholder="请输入关键字" clearable/>
         </el-form-item>
         <el-form-item label="设备类型" prop="">
+          <!-- 失去焦点触发可以添加属性@blur="getDeviceList"-->
           <el-select v-model="param.type"
                      placeholder="请选择设备类型"
                      clearable
-                     @blur="getDeviceList"
+
           >
             <el-option
               v-for="(item,idx) in deviceTypeOptions"
@@ -25,6 +27,9 @@
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
                      @click="handleMethod(item.methodd)">{{ item.name }}
           </el-button>
+          <el-button @click="showMoveDialog">
+            转移勾选项的分组
+          </el-button>
         </el-form-item>
       </el-form>
     </el-header>
@@ -32,12 +37,21 @@
     <el-container >
       <!-- 侧边分组 -->
       <el-aside width="200px" style="height: 650px; border: 1px solid #000000">
+        <el-row style="margin-top:10px;margin-bottom:10px;text-align:center">
         <el-button @click="groupFormVisible=true"
                    style="background:#e3e4f5;"
                    icon="el-icon-setting"
                    size="middle"
         >分组设置</el-button>
-
+        </el-row>
+        <el-row style="margin-top:10px;margin-bottom:10px;text-align:center">
+        <el-button @click="setNotInGroup"
+                   style="background:#e3e4f5;"
+                   icon="el-icon-search"
+                   size="middle"
+        >不在分组中的设备</el-button>
+        </el-row>
+<!--        <el-button  @click="testChecked" size="middle">点一下</el-button>-->
         <div style="margin-top:10px;margin-bottom:10px;background:#d7ee0a;height:30px;text-align:center;line-height: 30px">
           分组列表
         </div>
@@ -48,13 +62,15 @@
                  highlight-current
                  empty-text="当前无分组"
                  default-expand-all
+                 :expand-on-click-node="false"
                  ref="groupTreeShow"
         ></el-tree>
       </el-aside>
       <!-- 表格-->
       <el-main>
         <tree-table :data="data" :columns="columns" :options="tableOption" border expandAll
-                    @selection-change="handleSelectionChange"/>
+                    ref="deviceTable"
+        />
       </el-main>
     </el-container>
     </el-container>
@@ -149,7 +165,7 @@
                 <el-button
                   size="mini"
                   type="primary"
-                  @click="() => modifyGroup(data)"
+                  @click="modifyGroup(data)"
                   icon="el-icon-edit"
                   circle
                 >
@@ -196,6 +212,36 @@
         <el-button type="danger" @click="deleteGroups">删除已勾选分组</el-button>
       </div>
     </el-dialog>
+
+    <!-- 转移设备分组的弹窗 -->
+    <el-dialog title="转移至分组"
+               :visible.sync="moveDialogVisible"
+               @close=""
+               center
+    >
+      <el-form :label-position="labelPosition" label-width="100px" class="demo-form-inline" size="mini">
+        <el-form-item label="待删除">
+          <el-input  placeholder="待删除" clearable/>
+        </el-form-item>
+        <el-form-item label="分组">
+          <selectTree
+            style="width:200px"
+            placeholder="请选择分组"
+            ref="selectTreeGroup2"
+            :options="groupList"
+            v-model="moveForm.groupId"
+            clearable
+            accordion="true"
+            :defaultExpandLevel=3
+            :normalizer="normalizer"
+          />*. 不选则从原有分组中移除
+        </el-form-item>
+      </el-form>
+      <div>
+        <el-button @click="moveDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="moveDevicesToGroups">确 认</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -206,7 +252,9 @@ import {listToTree, copyProperties, setEachPidZero, setNotLeafDisabled, normaliz
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth'
-import {getDeviceList, add, updateById, deleteById, getGroupList, addGroup, updateGroupById, deleteAllGroups} from '@/api/device';
+import {getDeviceList, add, updateById, deleteById,
+  getGroupList, addGroup, updateGroupById, deleteAllGroups,
+  moveDevicesToGroups} from '@/api/device';
 
 
 export default {
@@ -247,7 +295,10 @@ export default {
       bttns: [],
       options: [],
       labelPosition: 'left',
-      dialogFormVisible: false, // 弹窗不可见
+      dialogFormVisible: false, // 新增设备弹窗不可见
+      groupFormVisible: false,
+      moveDialogVisible: false,
+      innerVisible: false,// 分组的内层对话框可见性
       dialogName: '新增', // 弹窗名
       currentUserId: null,    // 当前用户id
       manufacturersOptions: [
@@ -262,9 +313,7 @@ export default {
         "手动报警按钮",
         "门禁读卡器",
       ],
-      groupFormVisible: false,
       innerDialogTitle: '添加分组',
-      innerVisible: false,// 分组的内层对话框可见性
       groupList: [],
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
@@ -301,6 +350,9 @@ export default {
         pid:null,
         createUser: this.currentUserId,
         updateUser: this.currentUserId,
+      },
+      moveForm:{
+        groupId:null,
       },
       columns: [
         {
@@ -358,9 +410,9 @@ export default {
       this[ms]();
     },
     //// treetable会屏蔽@selection-change,待修改
-    handleSelectionChange(val){
-      console.log(val)
-    },
+    // handleSelectionChange(val){
+    //   console.log(val)
+    // },
     // 在失去焦点时，保存用户自己添加的厂家类型
     selectManufacturersBlur(event){
       this.form.manufacturers = event.target.value;
@@ -371,13 +423,12 @@ export default {
     },
     // 分组被点击时触发
     handleGroupNodeClick(node){
-      if(this.param.groupId){
+      if(this.param.groupId===node.id){
+        // 取消选择当前节点
         this.param.groupId = null
-        this.$refs.groupTreeShow.setCurrentKey(0);
+        this.$refs.groupTreeShow.store.currentNode = null;
         return;
       }
-      console.log(node)
-      console.log("in handleGroupNodeClick")
       this.param.groupId = node.id
     },
     add() {
@@ -406,7 +457,6 @@ export default {
     getDeviceList() {
       getDeviceList(this.param).then(res => {
         if (res.data.errorCode === 200) {
-          console.log(res.data)
           let a = res.data.data;
           this.data = listToTree(a);
           if (this.data != null && this.data.length > 0) {
@@ -520,9 +570,9 @@ export default {
         updateUser: this.currentUserId,
       }
     },
-    // 修改分组
+    // 修改分组信息
     modifyGroup(data){
-      this.innerDialogTitle = '修改分组'
+      this.innerDialogTitle = '修改分组信息'
       this.innerVisible = true;
       this.groupForm={
         name:data.name,
@@ -531,6 +581,29 @@ export default {
         updateUser: this.currentUserId,
       }
     },
+    // 设置要查找的设备是无分组的
+    setNotInGroup(){
+      this.param.groupId = this.param.groupId===0?null:0
+    },
+    // 获取勾选的列
+    // testChecked(){
+    //   console.log(this.$refs.deviceTable.getCheckedNodes())
+    //   console.log(this.$refs.deviceTable.getCheckedKeys())
+    //
+    // },
+    // 将设备移动至别的分组
+    moveDevicesToGroups(){
+      let deviceIdList = this.$refs.deviceTable.getCheckedKeys();
+      console.log(deviceIdList)
+      console.log(this.moveForm.groupId)
+      // moveDevicesToGroups({groupId:this.moveForm.groupId,deviceIdList:deviceIdList});
+    },
+    // 展示"移动至分组"对话框
+    showMoveDialog(){
+      this.moveDialogVisible = true;
+      this.moveForm.groupId = null;
+    },
+    // 删除设备
     delete(row) {
       this.$confirm('即将删除' + row.name + ', 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -545,7 +618,7 @@ export default {
             this.$message.error(res.data.errorMsg);
           }
         });
-      });
+      }).catch(err=>{});
     },
   },
   created() {
