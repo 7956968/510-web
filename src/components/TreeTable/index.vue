@@ -2,17 +2,15 @@
   <el-table :data="formatData"
             :row-style="showRow"
             v-bind="$attrs"
+            @select="handleSelect"
+            @selection-change="handleSelectionChange"
   >
-<!--    <el-table :data="formatData"-->
-<!--              :row-style="showRow"-->
-<!--              v-bind="$attrs"-->
-<!--              @selection-change="handleSelectionChange"-->
-<!--    >-->
-    <!-- 让勾选框不在第0列内部而是自己独立一列-->
-<!--    <el-table-column-->
-<!--      type="selection"-->
-<!--      width="32"-->
-<!--    />-->
+    <!-- 让勾选框不在第一个字段内部而是自己独立一列-->
+    <el-table-column
+      type="selection"
+      width="42"
+      :selectable='setSelectable'
+    />
 
     <el-table-column v-if="columns.length===0" >
       <template slot-scope="scope">
@@ -34,8 +32,8 @@
           <i v-if="!scope.row._expanded" class="el-icon-plus"/>
           <i v-else class="el-icon-minus"/>
         </span>
-
-        <el-checkbox v-if="index === 0"  v-model="scope.row._checked" @change="checked=>handleChecked(checked,scope.row)"> </el-checkbox>
+        <!-- 第一个字段内部的勾选框-->
+        <!--  <el-checkbox v-if="index === 0"  v-model="scope.row._checked" @change="checked=>handleChecked(checked,scope.row)"> </el-checkbox>-->
         {{ scope.row[column.value] || "--"}}
       </template>
     </el-table-column>
@@ -77,6 +75,11 @@ export default {
     },
     options:Array,
   },
+  data() {
+    return {
+      multipleSelection: [],
+    }
+  },
   watch: {
 
   },
@@ -106,14 +109,15 @@ export default {
       const record = this.formatData[trIndex]
       record._expanded = !record._expanded
     },
-    // 图标显示
+    // 展开/收缩图标显示
     iconShow(index, record) {
       return (index === 0 && record.children && record.children.length > 0)
     },
     // handleChecked(checked,row){
     //   this.onSelect(checked,row,true);
     // },
-    handleChecked(checked,row){//
+    // 点击第一个字段内的勾选框触发(暂时不使用)
+    handleChecked(checked,row){
       if(row.children && row.children.length > 0){
         let children = row.children
         for(let i = 0 ;i < children.length;i++){
@@ -124,22 +128,50 @@ export default {
         row._checked = checked;
       }
     },
+    /**
+     *  点击最前面的勾选框触发的事件
+     * @param val 所有的勾选项组成的数组
+     * @param row 最近一次被勾选的列
+     */
+    handleSelect(val, row){
+      // console.log(val)
+      // console.log(row)
+    },
+    handleSelectionChange(val){
+      this.multipleSelection = val;
+    },
+    // 设置勾选框是否可以勾选
+    setSelectable (row, rowIndex) {
+      if ( !row.children || row.children.length === 0) {
+        return true // 不禁用
+      }else{
+        return false // 禁用禁用
+      }
+    },
+    // 获取勾选的列数组
+    getSelectedRows(){
+      return this.multipleSelection;
+    },
+    // 获取勾选的列的id
+    getSelectedKeys(){
+      return this.multipleSelection.map((e) => e.id)
+    },
     // 获取勾选的节点列表
-    getCheckedNodes(){
-      let res = [];
-      res = this.data.filter(item=>item._checked)
-      return res
-    },
+    // getCheckedNodes(){
+    //   let res = [];
+    //   res = this.data.filter(item=>item._checked)
+    //   return res
+    // },
     // 获取勾选的节点的key列表, 属性是id, 待修改
-    getCheckedKeys(){
-      let res = [];
-      this.data.forEach(item => {
-        if(item._checked){
-          res.push(item.id)
-        }
-      })
-      return res
-    },
+    // getCheckedKeys(){
+    //   let res = [];
+    //   this.data.forEach(item => {
+    //     if(item._checked){
+    //       res.push(item.id)
+    //     }
+    //   })
+    //   return res
+    // },
     // 让勾选框不在第0列内部而是自己独立一列
     // handleSelectionChange(val){
     //   console.log(val)

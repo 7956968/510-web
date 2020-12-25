@@ -13,7 +13,6 @@
           <el-select v-model="param.type"
                      placeholder="请选择设备类型"
                      clearable
-
           >
             <el-option
               v-for="(item,idx) in deviceTypeOptions"
@@ -31,6 +30,9 @@
             转移勾选项的分组
           </el-button>
         </el-form-item>
+        <el-form-item>
+          当前所在组: {{curGroupName}}
+        </el-form-item>
       </el-form>
     </el-header>
 
@@ -46,12 +48,11 @@
         </el-row>
         <el-row style="margin-top:10px;margin-bottom:10px;text-align:center">
         <el-button @click="setNotInGroup"
-                   style="background:#e3e4f5;"
+                   :type="btnType"
                    icon="el-icon-search"
                    size="middle"
-        >不在分组中的设备</el-button>
+        >未分组设备</el-button>
         </el-row>
-<!--        <el-button  @click="testChecked" size="middle">点一下</el-button>-->
         <div style="margin-top:10px;margin-bottom:10px;background:#d7ee0a;height:30px;text-align:center;line-height: 30px">
           分组列表
         </div>
@@ -74,7 +75,7 @@
       </el-main>
     </el-container>
     </el-container>
-
+    <!--add/modify 设备表单-->
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
       <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
                size="mini">
@@ -219,25 +220,22 @@
                @close=""
                center
     >
-      <el-form :label-position="labelPosition" label-width="100px" class="demo-form-inline" size="mini">
-        <el-form-item label="待删除">
-          <el-input  placeholder="待删除" clearable/>
-        </el-form-item>
-        <el-form-item label="分组">
-          <selectTree
-            style="width:200px"
-            placeholder="请选择分组"
-            ref="selectTreeGroup2"
-            :options="groupList"
-            v-model="moveForm.groupId"
-            clearable
-            accordion="true"
-            :defaultExpandLevel=3
-            :normalizer="normalizer"
-          />*. 不选则从原有分组中移除
-        </el-form-item>
-      </el-form>
-      <div>
+      <el-row style="text-align:center">将设备{{checkedDeviceNameList}}</el-row>
+      <el-row style="text-align:center">移动至</el-row>
+      <div style="text-align:center">
+        <selectTree
+          style="width:200px;margin:auto"
+          placeholder="请选择分组"
+          ref="selectTreeGroup2"
+          :options="groupList"
+          v-model="moveForm.groupId"
+          clearable
+          accordion="true"
+          :defaultExpandLevel=3
+          :normalizer="normalizer"
+        />*. 若不选，则设为未分组设备
+      </div>
+      <div style="text-align:center">
         <el-button @click="moveDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="moveDevicesToGroups">确 认</el-button>
       </div>
@@ -269,7 +267,7 @@ export default {
       this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
       this.form.updateUser = this.currentUserId;
       this.form.createUser = null;
-      this.dialogName = "修改";
+      this.dialogName = "修改设备配置";
       this.dialogFormVisible = true;
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
@@ -299,8 +297,10 @@ export default {
       groupFormVisible: false,
       moveDialogVisible: false,
       innerVisible: false,// 分组的内层对话框可见性
-      dialogName: '新增', // 弹窗名
+      dialogName: '新增设备', // 弹窗名
       currentUserId: null,    // 当前用户id
+      btnType: 'plain',   // "未分组设备"按钮的类型，按下会变蓝
+      curGroupName: '全部',   // 当前所在组名，id=null:全部;=0:未分组设备;>0:具体组名
       manufacturersOptions: [
         "海康",
         "豪恩",
@@ -351,9 +351,12 @@ export default {
         createUser: this.currentUserId,
         updateUser: this.currentUserId,
       },
-      moveForm:{
+      moveForm:{    // 设备转移分组的表单
         groupId:null,
+        createUser:this.currentUserId,
+        updateUser:this.currentUserId,
       },
+      checkedDeviceNameList: [],  // 勾选的设备.name列表
       columns: [
         {
           text: '名称',
@@ -409,10 +412,6 @@ export default {
     handleMethod(ms) {
       this[ms]();
     },
-    //// treetable会屏蔽@selection-change,待修改
-    // handleSelectionChange(val){
-    //   console.log(val)
-    // },
     // 在失去焦点时，保存用户自己添加的厂家类型
     selectManufacturersBlur(event){
       this.form.manufacturers = event.target.value;
@@ -420,16 +419,6 @@ export default {
     // 在失去焦点时，保存用户自己添加的设备类型
     selectDeviceTypeBlur(event){
       this.form.type = event.target.value;
-    },
-    // 分组被点击时触发
-    handleGroupNodeClick(node){
-      if(this.param.groupId===node.id){
-        // 取消选择当前节点
-        this.param.groupId = null
-        this.$refs.groupTreeShow.store.currentNode = null;
-        return;
-      }
-      this.param.groupId = node.id
     },
     add() {
       this.form = {
@@ -445,7 +434,7 @@ export default {
         createUser: this.currentUserId,
         updateUser: this.currentUserId,
       };
-      this.dialogName = "新增";
+      this.dialogName = "新增设备";
       this.dialogFormVisible = true;
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
@@ -480,7 +469,7 @@ export default {
     submitForm() {
       this.$refs.dialogForm.validate(valid => {
         if (!valid) {return;}
-        if (this.dialogName.indexOf("新增") !== -1) {//添加操作
+        if (this.dialogName.indexOf("新增设备") !== -1) {//添加操作
           add(this.form).then(res => {
             if (res.data.errorCode === 200) {
               this.$message.success(res.data.errorMsg);
@@ -534,12 +523,10 @@ export default {
       let deletedNodes = this.$refs.groupTree.getCheckedNodes();
       // 无勾选项直接返回
       if(deletedNodes.length === 0){
+        this.$message.warning("未勾选分组")
         return;
       }
-      let groupNames = [];
-      deletedNodes.forEach(node=>{
-        groupNames.push(node.name)
-      });
+      let groupNames = deletedNodes.map((item)=>item.name);
       this.$confirm('即将删除[' + groupNames + '], 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -581,25 +568,58 @@ export default {
         updateUser: this.currentUserId,
       }
     },
+    // 分组被点击时触发
+    handleGroupNodeClick(node){
+      if(this.param.groupId===node.id){
+        // 取消选择当前节点
+        this.param.groupId = null
+        this.$refs.groupTreeShow.store.currentNode = null;
+        this.curGroupName = "全部";
+      }else{
+        this.param.groupId = node.id
+        this.btnType = 'plain'
+        this.curGroupName = node.name;
+      }
+      this.getDeviceList()
+    },
     // 设置要查找的设备是无分组的
     setNotInGroup(){
-      this.param.groupId = this.param.groupId===0?null:0
+      if(this.param.groupId){
+        // 如果选择了分组，将选择的分组取消
+        this.$refs.groupTreeShow.store.currentNode = null;
+      }
+      this.param.groupId = this.param.groupId===0?null:0;
+      this.btnType = this.param.groupId===0?'primary':'plain';
+      this.curGroupName =  this.param.groupId===0?'未分组设备':'全部';
+      this.getDeviceList()
     },
-    // 获取勾选的列
-    // testChecked(){
-    //   console.log(this.$refs.deviceTable.getCheckedNodes())
-    //   console.log(this.$refs.deviceTable.getCheckedKeys())
-    //
-    // },
     // 将设备移动至别的分组
     moveDevicesToGroups(){
-      let deviceIdList = this.$refs.deviceTable.getCheckedKeys();
-      console.log(deviceIdList)
-      console.log(this.moveForm.groupId)
-      // moveDevicesToGroups({groupId:this.moveForm.groupId,deviceIdList:deviceIdList});
+      let deviceIdList = this.$refs.deviceTable.getSelectedKeys();
+      moveDevicesToGroups({
+        groupId:this.moveForm.groupId,
+        deviceIdList:deviceIdList,
+        updateUser:this.currentUserId,
+        createUser:this.currentUserId,
+      }).then(res => {
+        if(res.data.errorCode === 200){
+          this.$message.success("转移分组成功")
+        }else {
+          this.$message.error(res.data.errorMsg)
+        }
+      }).catch(err => {
+        console.log(err)
+      });
+      this.moveDialogVisible = false;
     },
     // 展示"移动至分组"对话框
     showMoveDialog(){
+      let deviceList = this.$refs.deviceTable.getSelectedRows();
+      if(deviceList.length===0){
+        this.$message.warning("未勾选设备")
+        return;
+      }
+      this.checkedDeviceNameList=deviceList.map((item)=>item.name);
       this.moveDialogVisible = true;
       this.moveForm.groupId = null;
     },

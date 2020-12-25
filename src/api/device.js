@@ -124,10 +124,10 @@ export function moveDevicesToGroups(data) {
  * 把已分组的设备移除出某组
  * @param data {deviceIdList: [xxx,xxx,xxx,...]}
  */
-export function removeDevices(data) {
-  return request({
-    url: '/group/remove_devices',
-    method: 'post',
-    data: data,
-  })
-}
+// export function removeDevices(data) {
+//   return request({
+//     url: '/group/remove_devices',
+//     method: 'post',
+//     data: data,
+//   })
+// }
