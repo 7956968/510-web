@@ -4,6 +4,7 @@
             v-bind="$attrs"
             @select="handleSelect"
             @selection-change="handleSelectionChange"
+            @row-click="handleRowClick"
   >
     <!-- 让勾选框不在第一个字段内部而是自己独立一列-->
     <el-table-column
@@ -74,6 +75,10 @@ export default {
       default: false
     },
     options:Array,
+    handleRowClick: {
+      type:Function,
+      default: () => {},
+    }
   },
   data() {
     return {

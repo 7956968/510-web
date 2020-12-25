@@ -26,8 +26,8 @@
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
                      @click="handleMethod(item.methodd)">{{ item.name }}
           </el-button>
-          <el-button @click="showMoveDialog">
-            转移勾选项的分组
+          <el-button @click="showMoveDialog" style="font-size: 18px">
+            批量修改设备所在组
           </el-button>
         </el-form-item>
         <el-form-item>
@@ -69,9 +69,10 @@
       </el-aside>
       <!-- 表格-->
       <el-main>
-        <tree-table :data="data" :columns="columns" :options="tableOption" border expandAll
-                    ref="deviceTable"
-        />
+        <tree-table :data="data" :columns="columns" :options="tableOption" border ref="deviceTable"
+                    :handle-row-click="handleRowClick"/>
+
+        <channel :deviceId="curDeviceId"></channel>
       </el-main>
     </el-container>
     </el-container>
@@ -220,11 +221,11 @@
                @close=""
                center
     >
-      <el-row style="text-align:center">将设备{{checkedDeviceNameList}}</el-row>
-      <el-row style="text-align:center">移动至</el-row>
+      <el-row style="margin: 15px 0;text-align:center;font-size: 22px">将设备{{checkedDeviceNameList}}</el-row>
+      <el-row style="margin: 15px 0;text-align:center;font-size: 22px">移动至</el-row>
       <div style="text-align:center">
         <selectTree
-          style="width:200px;margin:auto"
+          style="width:270px;margin:auto;font-size: 18px"
           placeholder="请选择分组"
           ref="selectTreeGroup2"
           :options="groupList"
@@ -233,9 +234,9 @@
           accordion="true"
           :defaultExpandLevel=3
           :normalizer="normalizer"
-        />*. 若不选，则设为未分组设备
+        />* 若不选，则设为未分组设备
       </div>
-      <div style="text-align:center">
+      <div style="margin: 15px 0;text-align:center">
         <el-button @click="moveDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="moveDevicesToGroups">确 认</el-button>
       </div>
@@ -253,11 +254,14 @@ import {getUser} from '@/utils/auth'
 import {getDeviceList, add, updateById, deleteById,
   getGroupList, addGroup, updateGroupById, deleteAllGroups,
   moveDevicesToGroups} from '@/api/device';
+import channel from "./channel";
+import Channel from "./channel";
 
 
 export default {
   name: "index",
   components: {
+    Channel,
     Dialog,
     treeTable,
     selectTree
@@ -301,6 +305,7 @@ export default {
       currentUserId: null,    // 当前用户id
       btnType: 'plain',   // "未分组设备"按钮的类型，按下会变蓝
       curGroupName: '全部',   // 当前所在组名，id=null:全部;=0:未分组设备;>0:具体组名
+      curDeviceId: null,// 当前选中列
       manufacturersOptions: [
         "海康",
         "豪恩",
@@ -495,6 +500,9 @@ export default {
       })
 
     },
+    handleRowClick(row, column, event){
+      this.curDeviceId = row.id
+    },
     // 提交分组表单
     submitGroupForm(){
       this.$refs.GroupForm.validate(valid => {
@@ -604,6 +612,7 @@ export default {
       }).then(res => {
         if(res.data.errorCode === 200){
           this.$message.success("转移分组成功")
+          this.getDeviceList()
         }else {
           this.$message.error(res.data.errorMsg)
         }
