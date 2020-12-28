@@ -5,6 +5,7 @@
             @select="handleSelect"
             @selection-change="handleSelectionChange"
             @row-click="handleRowClick"
+            :highlight-current-row="highlightCurrentRow"
   >
     <!-- 让勾选框不在第一个字段内部而是自己独立一列-->
     <el-table-column
@@ -40,7 +41,7 @@
     </el-table-column>
 
 <!--    <el-table-column label="操作" header-align="center" align="center">-->
-    <el-table-column label="操作" >
+    <el-table-column label="操作" width="200">
       <template slot-scope="scope">
         <!--操作按钮区域-->
         <el-button type="text"   v-for="option in options" :key="option.text" v-show="option.isShow(scope.row)" @click="option.onclick(scope.row)">{{option.text}}</el-button>
@@ -75,9 +76,13 @@ export default {
       default: false
     },
     options:Array,
-    handleRowClick: {
+    handleRowClick: { // 点击行触发函数
       type:Function,
       default: () => {},
+    },
+    highlightCurrentRow: { // 高亮选中行
+      type: Boolean,
+      default: false,
     }
   },
   data() {

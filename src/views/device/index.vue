@@ -27,7 +27,7 @@
                      @click="handleMethod(item.methodd)">{{ item.name }}
           </el-button>
           <el-button @click="showMoveDialog" style="font-size: 18px">
-            批量修改设备所在组
+            转移至分组
           </el-button>
         </el-form-item>
         <el-form-item>
@@ -70,9 +70,9 @@
       <!-- 表格-->
       <el-main>
         <tree-table :data="data" :columns="columns" :options="tableOption" border ref="deviceTable"
-                    :handle-row-click="handleRowClick"/>
+                    :handle-row-click="handleRowClick" highlight-current-row/>
 
-        <channel :deviceId="curDeviceId"></channel>
+        <channel :device="curDevice"></channel>
       </el-main>
     </el-container>
     </el-container>
@@ -305,7 +305,7 @@ export default {
       currentUserId: null,    // 当前用户id
       btnType: 'plain',   // "未分组设备"按钮的类型，按下会变蓝
       curGroupName: '全部',   // 当前所在组名，id=null:全部;=0:未分组设备;>0:具体组名
-      curDeviceId: null,// 当前选中列
+      curDevice: null,// 当前选中列
       manufacturersOptions: [
         "海康",
         "豪恩",
@@ -501,7 +501,7 @@ export default {
 
     },
     handleRowClick(row, column, event){
-      this.curDeviceId = row.id
+      this.curDevice = row
     },
     // 提交分组表单
     submitGroupForm(){
@@ -657,8 +657,11 @@ export default {
     this.getDeviceList();
     this.currentUserId = JSON.parse(getUser()).id;
   },
-  mounted() {
-
+  watch: {
+    // 如果分组被切换，通道不显示数据
+    'param.groupId'(newVal, oldVal){
+      this.curDevice = null
+    }
   }
 }
 </script>
