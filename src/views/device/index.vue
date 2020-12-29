@@ -449,6 +449,7 @@ export default {
     },
     // 获取设备列表
     getDeviceList() {
+      this.curDevice = null; // 更新列表时，通道表格清空
       getDeviceList(this.param).then(res => {
         if (res.data.errorCode === 200) {
           let a = res.data.data;
