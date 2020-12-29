@@ -83,7 +83,7 @@
         <el-form-item label="厂家" prop="manufacturers">
           <el-select
             placeholder="请选择厂家"
-            v-model="form.manufacturers"
+            v-model.trim="form.manufacturers"
             filterable
             allow-create
             @change.native="selectManufacturersBlur"
@@ -99,12 +99,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="设备名称" prop="name">
-          <el-input v-model="form.name" placeholder="名称" style="width: auto"></el-input>
+          <el-input v-model.trim="form.name" placeholder="名称" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="设备类型" prop="type">
           <el-select
             placeholder="请选择"
-            v-model="form.type"
+            v-model.trim="form.type"
             filterable
             allow-create
             @change.native="selectDeviceTypeBlur"
@@ -119,16 +119,16 @@
           </el-select>
         </el-form-item>
         <el-form-item label="序列号" prop="serialNumber">
-          <el-input v-model="form.serialNumber" placeholder="序列号" style="width: auto"></el-input>
+          <el-input v-model.trim="form.serialNumber" placeholder="序列号" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="IP" prop="ip">
-          <el-input v-model="form.ip" placeholder="请输入IP" style="width: auto"></el-input>
+          <el-input v-model.trim="form.ip" placeholder="请输入IP" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" placeholder="请输入密码" style="width: auto"></el-input>
+          <el-input v-model.trim="form.password" placeholder="请输入密码" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="端口" prop="prot">
-          <el-input v-model="form.prot" placeholder="请输入端口号" style="width: auto"></el-input>
+          <el-input v-model.trim="form.prot" placeholder="请输入端口号" style="width: auto"></el-input>
         </el-form-item>
       </el-form>
       <div>
