@@ -1,10 +1,8 @@
 <template>
   <div >
-    <!--与设备表格保持距离-->
-    <div style="margin-top:40px;" ></div>
+
     <!--顶栏按钮-->
     <el-form label-position="left" :inline="true" class="demo-form-inline" size="mini" style="">
-      <el-form-item label="当前选中设备: ">{{deviceName}}</el-form-item>
       <el-form-item>
         <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
                    @click="handleMethod(item.methodd)">{{ item.name }}
@@ -76,18 +74,13 @@ export default {
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["channelForm"].clearValidate();})
     }
-    let deleteOption = (row) => {
-      this.delete(row);
-    }
-    let isUpdateShow = (row) => {
-      return true;
-    }
-    let isDeleteShow = (row) => {
-      return true;
-    }
+    let deleteOption = (row) => {this.delete(row);}
+    let isUpdateShow = (row) => {return true;}
+    let isDeleteShow = (row) => {return true;}
     return {
       formVisible: false,// 表单可见性
       dialogName: '添加通道',
+      deviceName: '--',
       channelData:[],
       channelColumns:[
         {
@@ -116,7 +109,7 @@ export default {
           isShow: isDeleteShow,
         }
       ],
-      currentUserId: null, //
+      currentUserId: null, // 登录用户的id
       form:{
         deviceId: null,
         name: '', // 通道名
@@ -213,14 +206,10 @@ export default {
   },
   watch:{
     device(){
+      this.deviceName = this.device==null?'--':this.device.name;
       if(this.device==null){this.channelData = [];}
       else this.getChannelList()
     },
-  },
-  computed:{
-    deviceName(){
-      return this.device == null ? "--" : this.device.name;
-    }
   },
   created() {
     this.currentUserId = JSON.parse(getUser()).id;

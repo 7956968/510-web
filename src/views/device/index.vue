@@ -70,9 +70,22 @@
       <!-- 表格-->
       <el-main>
         <tree-table :data="data" :columns="columns" :options="tableOption" border ref="deviceTable"
-                    :handle-row-click="handleRowClick" highlight-current-row/>
+                    :handle-row-click="handleRowClick" highlight-current-row
+        />
+        <!--与设备表格保持距离-->
+        <div style="margin-top:40px;" >
+          当前选中设备: {{curDeviceName}}
+        </div>
+        <!--表格[通道, 联动摄像头]-->
+        <el-tabs type="border-card">
+          <el-tab-pane label="通道">
+            <channel :device="curDevice"></channel>
+          </el-tab-pane>
+          <el-tab-pane label="联动摄像头" lazy>
+            <liandong :device="curDevice"></liandong>
+          </el-tab-pane>
+        </el-tabs>
 
-        <channel :device="curDevice"></channel>
       </el-main>
     </el-container>
     </el-container>
@@ -255,13 +268,14 @@ import {getDeviceList, add, updateById, deleteById,
   getGroupList, addGroup, updateGroupById, deleteAllGroups,
   moveDevicesToGroups} from '@/api/device';
 import channel from "./channel";
-import Channel from "./channel";
+import liandong from "./liandong";
 
 
 export default {
   name: "index",
   components: {
-    Channel,
+    channel,
+    liandong,
     Dialog,
     treeTable,
     selectTree
@@ -663,7 +677,12 @@ export default {
     'param.groupId'(newVal, oldVal){
       this.curDevice = null
     }
-  }
+  },
+  computed:{
+    curDeviceName(){
+      return this.curDevice==null ? "--" : this.curDevice.name;
+    }
+  },
 }
 </script>
 

@@ -110,7 +110,11 @@ export function deleteAllGroups(data) {
 
 /**
  * 把已分组的设备转移至某组
- * @param data {deviceIdList: [xxx,xxx,xxx,...], groupId: *}
+ *
+ * @param data 结构体
+ *    deviceIdList: [xxx,xxx,xxx,...],
+ *    groupId: *, 如果为null, 则移至未分组设备
+ *
  */
 export function moveDevicesToGroups(data) {
   return request({
@@ -131,3 +135,40 @@ export function moveDevicesToGroups(data) {
 //     data: data,
 //   })
 // }
+
+/**
+ * 管理摄像头-报警设备联动关系
+ * 添加，删除，查找
+ */
+
+/**
+ * 添加摄像头-报警设备联动
+ * @param data
+ */
+export function addLiandong(data) {
+  return request({
+    url: '/device/addLiandong',
+    method: 'post',
+    data: data,
+  })
+}
+
+/**
+ * 删除联动
+ * @param id
+ */
+export function deleteLiandongById(id) {
+  return request({
+    url: '/device/deleteLiandong',
+    method: 'post',
+    params:{id:id}
+  })
+}
+
+export function selectLiandong(alarmId) {
+  return request({
+    url: '/device/selectLiandong',
+    method: 'get',
+    params:{alarmId:alarmId}
+  })
+}
