@@ -128,7 +128,8 @@ export default {
   },
   data() {
     let updateOpen = (row) => {
-      this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
+      this.form = JSON.parse(JSON.stringify(row)); // 解除数据绑定
+      if(row.departmentId===0){this.form.departmentId=null} // 让表单中部门项选择不显示0(null)而是空白
       this.formRules.password[0].required = false;
       this.formRules.passwordAgain[0].required = false;
       this.dialogName = "修改";
@@ -175,6 +176,8 @@ export default {
 
       departmentList: [],   // 部门列表
       roleList: [],       // 角色列表
+      departmentDict: {}, // 部门字典
+      roleDict: {},       // 角色字典
       defaultProps:{  // el-tree的props
         label: 'name',   // 权限列表的name作为展示文字
       },
@@ -216,7 +219,7 @@ export default {
         },
         {
           text: '性别',
-          value: 'gender'
+          value: 'genderStr'
         },
         {
           text: '工号',
@@ -228,15 +231,20 @@ export default {
         },
         {
           text: '角色',
-          value: 'roleId'
+          value: 'roleStr'
         },
+        {
+          text: '部门',
+          value: 'deptStr'
+        },
+
         {
           text: '手机号',
           value: 'phone'
         },
         {
           text: '状态',
-          value: 'itemStatus',
+          value: 'itemStatusStr',
         },
       ],
       tableOption: [
@@ -289,18 +297,41 @@ export default {
       getUserList(this.param).then(res => {
         if (res.data.errorCode === 200) {
           let a = res.data.data;
-          this.data = listToTree(a);
-          if (this.data != null && this.data.length > 0) {
-            for (let i = 0; i < this.data.length; i++) {
-              this.data[i].pid = 0;
-            }
-          }
-          //this.options = re.data.data;
+          this.readable(a);
+          this.data = a;
+          this.$message.success("查询成功")
+        }else{
+          this.$message.error(res.data.errorMsg)
         }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    /**
+     * 使{gender, itemStatus, roleId, departmentId}
+     * 字段以可读的方式呈现给用户
+     * @param list
+     */
+    readable(list){
+      list.forEach(item => {
+        // 性别可读
+        switch(item.gender){
+          case 1: item.genderStr='男';break;
+          case 2: item.genderStr='女';break;
+          default: item.genderStr='--';break;
+        }
+        // 状态可读
+        switch (item.itemStatus){
+          case 1: item.itemStatusStr='正常';break;
+          default: item.itemStatusStr='已删除';break;
+        }
+        // 部门可读
+        item.deptStr=(this.departmentDict[item.departmentId])?this.departmentDict[item.departmentId].name:'--';
+        // 角色可读
+        item.roleStr=(this.roleDict[item.roleId])?this.roleDict[item.roleId].name:'--';
       })
     },
     submitForm() {
-      console.log(this.form)
       this.$refs.dialogForm.validate(valid => {
         if (!valid) {return;}
         if (this.dialogName.indexOf("新增") !== -1) {//添加操作
@@ -336,13 +367,10 @@ export default {
         deleteById(row.id).then(res => {
           if (res.data.errorCode === 200) {
             this.getUserList();
+            this.$message.success("删除成功");
           }
-          this.$message.success(res.data.errorMsg);
         });
       });
-    },
-    deptChosen(){
-      console.log("in deptChosen")
     },
     showPsw(){
       console.log("in showPsw")
@@ -351,23 +379,29 @@ export default {
   created() {
     this.bttns = this.$route.meta.btnPermission;
     // this.bttns.forEach(function (value, index, array) {})
-    this.getUserList();
     // 将部门列表存放
     getDepartmentList().then(res => {
       if (res.data.errorCode === 200) {
         let a = res.data.data;
         this.departmentList = listToTree(a);
+        // 建立部门字典
+        a.forEach(item=>{
+          this.departmentDict[item.id] = item;
+        });
       }
-    })
+    });
     // 将角色列表存放
     getRoleList().then(res => {
       if (res.data.errorCode === 200) {
         let a = res.data.data;
         this.roleList = listToTree(a);
+        // 建立角色字典
+        a.forEach(item=>{
+          this.roleDict[item.id] = item;
+        });
       }
-    })
-
-
+    });
+    this.getUserList();
   }
 }
 </script>
