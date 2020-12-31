@@ -39,7 +39,7 @@ export function deleteById(id) {
 
 /**
  * 分组设置
- *
+ * 包括：添加, 修改, 删除, 获取
  */
 
 
@@ -93,7 +93,8 @@ export function deleteAllGroups(data) {
 
 /**
  * 分组-设备 关系
- *
+ * 目前只有一个接口：移动
+ *    移动到null相当于移除出分组
  */
 
 /**
@@ -142,12 +143,32 @@ export function moveDevicesToGroups(data) {
  */
 
 /**
- * 添加摄像头-报警设备联动
+ * 添加1个摄像头-报警设备联动
  * @param data
+ *    alarmId:报警设备id
+ *    deviceId:摄像头id
+ *    createUser:创建者id
  */
-export function addLiandong(data) {
+// export function addLiandong(data) {
+//   return request({
+//     url: '/device/addLiandong',
+//     method: 'post',
+//     data: data,
+//   })
+// }
+
+/**
+ * 添加多个摄像头-报警设备联动
+ * @param data
+ *        {
+ *          alarmId: 报警设备id
+ *          deviceIdList: 摄像头id列表(Array)
+ *          createUser: 创建者id
+ *        }
+ */
+export function addAllLiandong(data) {
   return request({
-    url: '/device/addLiandong',
+    url: '/device/addAllLiandong',
     method: 'post',
     data: data,
   })
@@ -165,6 +186,10 @@ export function deleteLiandongById(id) {
   })
 }
 
+/**
+ * 通过报警设备id查找联动的设备
+ * @param alarmId 报警设备id
+ */
 export function selectLiandong(alarmId) {
   return request({
     url: '/device/selectLiandong',

@@ -17,6 +17,22 @@
     <!--表格-->
     <tree-table :data="liandongData" :columns="liandongColumns" :options="liandongOptions" border ref="liandongTable"/>
 
+    <el-dialog :title="dialogName"
+               :visible.sync="formVisible"
+               @close=""
+               center
+    >
+      <el-form :model="form" size="mini" label-position="left" label-width="100px"
+               ref="liandongForm"
+               :rules="formRules">
+        <el-form-item label="报警设备">
+          <el-input v-model="deviceName" :disabled="true" style="width: auto"/>
+        </el-form-item>
+        <el-form-item label="摄像头">
+          <el-input>待添加</el-input>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -24,7 +40,7 @@
 import treeTable from '@/components/TreeTable';
 import Dialog from '@/components/dialog/index';
 import {getUser} from '@/utils/auth';
-import {addLiandong, deleteLiandongById, selectLiandong} from '@/api/device';
+import {addAllLiandong, deleteLiandongById, selectLiandong} from '@/api/device';
 
 
 export default {
@@ -43,6 +59,8 @@ export default {
     let deleteOption = (row) => {this.delete(row);}
     let isDeleteShow = (row) => {return true;}
     return {
+      formVisible: false,
+      dialogName: '添加_报警-摄像头_联动',
       deviceName:null,
       liandongData: [],
       liandongColumns: [
@@ -86,7 +104,13 @@ export default {
       ],
       param:{},
       form:{
-
+        alarmId: null,
+        deviceId: null,
+        createUser: null,
+        updateUser: null,
+      },
+      formRules:{
+        deviceIdList:[{required: true, trigger: 'blur', message: "请选择摄像头"}],
       }
     }
   },
@@ -98,11 +122,32 @@ export default {
       selectLiandong(this.device.id).then(res => {
         if(res.data.errorCode===200){
           this.liandongData = res.data.data;
-        }else{this.$message.error("获取联动信息失败")}
-      });
+        }else{this.$message.error(res.data.errorMsg)}
+      }).catch(err => {console.log(err)});
     },
     add(){
-
+      if(this.device==null){
+        this.$message.warning('未选中设备')
+        return ;
+      }
+      this.form.alarmId = this.device.id;
+      this.form.createUser = this.form.updateUser = this.currentUserId;
+      this.formVisible=true;
+      // this.dialogName="添加_报警-摄像头_联动";
+    },
+    submitForm(){
+      this.$refs.liandongForm.validate(valid => {
+        if(!valid) return ;
+        // 调用接口, 批量添加
+        addAllLiandong(this.form).then(res => {
+          if(res.data.errorCode === 200) {
+            this.$message.success("添加成功");
+            this.getLiandongList();
+          }else {
+            this.$message.error(res.data.errorMsg);
+          }
+        }).catch(err =>{console.log(err)})
+      })
     },
     delete(row){
       this.$confirm('即将取消[' + row.name + ']和['+this.device.name+']的联动, 是否继续?', '提示', {
@@ -110,7 +155,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        saysomth(row.id).then(res => {
+        deleteLiandongById(row.id).then(res => {
           if (res.data.errorCode === 200) {
             this.getLiandongList();
             this.$message.success("删除成功");
@@ -118,7 +163,13 @@ export default {
             this.$message.error(res.data.errorMsg);
           }
         });
-      }).catch(err=>{});
+      }).catch(err=>{console.log(err)});
+    },
+    deleteAll(){
+      console.log("in deleteAll")
+      // 获取勾选
+      // 判空
+      // 删除all
     },
   },
   watch: {
