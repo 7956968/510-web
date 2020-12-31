@@ -165,8 +165,8 @@ export default {
         if (this.dialogName.indexOf("添加") !== -1) {//添加操作
           add(this.form).then(res => {
             if (res.data.errorCode === 200) {
-              this.$message.success(res.data.errorMsg);
-              this.getChannelList()
+              this.$message.success("添加通道成功");
+              this.getChannelList();
             }else{
               this.$message.error(res.data.errorMsg);
             }
