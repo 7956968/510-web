@@ -17,6 +17,7 @@
     <!--表格-->
     <tree-table :data="liandongData" :columns="liandongColumns" :options="liandongOptions" border ref="liandongTable"/>
 
+    <!--对话框-->
     <el-dialog :title="dialogName"
                :visible.sync="formVisible"
                @close=""
@@ -28,8 +29,30 @@
         <el-form-item label="报警设备">
           <el-input v-model="deviceName" :disabled="true" style="width: auto"/>
         </el-form-item>
-        <el-form-item label="摄像头">
-          <el-input>待添加</el-input>
+        <el-form-item label="分组">
+          <selectTree
+            style="width: 79%"
+            placeholder="选择分组"
+            :options="groupList"
+            v-model="currentGroupId"
+            clearable
+            accordion="true"
+            :defaultExpandLevel=4
+            :normalizer="normalizer"
+          />
+        </el-form-item>
+        <el-form-item label="摄像头" prop="deviceIdList">
+          <el-select v-model="form.deviceIdList"
+                     placeholder="选择摄像头(可多选)"
+                     multiple
+          >
+            <el-option
+              v-for="item in cameraList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -40,7 +63,11 @@
 import treeTable from '@/components/TreeTable';
 import Dialog from '@/components/dialog/index';
 import {getUser} from '@/utils/auth';
-import {addAllLiandong, deleteLiandongById, selectLiandong} from '@/api/device';
+import {getDeviceList,
+  addAllLiandong, deleteLiandongById, deleteAllLiandongByIdList, selectLiandong} from '@/api/device';
+import {listToTree, copyProperties, normalizer} from '@/utils';
+import selectTree from "@riophae/vue-treeselect";
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 
 export default {
@@ -48,22 +75,36 @@ export default {
   components: {
     Dialog,
     treeTable,
+    selectTree
   },
   props: {
     device:{
       type: Object,
       default: null,
+    },
+    groupList:{
+      type: Array,
     }
   },
   data(){
     let deleteOption = (row) => {this.delete(row);}
     let isDeleteShow = (row) => {return true;}
+    let validateDevIdList = (rule, value, callback) => {
+      if (value.length === 0) {
+        callback(new Error('请选择摄像头'));
+      } else {
+        callback();
+      }
+    };
     return {
       formVisible: false,
       dialogName: '添加_报警-摄像头_联动',
       deviceName:null,
-      liandongData: [],
-      liandongColumns: [
+      currentUserId:null,
+      currentGroupId: null, // 对话框-选择分组-分组id
+      cameraList: [],   // 为添加联动提供选项
+      liandongData: [], // 表格数据
+      liandongColumns: [ // 列字段
         {
           text: '名称',
           value: 'name',
@@ -85,15 +126,14 @@ export default {
           value: 'prot'
         },
       ],
-      liandongOptions: [
+      liandongOptions: [ // 操作列选项
         {
           text: '取消联动',
           onclick: deleteOption,
           isShow: isDeleteShow,
         }
       ],
-      currentUserId:null,
-      bttns:[
+      bttns:[ // 操作按钮
         {
           name:'添加',
           methodd: 'add',
@@ -105,16 +145,17 @@ export default {
       param:{},
       form:{
         alarmId: null,
-        deviceId: null,
+        deviceIdList: [],
         createUser: null,
         updateUser: null,
       },
       formRules:{
-        deviceIdList:[{required: true, trigger: 'blur', message: "请选择摄像头"}],
-      }
+        deviceIdList:[{validator: validateDevIdList, required: true, trigger: 'blur'}],
+      },
     }
   },
   methods: {
+    normalizer(node) {return normalizer(node)},
     handleMethod(ms) {this[ms]();},
     getLiandongList(){
       if(this.device==null)return ;
@@ -124,6 +165,18 @@ export default {
           this.liandongData = res.data.data;
         }else{this.$message.error(res.data.errorMsg)}
       }).catch(err => {console.log(err)});
+    },
+    // 更新表单的摄像头选项
+    getCameraList(){
+      getDeviceList({groupId:this.currentGroupId,type:'摄像头'})
+        .then(res => {
+            if(res.data.errorCode===200){
+              this.cameraList = res.data.data;
+            }else{
+              console.log(res.data.errorMsg)
+            }
+          })
+        .catch(err=>{console.log(err)});
     },
     add(){
       if(this.device==null){
@@ -167,9 +220,18 @@ export default {
     },
     deleteAll(){
       console.log("in deleteAll")
-      // 获取勾选
+      let cameraIdList = this.$refs.liandongTable.getSelectedKeys();
       // 判空
-      // 删除all
+
+      // 调用接口
+      deleteAllLiandongByIdList(cameraIdList).then(res => {
+        if(res.data.errorCode === 200){
+          this.$message.success("删除成功")
+          this.getLiandongList()
+        }else{
+          this.$message.error(res.data.errorMsg)
+        }
+      }).catch( err => {console.log(err)})
     },
   },
   watch: {
@@ -177,6 +239,10 @@ export default {
       this.deviceName = this.device==null?'--':this.device.name;
       if(this.device==null){this.liandongData = [];}
       else this.getLiandongList()
+    },
+    currentGroupId(){
+      // 在分组选定/更改后, 更新选项
+      this.getCameraList();
     },
   },
   created() {

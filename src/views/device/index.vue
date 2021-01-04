@@ -82,7 +82,9 @@
             <channel :device="curDevice"></channel>
           </el-tab-pane>
           <el-tab-pane label="联动摄像头" lazy>
-            <liandong :device="curDevice"></liandong>
+            <liandong :device="curDevice"
+                      :group-list="groupList"
+            ></liandong>
           </el-tab-pane>
         </el-tabs>
 

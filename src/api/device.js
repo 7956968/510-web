@@ -6,7 +6,13 @@ import request from '@/utils/request'
  *
  */
 
-
+/**
+ *
+ * @param params
+ *        keyword 关键字
+ *        groupId 组id
+ *        type    设备类型
+ */
 export function getDeviceList(params) {
   return request({
     url: '/device/select',
@@ -183,6 +189,14 @@ export function deleteLiandongById(id) {
     url: '/device/deleteLiandong',
     method: 'post',
     params:{id:id}
+  })
+}
+
+export function deleteAllLiandongByIdList(idList) {
+  return request({
+    url: '/device/deleteAllLiandong',
+    method: 'post',
+    data:{idList:idList}
   })
 }
 
