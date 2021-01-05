@@ -23,6 +23,7 @@
                   :options="tableOption"
                   border
                   not-tree
+                  ref="curTable"
       />
     </div>
 
@@ -433,6 +434,16 @@ export default {
           }
         });
       });
+    },
+    deleteAll(){
+      let checkedIdList = this.$refs.curTable.getSelectedKeys();
+      // 判空
+      if( ! checkedIdList.length ){
+        this.$message.warning("未勾选数据");
+        return ;
+      }
+      // 调用接口
+      ////
     },
   },
   watch: {

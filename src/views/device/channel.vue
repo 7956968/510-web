@@ -39,7 +39,7 @@
           <el-input v-model="form.serialNumber" placeholder="序列号" style="width: auto"/>
         </el-form-item>
         <el-form-item label="通道号" prop="number">
-          <el-input v-model="form.number" placeholder="通道号" style="width: auto"/>
+          <el-input v-model.number="form.number" placeholder="通道号" style="width: auto"/>
         </el-form-item>
       </el-form>
       <div>
@@ -126,7 +126,10 @@ export default {
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入通道名"}],
         serialNumber: [{required: true, trigger: 'blur', message: "请输入序列号"}],
-        number: [{required: true, trigger: 'blur', message: "请输入通道号"}],
+        number: [
+          {type: 'number',  trigger: 'blur', message: "必须为数字"},
+          {required: true, message: "请输入通道号"},
+        ],
       },
       bttns:[
         {
@@ -214,7 +217,16 @@ export default {
         });
       }).catch(err=>{});
     },
-
+    deleteAll(){
+      let checkedIdList = this.$refs.channelTable.getSelectedKeys();
+      // 判空
+      if( ! checkedIdList.length ){
+        this.$message.warning("未勾选数据");
+        return ;
+      }
+      // 调用接口
+      ////
+    },
   },
   watch:{
     device(){

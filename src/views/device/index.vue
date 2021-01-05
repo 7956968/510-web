@@ -675,6 +675,16 @@ export default {
         });
       }).catch(err=>{});
     },
+    deleteAll(){
+      let checkedIdList = this.$refs.deviceTable.getSelectedKeys();
+      // 判空
+      if( ! checkedIdList.length ){
+        this.$message.warning("未勾选数据");
+        return ;
+      }
+      // 调用接口
+      ////
+    },
   },
   created() {
     this.bttns = this.$route.meta.btnPermission;

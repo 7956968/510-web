@@ -15,7 +15,9 @@
 
     <div>
       <tree-table :data="data" :columns="columns" :options="tableOption" border expandAll
-                  @selection-change="handleSelectionChange"/>
+                  @selection-change="handleSelectionChange"
+                  ref="curTable"
+      />
     </div>
 
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center >
@@ -241,6 +243,16 @@ export default {
           }
         });
       });
+    },
+    deleteAll(){
+      let checkedIdList = this.$refs.curTable.getSelectedKeys();
+      // 判空
+      if( ! checkedIdList.length ){
+        this.$message.warning("未勾选数据");
+        return ;
+      }
+      // 调用接口
+      ////
     },
   },
   created() {

@@ -19,6 +19,7 @@
                   :options="tableOption"
                   border
                   not-tree
+                  ref="curTable"
       />
     </div>
 
@@ -181,7 +182,7 @@ export default {
         gender: [{required: true, trigger: 'blur', message: "请选择性别"}],
         // career: [{required: true, trigger: 'blur', message: "请填写职位"}],
         // phone: [{required: true, trigger: 'blur', message: "请输入手机号"}],
-        // email:  [{required: true, trigger: 'blur', message: "请输入邮箱"}],
+        email:  [{type:'email', trigger: 'blur', message: "邮箱格式有误"}],
         password: [{required: true, trigger: 'blur', message: "请输入密码"}],
         passwordAgain: [{validator: validatePsw2, required: true, trigger: 'blur' }],
         roleId: [{required: true, trigger: 'blur', message: "请选择角色"}],
@@ -365,6 +366,16 @@ export default {
           }
         });
       });
+    },
+    deleteAll(){
+      let checkedIdList = this.$refs.curTable.getSelectedKeys();
+      // 判空
+      if( ! checkedIdList.length ){
+        this.$message.warning("未勾选数据");
+        return ;
+      }
+      // 调用接口
+      ////
     },
     showPsw(){
       console.log("in showPsw")
