@@ -135,6 +135,12 @@ export default {
           icon:'el-icon-circle-plus-outline',
           title:'添加',
         },
+        {
+          name:'刷新',
+          methodd: 'getChannelList',
+          icon:'el-icon-refresh',
+          title:'刷新',
+        },
         //// 批量删除
       ],
     }
@@ -146,7 +152,7 @@ export default {
       getChannelList(this.device.id).then(res => {
         if(res.data.errorCode === 200){
           this.channelData = res.data.data;
-          this.$message.success("获取通道列表成功")
+          // this.$message.success("获取通道列表成功")
         }else {
           this.$message.error(res.data.errorMsg)
         }
@@ -157,7 +163,7 @@ export default {
     // 展示表单对话框
     add(){
       if(this.device==null){
-        this.$message.warning('未选中设备')
+        this.$message.warning('未选中设备，左键点击以选择')
         return ;
       }
       this.form.deviceId = this.device.id;

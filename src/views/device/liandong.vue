@@ -62,11 +62,12 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item>
+          <el-button @click="formVisible=false">取 消</el-button>
+          <el-button type="primary" @click="submitForm">确 定</el-button>
+        </el-form-item>
       </el-form>
-      <div>
-        <el-button @click="formVisible=false">取 消</el-button>
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-      </div>
+
     </el-dialog>
   </div>
 </template>
@@ -76,7 +77,7 @@ import treeTable from '@/components/TreeTable';
 import Dialog from '@/components/dialog/index';
 import {getUser} from '@/utils/auth';
 import {getDeviceList,
-  addAllLiandong, deleteLiandongById, deleteAllLiandongByIdList, selectLiandong} from '@/api/device';
+  addAllLiandong, deleteLiandong, deleteAllLiandongByIdList, selectLiandong} from '@/api/device';
 import {listToTree, copyProperties, normalizer} from '@/utils';
 import selectTree from "@riophae/vue-treeselect";
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
@@ -152,6 +153,12 @@ export default {
           icon:'el-icon-circle-plus-outline',
           title:'添加',
         },
+        {
+          name:'刷新',
+          methodd: 'getLiandongList',
+          icon:'el-icon-refresh',
+          title:'刷新',
+        },
         //// 批量删除
       ],
       param:{},
@@ -175,6 +182,7 @@ export default {
       selectLiandong(this.device.id).then(res => {
         if(res.data.errorCode===200){
           this.liandongData = res.data.data;
+          // this.$message.success("获取联动信息成功")
         }else{this.$message.error(res.data.errorMsg)}
       }).catch(err => {console.log(err)});
     },
@@ -199,7 +207,7 @@ export default {
     },
     add(){
       if(this.device==null){
-        this.$message.warning('未选中设备')
+        this.$message.warning('未选中设备，左键点击以选择')
         return ;
       }
       // 清空表单
@@ -231,15 +239,15 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteLiandongById(row.id).then(res => {
+        deleteLiandong({deviceId:row.id,alarmId:this.device.id}).then(res => {
           if (res.data.errorCode === 200) {
             this.getLiandongList();
-            this.$message.success("删除成功");
+            this.$message.success("取消联动成功");
           }else{
             this.$message.error(res.data.errorMsg);
           }
         });
-      }).catch(err=>{console.log(err)});
+      }).catch(err=>{});
     },
     deleteAll(){
       let checkedIdList = this.$refs.liandongTable.getSelectedKeys();

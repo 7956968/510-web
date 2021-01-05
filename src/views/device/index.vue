@@ -66,8 +66,7 @@
       </el-aside>
       <!-- 表格-->
       <el-main>
-        <!--与设备表格保持距离-->
-        <div  >
+        <div>
           <span  style="color:#5b47c9">当前所在组: </span>{{curGroupName}}
         </div>
         <tree-table :data="data"
@@ -504,7 +503,7 @@ export default {
         if (this.dialogName.indexOf("新增设备") !== -1) {//添加操作
           add(this.form).then(res => {
             if (res.data.errorCode === 200) {
-              this.$message.success(res.data.errorMsg);
+              this.$message.success("添加成功，被添加设备在未分组设备中");
               this.getDeviceList()
             }else{
               this.$message.error(res.data.errorMsg);

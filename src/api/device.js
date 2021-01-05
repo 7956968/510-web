@@ -184,11 +184,11 @@ export function addAllLiandong(data) {
  * 删除联动
  * @param id
  */
-export function deleteLiandongById(id) {
+export function deleteLiandong(data) {
   return request({
     url: '/device/deleteLiandong',
     method: 'post',
-    params:{id:id}
+    data: data,
   })
 }
 
