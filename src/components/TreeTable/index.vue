@@ -244,3 +244,11 @@ table td {
   margin-left: -$space-width;
 }
 </style>
+
+<!--修改选中行的高亮色，不能放在有scoped属性的style标签中-->
+<style>
+.el-table__body tr.current-row>td{
+  background-color: #a7bd81 !important;
+  color: #fff;
+}
+</style>
