@@ -26,9 +26,9 @@
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
                      @click="handleMethod(item.methodd)">{{ item.name }}
           </el-button>
-          <el-button @click="showMoveDialog" style="font-size: 18px">
-            转移至分组
-          </el-button>
+<!--          <el-button @click="showMoveDialog" style="font-size: 18px">-->
+<!--            转移至分组-->
+<!--          </el-button>-->
         </el-form-item>
       </el-form>
     </el-header>
@@ -68,7 +68,7 @@
       <el-main>
         <!--与设备表格保持距离-->
         <div  >
-          当前所在组: {{curGroupName}}
+          <span  style="color:#5b47c9">当前所在组: </span>{{curGroupName}}
         </div>
         <tree-table :data="data"
                     :columns="columns"
@@ -81,7 +81,7 @@
         />
         <!--与设备表格保持距离-->
         <div style="margin-top:40px;" >
-          当前选中设备: {{curDeviceName}}
+          <span style="color:#5b47c9">当前选中设备: </span>{{curDeviceName}}
         </div>
         <!--表格[通道, 联动摄像头]-->
         <el-tabs type="border-card">
@@ -247,7 +247,7 @@
                center
     >
       <el-row style="margin: 15px 0;text-align:center;font-size: 22px">将设备{{checkedDeviceNameList}}</el-row>
-      <el-row style="margin: 15px 0;text-align:center;font-size: 22px">移动至</el-row>
+      <el-row style="margin: 15px 0;text-align:center;font-size: 22px;color:#1ca6f5">移动至</el-row>
       <div style="text-align:center">
         <selectTree
           style="width:270px;margin:auto;font-size: 18px"

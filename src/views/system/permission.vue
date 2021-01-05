@@ -24,6 +24,18 @@
             <el-option v-for="item in dicts" :label="item.name" :key="item.id" :value="item.code"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="父节点" v-show="isParentShow">
+          <selectTree
+            style="width: 79%"
+            placeholder="请选择"
+            ref="selectTree"
+            :options="data"
+            v-model="form.pid"
+            clearable
+            accordion="true"
+            :normalizer="normalizer"
+          />
+        </el-form-item>
 <!--        <el-form-item label="路径" prop="path" v-show="!isButton">-->
         <el-form-item label="路径" prop="path">
           <el-input v-model="form.path" placeholder="路径" style="width: auto"></el-input>
@@ -51,18 +63,7 @@
         <el-form-item label="重定向"  v-show="!isButton">
           <el-input v-model="form.redirect" placeholder="重定向路径" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="父节点" v-show="isParentShow">
-          <selectTree
-            style="width: 79%"
-            placeholder="请选择"
-            ref="selectTree"
-            :options="data"
-            v-model="form.pid"
-            clearable
-            accordion="true"
-            :normalizer="normalizer"
-          />
-        </el-form-item>
+
         <el-form-item label="是否在菜单隐藏" v-show="!isButton">
           <el-radio-group v-model="form.hidden">
             <el-radio :label="1">是</el-radio>
