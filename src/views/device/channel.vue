@@ -12,7 +12,13 @@
     </el-form>
 
     <!--表格-->
-    <tree-table :data="channelData" :columns="channelColumns" :options="channelOptions" border ref="channelTable"/>
+    <tree-table :data="channelData"
+                :columns="channelColumns"
+                :options="channelOptions"
+                border
+                ref="channelTable"
+                not-tree
+    />
 
     <!--表单-->
     <el-dialog :title="dialogName"

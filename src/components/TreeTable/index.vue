@@ -29,7 +29,9 @@
       <template slot-scope="scope">
         <!-- Todo -->
         <!-- eslint-disable-next-line vue/no-confusing-v-for-v-if -->
-        <span v-for="space in scope.row._level" v-if="index === 0" :key="space" class="ms-tree-space"/>
+        <!--树层级越大，缩进越多-->
+        <span v-for="space in scope.row._level" v-if="index===0&&!notTree" :key="space" class="ms-tree-space"/>
+        <!--展开/收缩 符号-->
         <span v-if="iconShow(index,scope.row)" class="tree-ctrl" @click="toggleExpanded(scope.$index)">
           <i v-if="!scope.row._expanded" class="el-icon-plus"/>
           <i v-else class="el-icon-minus"/>
@@ -77,6 +79,10 @@ export default {
     },
     evalFunc: Function,
     evalArgs: Array,
+    notTree: { // 非树表（也就是正常的表）
+      type: Boolean,
+      default: false
+    },
     expandAll: {
       type: Boolean,
       default: false
@@ -234,6 +240,7 @@ table td {
   position: relative;
   cursor: pointer;
   color: $color-blue;
+  /*如果有展开符号，向左缩进*/
   margin-left: -$space-width;
 }
 </style>

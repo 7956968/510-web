@@ -15,7 +15,13 @@
     </el-form>
 
     <!--表格-->
-    <tree-table :data="liandongData" :columns="liandongColumns" :options="liandongOptions" border ref="liandongTable"/>
+    <tree-table :data="liandongData"
+                :columns="liandongColumns"
+                :options="liandongOptions"
+                border
+                ref="liandongTable"
+                not-tree
+    />
 
     <!--对话框-->
     <el-dialog :title="dialogName"
@@ -31,7 +37,7 @@
         </el-form-item>
         <el-form-item label="分组">
           <selectTree
-            style="width: 79%"
+            style="width: 40%"
             placeholder="选择分组"
             :options="groupList"
             v-model="currentGroupId"
@@ -45,16 +51,22 @@
           <el-select v-model="form.deviceIdList"
                      placeholder="选择摄像头(可多选)"
                      multiple
+                     style="width: 60%"
           >
             <el-option
               v-for="item in cameraList"
               :key="item.id"
               :label="item.name"
               :value="item.id"
+              :disabled="item.disabled"
             />
           </el-select>
         </el-form-item>
       </el-form>
+      <div>
+        <el-button @click="formVisible=false">取 消</el-button>
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -98,7 +110,7 @@ export default {
     };
     return {
       formVisible: false,
-      dialogName: '添加_报警-摄像头_联动',
+      dialogName: '添加"报警器-摄像头"联动',
       deviceName:null,
       currentUserId:null,
       currentGroupId: null, // 对话框-选择分组-分组id
@@ -172,21 +184,31 @@ export default {
         .then(res => {
             if(res.data.errorCode===200){
               this.cameraList = res.data.data;
+              // 已经联动的摄像头idArray
+              let cameraIdList = this.liandongData.map(e=>e.id);
+              this.cameraList.forEach(item=>{
+                if(cameraIdList.indexOf(item.id)>-1){// 设置禁用
+                  item.disabled = true;
+                }
+              })
             }else{
               console.log(res.data.errorMsg)
             }
           })
-        .catch(err=>{console.log(err)});
+        .catch(err=>{});
     },
     add(){
       if(this.device==null){
         this.$message.warning('未选中设备')
         return ;
       }
+      // 清空表单
       this.form.alarmId = this.device.id;
       this.form.createUser = this.form.updateUser = this.currentUserId;
+      this.form.deviceIdList = [];
+      this.currentGroupId = null;
       this.formVisible=true;
-      // this.dialogName="添加_报警-摄像头_联动";
+      // this.dialogName='添加"报警-摄像头"联动';
     },
     submitForm(){
       this.$refs.liandongForm.validate(valid => {
@@ -196,10 +218,11 @@ export default {
           if(res.data.errorCode === 200) {
             this.$message.success("添加成功");
             this.getLiandongList();
+            this.formVisible = false;
           }else {
             this.$message.error(res.data.errorMsg);
           }
-        }).catch(err =>{console.log(err)})
+        }).catch(err =>{})
       })
     },
     delete(row){
@@ -219,12 +242,14 @@ export default {
       }).catch(err=>{console.log(err)});
     },
     deleteAll(){
-      console.log("in deleteAll")
-      let cameraIdList = this.$refs.liandongTable.getSelectedKeys();
+      let checkedIdList = this.$refs.liandongTable.getSelectedKeys();
       // 判空
-
+      if( ! checkedIdList.length ){
+        this.$message.warning("未勾选数据");
+        return ;
+      }
       // 调用接口
-      deleteAllLiandongByIdList(cameraIdList).then(res => {
+      deleteAllLiandongByIdList(checkedIdList).then(res => {
         if(res.data.errorCode === 200){
           this.$message.success("删除成功")
           this.getLiandongList()

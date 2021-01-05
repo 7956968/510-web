@@ -15,7 +15,9 @@
 
     <div>
       <tree-table :data="data" :columns="columns" :options="tableOption" border expandAll
-                  @selection-change="handleSelectionChange"/>
+                  @selection-change="handleSelectionChange"
+                  not-tree
+      />
     </div>
 
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
@@ -169,12 +171,21 @@ export default {
         });
       });
     },
-    created() {
-      this.bttns = this.$route.meta.btnPermission;
-      // this.bttns.forEach(function (value, index, array) {})
-      this.getCarList();
-    },
-  }
+    deleteAll() {
+      let checkedIdList = this.$refs.table.getSelectedKeys();
+      // 判空
+      if (!checkedIdList.length) {
+        this.$message.warning("未勾选数据");
+        return;
+      }
+      // 调用接口
+    }
+  },
+  created() {
+    this.bttns = this.$route.meta.btnPermission;
+    // this.bttns.forEach(function (value, index, array) {})
+    this.getCarList();
+  },
 }
 </script>
 

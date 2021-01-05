@@ -18,7 +18,12 @@
     </div>
 
     <div>
-      <tree-table :data="data" :columns="columns" :options="tableOption" border/>
+      <tree-table :data="data"
+                  :columns="columns"
+                  :options="tableOption"
+                  border
+                  not-tree
+      />
     </div>
 
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>

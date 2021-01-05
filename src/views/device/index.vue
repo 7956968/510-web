@@ -30,9 +30,6 @@
             转移至分组
           </el-button>
         </el-form-item>
-        <el-form-item>
-          当前所在组: {{curGroupName}}
-        </el-form-item>
       </el-form>
     </el-header>
 
@@ -69,8 +66,18 @@
       </el-aside>
       <!-- 表格-->
       <el-main>
-        <tree-table :data="data" :columns="columns" :options="tableOption" border ref="deviceTable"
-                    :handle-row-click="handleRowClick" highlight-current-row
+        <!--与设备表格保持距离-->
+        <div  >
+          当前所在组: {{curGroupName}}
+        </div>
+        <tree-table :data="data"
+                    :columns="columns"
+                    :options="tableOption"
+                    border
+                    ref="deviceTable"
+                    :handle-row-click="handleRowClick"
+                    highlight-current-row
+                    not-tree
         />
         <!--与设备表格保持距离-->
         <div style="margin-top:40px;" >
@@ -81,7 +88,7 @@
           <el-tab-pane label="通道">
             <channel :device="curDevice"></channel>
           </el-tab-pane>
-          <el-tab-pane label="联动摄像头" lazy>
+          <el-tab-pane label="联动摄像头">
             <liandong :device="curDevice"
                       :group-list="groupList"
             ></liandong>
@@ -138,6 +145,9 @@
         </el-form-item>
         <el-form-item label="IP" prop="ip">
           <el-input v-model="form.ip" placeholder="请输入IP" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="用户名" prop="loginName">
+          <el-input v-model="form.loginName" placeholder="请输入用户名" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input v-model="form.password" placeholder="请输入密码" style="width: auto"></el-input>

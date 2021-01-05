@@ -14,18 +14,12 @@
     </div>
 
     <div>
-      <tree-table :data="data" :columns="columns" :options="tableOption" border/>
-<!--      <el-table :data="data" border>-->
-<!--        <el-table-column-->
-<!--          v-for="(column, index) in columns"-->
-<!--          :key="column.value"-->
-<!--          :label="column.text"-->
-<!--          :width="column.width "-->
-<!--        >-->
-
-<!--        </el-table-column>-->
-<!--      </el-table>-->
-
+      <tree-table :data="data"
+                  :columns="columns"
+                  :options="tableOption"
+                  border
+                  not-tree
+      />
     </div>
 
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
