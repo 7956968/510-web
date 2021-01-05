@@ -44,7 +44,13 @@
     <el-table-column label="操作" width="200">
       <template slot-scope="scope">
         <!--操作按钮区域-->
-        <el-button type="text"   v-for="option in options" :key="option.text" v-show="option.isShow(scope.row)" @click="option.onclick(scope.row)">{{option.text}}</el-button>
+        <el-button type="text"
+                   v-for="option in options"
+                   :key="option.text"
+                   v-show="option.isShow(scope.row)"
+                   @click.stop.prevent="option.onclick(scope.row)">
+          {{option.text}}
+        </el-button>
 
       </template>
     </el-table-column>
