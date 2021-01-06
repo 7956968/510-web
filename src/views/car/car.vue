@@ -60,7 +60,7 @@
 <script>
 import treeTable from '@/components/TreeTable';
 import Dialog from '@/components/dialog/index';
-// import {getCarList, add, updateById, deleteById} from '@/api/department';
+// import {getCarList, add, updateById, deleteById, deleteAll} from '@/api/department';
 import {listToTree} from '@/utils';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
@@ -180,7 +180,14 @@ export default {
         return;
       }
       // 调用接口
-      ////
+      deleteAll(checkedIdList).then(res => {
+        if(res.data.errorCode === 200){
+          this.$message.success("批量删除成功");
+          this.getCarList()
+        }else{
+          this.$message.error(res.data.errorMsg);
+        }
+      }).catch(err=>{})
     }
   },
   created() {

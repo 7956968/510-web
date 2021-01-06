@@ -162,10 +162,6 @@ export default {
     handleMethod(ms) {
       this[ms]();
     },
-    // 处理勾选项
-    handleSelectionChange(val){
-      console.log(val)
-    },
     add() {
       this.form = {
         id: null,

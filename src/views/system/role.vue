@@ -70,7 +70,7 @@
 
 <script>
 import treeTable from '@/components/TreeTable';
-import {getRoleList, add, updateById, deleteById, getLast} from '@/api/role';
+import {getRoleList, add, updateById, deleteById, deleteAll, getLast} from '@/api/role';
 import {getPermissionListByRoleId, addAll as addRPAll, deleteAll as deleteRPAll, deleteByRoleId, getPmsIdListByRoleId} from '@/api/rolePermission';
 import {listToTree, copyProperties, minus, intersect} from '@/utils';
 import Dialog from '@/components/dialog/index';
@@ -443,7 +443,14 @@ export default {
         return ;
       }
       // 调用接口
-      ////
+      deleteAll(checkedIdList).then(res => {
+        if(res.data.errorCode === 200){
+          this.$message.success("批量删除成功");
+          this.getRoleList()
+        }else{
+          this.$message.error(res.data.errorMsg);
+        }
+      }).catch(err=>{})
     },
   },
   watch: {

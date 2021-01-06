@@ -375,7 +375,14 @@ export default {
         return ;
       }
       // 调用接口
-      ////
+      deleteAll(checkedIdList).then(res => {
+        if(res.data.errorCode === 200){
+          this.$message.success("批量删除成功");
+          this.getUserList()
+        }else{
+          this.$message.error(res.data.errorMsg);
+        }
+      }).catch(err=>{})
     },
     showPsw(){
       console.log("in showPsw")
