@@ -36,3 +36,10 @@ export function deleteById(id) {
   })
 }
 
+export function deleteAll(idList) {
+  return request({
+    url: '/department/delete_all',
+    method: 'post',
+    data:{idList:idList}
+  })
+}

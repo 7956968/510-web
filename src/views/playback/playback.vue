@@ -27,19 +27,21 @@
       </div>
       <div :style="getOuterStyle()">
         <div v-for="i in 4" style="width:50%;height: 50%;" class="videoBox" @drop="changeList(i)" @dragover.prevent>
-          <video controls muted autoplay style="width:100%;height:100%;object-fit:fill"
+          <video controls muted autoplay style="width:100%;height:100%;object-fit:fill;pointer-events: none;"
                  :id="'live_'+i">
             Your browser is too old which doesn't support HTML5 video.
           </video>
+          <div :class="i===selected?'mask_selected':'mask'" @click="select(i)">
+            <div class="textBox">{{getText(i)}}</div>
+          </div>
         </div>
       </div>
       <div :style="'width: '+boxWidth+'px;height: 45px;float:left;border-bottom:1px black solid;border-right:1px black solid;'">
-        <div @click="division=1" class="division-btn">1分屏</div>
-        <div @click="division=4" class="division-btn">4分屏</div>
-        <div @click="division=6" class="division-btn">6分屏</div>
-        <div @click="division=8" class="division-btn">8分屏</div>
-        <div @click="division=9" class="division-btn">9分屏</div>
-        <div @click="division=16" class="division-btn">16分屏</div>
+        <div @click="Fback" class="division-btn">快退</div>
+        <div @click="play" class="division-btn">播放</div>
+        <div @click="pause" class="division-btn">暂停</div>
+        <div @click="Fforward" class="division-btn">快进</div>
+        <div @click="shutdown" class="division-btn">关闭</div>
         <el-input-number v-model="pageNum" controls-position="right" @change="startPlay"
                          :min="1" :max="pageMax" size="mini" name="页码"></el-input-number>
       </div>
@@ -55,9 +57,14 @@
           placeholder="选择日期">
         </el-date-picker>
       </div>
-      <div style="width: calc(100% - 155px);height: 100%;float: left;border-bottom:1px black solid;border-right:1px black solid;">
-        <div v-for="i in 4" style="width: 90%;height: 22%;margin-left: 5%">
-          <el-slider></el-slider>
+      <div style="width: calc(100% - 158px);height: 100%;float: left;border-bottom:1px black solid;border-right:1px black solid;">
+        <div style="width: 100%;height: 8px;"></div>
+        <div v-for="i in 4" style="width: 90%;height: 21%;margin-left: 2%;box-shadow:0 0 1px black;">
+          <div style="width:100px;float:left;magin-top:2%;">00:00:00</div>
+          <div style="width:calc(100% - 100px);height:100%;float:left;box-shadow:0 0 1px black;cursor:pointer;"
+          @mousedown="mark(i,$event)" @mouseup="unmark(i,$event)" @mousemove="renewProc(i,$event)" :id="'outer_'+i">
+            <div class="proc" :id="'proc_'+i"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -65,30 +72,32 @@
 </template>
 
 <script>
-import treeTable from '@/components/TreeTable';
-import {getRoleList, add, updateById, deleteById} from '@/api/role';
-import {getPermissionListByRoleId, add as addRP, deleteById as deleteRPById} from '@/api/rolePermission';
-import {listToTree, copyProperties} from '@/utils';
-import Dialog from '@/components/dialog/index';
-import selectTree from '@riophae/vue-treeselect'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+// import treeTable from '@/components/TreeTable';
+// import {getRoleList, add, updateById, deleteById} from '@/api/role';
+// import {getPermissionListByRoleId, add as addRP, deleteById as deleteRPById} from '@/api/rolePermission';
+// import {listToTree, copyProperties} from '@/utils';
+// import Dialog from '@/components/dialog/index';
+// import selectTree from '@riophae/vue-treeselect'
+// import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import flvjs from 'flv.js'
-import {getUser} from '@/utils/auth'
+// import {getUser} from '@/utils/auth'
 
 export default {
   name: "playback",
-  components: {
-    Dialog,
-    treeTable,
-    selectTree
-  },
+  // components: {
+  //   Dialog,
+  //   treeTable,
+  //   selectTree
+  // },
   mounted() {
     let cnt = 0
+    let time = 0
     let _that = this
     let box = this.$refs.box
     _that.resize(box)
     this.timer = setInterval(()=>{
       cnt++
+      time++;
       if(cnt%3===0){
         _that.resize(box)
       }
@@ -99,7 +108,19 @@ export default {
           _that.sgClick = null
         }
       }
+      if(time>=10) {
+        time=0;
+        for(let i=0;i<4;i++){
+          if(this.speed[i]!==1&&this.speed[i]!==0){
+            document.getElementById('live_'+(i+1)).currentTime += this.speed[i]
+          }
+        }
+      }
     },100)
+    window.addEventListener("mouseup", ()=>{
+      // console.log('all')
+      _that.dragging_proc = 0
+    })
   },
   watch: {
     keyword(val) {
@@ -118,33 +139,38 @@ export default {
   },
   data() {
     return {
+      speed: new Array(4).fill(0), //控制快进快退,为1时正常播放，为0时暂停
+      selected: 0, //表示选中的视频，0表示未选中
       selectedDate: '',
       timer: null,
       boxHeight: 0,
       boxWidth: 0, //视频框的宽度，并非是box元素的宽度
       division: 4,  //分屏数量
+      current_time: new Array(4).fill(0),
+      duration: new Array(4),
       dragging: {}, //拖拽中的数据
       sgClick: null,  //单击一次的节点对象,0.5s内没有再次点击则赋值为null
       playList: new Array(4).fill(null),  //播放列表，对应的是每一个分屏的内容，一个Video标签
       urlList: new Array(4).fill(null),  //当前的url列表，项数为分屏数量的整倍数
       pageNum: 1,  //当前页
       pageMax: 1,
+      dragging_proc: 0,//标记拖动中的进度条，0位未拖拽任何进度条
       data: [{
         label: '分组 1',
         children: [{
           label: '子分组 1-1',
           children: [{
             label: '视频1',
-            url: 'http://192.168.100.123:8080/live?port=1986&app=live&stream=mystream'
+            url: '/1.mp4'
           }, {
             label: '视频2',
-            url: 'http://192.168.100.123:8081/live?port=1985&app=live&stream=mystream'
+            url: '/2.mp4'
           },{
             label: '视频3',
-            url: 'http://192.168.100.123:8082/live?port=1987&app=live&stream=mystream'
+            url: '/3.mp4'
           }, {
             label: '视频4',
-            url: 'http://192.168.100.123:8083/live?port=1985&app=live&stream=mystream'
+            url: '/4.mp4'
           }]
         }]
       }, {
@@ -178,9 +204,25 @@ export default {
         }
       }
       return len
+    },
+    getText(){
+      return function (i){
+        if(this.speed[i-1]===0) return "暂停"
+        if(this.speed[i-1]===1) return ""
+        if(this.speed[i-1]>1) return "快进：✖"+this.speed[i-1]
+        if(this.speed[i-1]<0) return "快退：✖"+(-this.speed[i-1])
+      }
     }
   },
   methods: {
+    select(i){
+      this.selected=i;
+    },
+    setSelected(){
+      let tmp = this.selected
+      this.selected = 5
+      this.selected = tmp
+    },
     //播放i分屏的url对应的视屏
     start(i) {
       if (flvjs.isSupported()) {
@@ -192,7 +234,7 @@ export default {
         // console.log(_that.division*(_that.pageNum-1)+i-1)
         let url = _that.urlList[_that.division*(_that.pageNum-1)+i-1].url
         _that.playList[i-1] = flvjs.createPlayer({
-          type: 'flv',
+          type: 'mp4',
           url: url,
           cors:true,
           enableWorker:true,
@@ -202,7 +244,13 @@ export default {
         });
         _that.playList[i-1].attachMediaElement(videoElement);
         _that.playList[i-1].load();
+        setTimeout(()=>{
+          _that.duration[i-1] = videoElement.duration
+        }, 1500)
         _that.playList[i-1].play();
+        _that.speed[i-1] = 1;
+        _that.setSelected();
+        _that.listen(i)
       }
     },
     //停止播放i分屏的视频 i取1-16
@@ -214,14 +262,6 @@ export default {
       try{this.playList[i-1].destroy()}
       catch (e){}
       this.playList[i-1] = null
-    },
-    //延时校准
-    correct(){
-      for(let i=0;i<this.playList.length;i++){
-        if(this.playList[i]!=null){
-          this.playList[i].currentTime=this.playList[i].buffered.end(0)-0.2
-        }
-      }
     },
     //播放组件大小自适应
     resize(box){
@@ -290,8 +330,6 @@ export default {
     startPlay(way){
       let offset = this.pageNum-1
       let div = this.division
-      // console.log("offset:"+offset+";div:"+div+"\n")
-      // console.log(this.urlList)
       for(let i=0;i<div;i++){
         if(this.playList[i]==null){
           if(this.urlList[i+offset*div]==null) {}
@@ -302,9 +340,12 @@ export default {
         else if(this.urlList[offset*div+i]==null){
           this.end(i+1)
         }
-        else if(this.urlList[offset*div+i].url!==this.playList[i]._statisticsInfo.url||way===1){
+        else if(this.urlList[offset*div+i].url!==this.playList[i]._mediaDataSource.url||way===1){
           this.end(i+1)
           this.start(i+1)
+        }
+        else{
+          console.log(this.playList[i]._mediaDataSource.url)
         }
       }
     },
@@ -318,13 +359,123 @@ export default {
     },
     deny(){
       return false
+    },
+    mark(i,ev){
+      let event = event||ev
+      this.dragging_proc = i+1
+      document.getElementById('proc_'+i).style="width:"+event.offsetX+"px;"
+    },
+    renewProc(i,ev){
+      let event = event||ev
+      if(i+1==this.dragging_proc){
+        // console.log('nice')
+        document.getElementById('proc_'+i).style="width:"+event.offsetX+"px;"
+      }
+    },
+    unmark(i,ev){
+      let event = event||ev
+      if(this.dragging_proc == i+1){
+        document.getElementById('live_'+i).currentTime = 
+        event.offsetX/document.getElementById('outer_'+i).clientWidth*document.getElementById('live_'+i).duration
+      }
+      // console.log(this.dragging_proc+'unmark')
+    },
+    listen(index){
+      let _that = this
+      let video = document.getElementById('live_'+index)
+      let proc = document.getElementById('proc_'+index)
+      video.addEventListener("timeupdate",()=>{
+        if(video===undefined) return;
+        _that.current_time[index-1] = video.currentTime;
+        let len = video.currentTime/video.duration
+        if(proc!==undefined&&_that.dragging_proc===0){
+          proc.style='width:'+(len*100)+'%;'
+        }
+      // if(_that.$refs.video.duration!=undefined&&!isNaN(_that.$refs.video.duration)){
+      //   _that.writeTime = parseInt(_that.$refs.video.currentTime/60)+':'+parseInt(_that.$refs.video.currentTime%60)+' / '+parseInt(_that.$refs.video.duration/60)+':'+parseInt(_that.$refs.video.duration%60)
+      // }
+      },false)
+    },
+    Fback(){
+      if(this.selected===0){
+        console.log('未选中视频！')
+        return
+      }
+      let index = this.selected-1
+      if(this.speed[index]<0&&this.speed[index]>-32){
+        this.speed[index]*=2;
+      }
+      else if(this.speed[index]===1){
+        console.log('ok')
+        document.getElementById('live_'+this.selected).pause()
+        this.speed[index]=-2;
+      }
+      else{
+        this.speed[index]=-2;
+      }
+      this.setSelected()
+    },
+    Fforward(){
+      if(this.selected===0){
+        console.log('未选中视频！')
+        return
+      }
+      let index = this.selected-1
+      if(this.speed[index]>1&&this.speed[index]<32){
+        this.speed[index]*=2;
+      }
+      else if(this.speed[index]===1){
+        document.getElementById('live_'+this.selected).pause()
+        this.speed[index]=2;
+      }
+      else{
+        this.speed[index]=2;
+      }
+      this.setSelected()
+    },
+    play(){
+      if(this.selected===0){
+        console.log('未选中视频！')
+        return
+      }
+      let index = this.selected-1
+      this.speed[index] = 1
+      document.getElementById('live_'+this.selected).play()
+      this.setSelected()
+    },
+    pause(){
+      if(this.selected===0){
+        console.log('未选中视频！')
+        return
+      }
+      let index = this.selected-1
+      this.speed[index] = 0
+      document.getElementById('live_'+this.selected).pause()
+      this.setSelected()
+    },
+    shutdown(){
+      if(this.selected===0){
+        console.log('未选中视频！')
+        return
+      }
+      let index = this.selected-1
+      this.speed[index] = 0
+      document.getElementById('live_'+this.selected).src='';
+      this.playList[index]._mediaDataSource.url=null
+      document.getElementById('live_'+this.selected).load()
+      let offset = this.pageNum-1
+      let div = this.division
+      this.urlList[div*offset+index]=null
+      this.setSelected()
+      console.log(this.urlList)
     }
   },
   beforeDestroy() {
     clearInterval(this.timer)
     this.timer = null
+    window.removeEventListener("mouseup", ()=>{})
   }
-}
+};
 </script>
 
 <style scoped>
@@ -334,7 +485,7 @@ export default {
 .box-side-bar{
   width: 155px;
   background-color: white;
-  height: 100%;
+  height: calc(100% - 1px);
   border: 1px solid black;
   float: left;
   overflow: hidden;
@@ -357,6 +508,13 @@ export default {
 .videoBox:hover{
   box-shadow: 0 0 5px yellow;
 }
+.proc{
+  float:left;
+  height:100%;
+  border-right:#41c7db 5px solid;
+  background-color:#e1f7fb;
+  pointer-events: none;
+}
 /deep/ .el-tree-node:focus>.el-tree-node__content{
   background-color: #41c7db;
 }
@@ -367,6 +525,28 @@ export default {
   -moz-user-select:none;/*火狐*/
   -ms-user-select:none; /*IE10*/
   user-select:none;
+}
+.mask{
+  float:left;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  bottom: 102%;
+}
+.mask_selected{
+  float:left;
+  box-shadow:rgb(11, 234, 235) 0px 0px 18px inset;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  bottom: 102%;
+}
+.textBox{
+  float: right;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 10px;
+  pointer-events: none;
 }
 input{
   -webkit-user-select:auto; /*webkit浏览器*/

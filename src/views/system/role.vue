@@ -27,7 +27,7 @@
       />
     </div>
 
-    <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
+    <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center :close-on-click-modal="false">
       <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
                size="mini">
         <el-form-item label="名称" prop="name">

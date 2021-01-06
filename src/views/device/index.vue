@@ -166,6 +166,7 @@
                :visible.sync="groupFormVisible"
                @close=""
                center
+               :close-on-click-modal="false"
     >
       <div style="height: 500px;" >
         <el-alert

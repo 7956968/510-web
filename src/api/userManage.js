@@ -36,4 +36,10 @@ export function deleteById(id) {
     params:{id:id}
   })
 }
-
+export function deleteAll(idList) {
+  return request({
+    url: '/user_manage/delete_all',
+    method: 'post',
+    data:{idList:idList}
+  })
+}

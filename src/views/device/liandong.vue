@@ -28,6 +28,7 @@
                :visible.sync="formVisible"
                @close=""
                center
+               :close-on-click-modal="false"
     >
       <el-form :model="form" size="mini" label-position="left" label-width="100px"
                ref="liandongForm"

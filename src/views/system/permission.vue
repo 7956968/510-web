@@ -16,7 +16,7 @@
     <div>
       <tree-table :data="data" :columns="columns" :options="tableOption" border/>
     </div>
-    <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
+    <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center :close-on-click-modal="false">
       <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
                size="mini">
         <el-form-item label="菜单类型" prop="type">
@@ -26,7 +26,7 @@
         </el-form-item>
         <el-form-item label="父节点" v-show="isParentShow">
           <selectTree
-            style="width: 79%"
+            style="width: 60%"
             placeholder="请选择"
             ref="selectTree"
             :options="data"
@@ -55,7 +55,7 @@
         </el-form-item>
         <el-form-item label="事件"  v-show="isButton">
           <el-input v-model="form.method" placeholder="事件" style="width: auto"></el-input>
-           填入: add / delete / search , 分别表示"新增", "删除", "查找"
+           填入: add / deleteAll / search / update, 分别表示"新增", "删除", "查找", "修改"
         </el-form-item>
         <el-form-item label="图标" >
           <el-input v-model="form.icon" placeholder="图标" style="width: auto"></el-input>
@@ -169,7 +169,8 @@ export default {
         },
         {
           text: '顺序',
-          value: 'sortOrder'
+          value: 'sortOrder',
+          width: 50,
         },
         {
           text: '页面路径',
@@ -177,19 +178,23 @@ export default {
         },
         {
           text: '重定向',
-          value: 'redirect'
+          value: 'redirect',
+          width: 66,
         },
         {
           text: '是否隐藏',
-          value: 'hidden'
+          value: 'hidden',
+          width: 80,
         },
         {
           text: '显示父节点',
-          value: 'alwaysshow'
+          value: 'alwaysshow',
+          width: 92,
         },
         {
           text: '可点击',
-          value: 'clickable'
+          value: 'clickable',
+          width: 64,
         },
         {
           text: '名称',
@@ -201,7 +206,8 @@ export default {
         },
         {
           text: '是否缓存',
-          value: 'nocache'
+          value: 'nocache',
+          width: 80,
         },
         {
           text: '图标',

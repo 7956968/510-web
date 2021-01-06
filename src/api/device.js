@@ -42,6 +42,13 @@ export function deleteById(id) {
     params:{id:id}
   })
 }
+export function deleteAll(idList) {
+  return request({
+    url: '/device/delete_all',
+    method: 'post',
+    data:{idList:idList}
+  })
+}
 
 /**
  * 分组设置

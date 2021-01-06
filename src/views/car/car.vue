@@ -21,7 +21,7 @@
       />
     </div>
 
-    <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
+    <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center :close-on-click-modal="false">
       <el-form :model="form"
                ref="dialogForm"
                :rules="formRules"

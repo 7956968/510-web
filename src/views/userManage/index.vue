@@ -23,7 +23,7 @@
       />
     </div>
 
-    <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
+    <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center :close-on-click-modal="false">
       <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
                size="mini">
         <el-form-item label="姓名" prop="name">
@@ -107,7 +107,7 @@
 
 <script>
 import treeTable from '@/components/TreeTable';
-import {getUserList, add, updateById, deleteById} from '@/api/userManage';
+import {getUserList, add, updateById, deleteById, deleteAll} from '@/api/userManage';
 import {getDepartmentList } from '@/api/department';
 import {getRoleList } from '@/api/role';
 import {listToTree, copyProperties, normalizer} from '@/utils';
