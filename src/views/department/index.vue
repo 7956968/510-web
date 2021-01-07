@@ -15,7 +15,6 @@
 
     <div>
       <tree-table :data="data" :columns="columns" :options="tableOption" border expandAll
-                  @selection-change="handleSelectionChange"
                   ref="curTable"
       />
     </div>
