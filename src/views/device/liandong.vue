@@ -257,8 +257,16 @@ export default {
         this.$message.warning("未勾选数据");
         return ;
       }
-      // 调用接口
-      deleteAllLiandongByIdList(checkedIdList).then(res => {
+      let checkedRowList = this.$refs.liandongTable.getSelectedRows(); // 被勾选的列数组
+      let deletedNameList = checkedRowList.map(e=>e.name);  // 待删除列的名字列表
+      this.$confirm('即将取消"'+this.device.name+'"与[' + deletedNameList + ']联动, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 调用接口
+        return deleteAllLiandongByIdList(checkedIdList)
+      }).then(res => {
         if(res.data.errorCode === 200){
           this.$message.success("删除成功")
           this.getLiandongList()

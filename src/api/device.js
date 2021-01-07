@@ -65,6 +65,18 @@ export function getGroupList(params) {
   })
 }
 
+/**
+ * 获取分组与分组内所有的"摄像头"设备
+ * @param params 查询参数（暂时不用）
+ */
+export function getGroupListWithDevices(params) {
+  return request({
+    url: '/group/select_with_devices',
+    method: 'get',
+    params
+  })
+}
+
 // 添加分组
 export function addGroup(params) {
   return request({

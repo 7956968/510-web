@@ -331,7 +331,8 @@ export default {
       currentUserId: null,    // 当前用户id
       btnType: 'plain',   // "未分组设备"按钮的类型，按下会变蓝
       curGroupName: '全部',   // 当前所在组名，id=null:全部;=0:未分组设备;>0:具体组名
-      curDevice: null,// 当前选中列
+      curDevice: null,// 当前选中设备行
+      curGroup: null,   // 当前选中组
       manufacturersOptions: [
         "海康",
         "豪恩",
@@ -374,6 +375,8 @@ export default {
         password: '',
         createUser: this.currentUserId,
         updateUser: this.currentUserId,
+
+        groupId: null,  // 分组id
       },
       groupForm: {
         id:null,
@@ -464,6 +467,8 @@ export default {
         password: '',
         createUser: this.currentUserId,
         updateUser: this.currentUserId,
+
+        groupId: this.curGroup?this.curGroup.id:null,
       };
       this.dialogName = "新增设备";
       this.dialogFormVisible = true;
@@ -496,7 +501,7 @@ export default {
           setEachPidZero(this.groupList);
           setNotLeafDisabled(this.groupList)
         }
-      })
+      }).catch(err=>{})
     },
     submitForm() {
       this.$refs.dialogForm.validate(valid => {
@@ -610,10 +615,12 @@ export default {
         this.param.groupId = null
         this.$refs.groupTreeShow.store.currentNode = null;
         this.curGroupName = "全部";
+        this.curGroup = null;
       }else{
         this.param.groupId = node.id
         this.btnType = 'plain'
         this.curGroupName = node.name;
+        this.curGroup = node;
       }
       this.getDeviceList()
     },
@@ -683,15 +690,23 @@ export default {
         this.$message.warning("未勾选数据");
         return ;
       }
-      // 调用接口
-      deleteAll(checkedIdList).then(res => {
-        if(res.data.errorCode === 200){
+      let checkedRowList = this.$refs.curTable.getSelectedRows(); // 被勾选的列数组
+      let deletedNameList = checkedRowList.map(e=>e.name);  // 待删除列的名字列表
+      this.$confirm('即将删除[' + deletedNameList + '], 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 调用接口
+        return deleteAll(checkedIdList);
+      }).then(res => {
+        if (res.data.errorCode === 200) {
           this.$message.success("批量删除成功");
           this.getDeviceList()
-        }else{
+        } else {
           this.$message.error(res.data.errorMsg);
         }
-      }).catch(err=>{})
+      }).catch(err => {})
     },
   },
   created() {
