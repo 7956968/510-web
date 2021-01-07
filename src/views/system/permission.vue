@@ -162,6 +162,7 @@ export default {
         {
           text: '路径',
           value: 'path',
+          width: 250,
         },
         {
           text: '类型',

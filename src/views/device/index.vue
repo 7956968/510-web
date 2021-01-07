@@ -98,7 +98,7 @@
     </el-container>
     </el-container>
     <!--add/modify 设备表单-->
-    <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center>
+    <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center :close-on-click-modal="false">
       <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
                size="mini">
         <el-form-item label="厂家" prop="manufacturers">
@@ -208,7 +208,9 @@
         width="30%"
         :title="innerDialogTitle"
         :visible.sync="innerVisible"
-        append-to-body>
+        append-to-body
+        :close-on-click-modal="false"
+      >
         <el-form :model="groupForm" ref="GroupForm" :rules="groupFormRules" :label-position="labelPosition" label-width="100px"
                  size="mini">
           <el-form-item label="分组名" prop="name">
@@ -245,6 +247,7 @@
                :visible.sync="moveDialogVisible"
                @close=""
                center
+               :close-on-click-modal="false"
     >
       <el-row style="margin: 15px 0;text-align:center;font-size: 22px">将设备{{checkedDeviceNameList}}</el-row>
       <el-row style="margin: 15px 0;text-align:center;font-size: 22px;color:#1ca6f5">移动至</el-row>
