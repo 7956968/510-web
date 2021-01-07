@@ -146,7 +146,7 @@ export default {
     handleSelectionChange(val){
       console.log(val)
     },
-    // add() {}
+    //// add() {}
     search(){ // 查询
       this.getCarList();
     },
@@ -155,7 +155,7 @@ export default {
         console.log("write sth")
       })
     },
-    // submitForm() {}
+    //// submitForm() {}
     delete(row) {
       this.$confirm('即将删除' + row.name + ', 是否继续?', '提示', {
         confirmButtonText: '确定',

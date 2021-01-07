@@ -43,7 +43,7 @@
     </el-table-column>
 
 <!--    <el-table-column label="操作" header-align="center" align="center">-->
-    <el-table-column label="操作" width="200">
+    <el-table-column label="操作" width="165">
       <template slot-scope="scope">
         <!--操作按钮区域-->
         <el-button type="text"

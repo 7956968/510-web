@@ -384,7 +384,13 @@ export default {
       })
     },
     deleteById(row){
-      deleteById(row.id).then(res=>{
+      this.$confirm('即将删除' + row.name + ', 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then( () => {
+        return deleteById(row.id)
+      }).then( res => {
         if (res.data.errorCode == 200){
           this.getList();
           this.$message.success(res.data.errorMsg)
