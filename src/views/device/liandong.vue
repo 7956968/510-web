@@ -240,14 +240,14 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteLiandong({deviceId:row.id,alarmId:this.device.id}).then(res => {
-          if (res.data.errorCode === 200) {
-            this.getLiandongList();
-            this.$message.success("取消联动成功");
-          }else{
-            this.$message.error(res.data.errorMsg);
-          }
-        });
+        return deleteLiandong({deviceId:row.id,alarmId:this.device.id});
+      }).then(res => {
+        if (res.data.errorCode === 200) {
+          this.$message.success("取消联动成功");
+          this.getLiandongList();
+        }else{
+          this.$message.error(res.data.errorMsg);
+        }
       }).catch(err=>{});
     },
     deleteAll(){

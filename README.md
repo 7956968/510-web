@@ -435,3 +435,11 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     └─userManage  用户管理
             index.vue
 ```
+## 常见问题
+
+### treeselect组件变得巨大，影响正常使用
+```javascript
+import selectTree from "@riophae/vue-treeselect";
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+```
+第二行影响样式，少了第二行

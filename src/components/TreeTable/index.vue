@@ -97,7 +97,7 @@ export default {
       default: false,
     },
     OptionColumnWidth: { // 操作列的宽度
-      default: 100,// 2个操作为94
+      default: 100,// 2个操作为100
       //// 三字段是165
     }
   },

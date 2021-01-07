@@ -79,7 +79,7 @@
               :key="idx"
               :value="item.value"
               :label="item.label"
-              >
+            >
             </el-option>
           </el-select>
         </el-form-item>
@@ -113,6 +113,7 @@ import {getRoleList } from '@/api/role';
 import {listToTree, copyProperties, normalizer} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from "@riophae/vue-treeselect";
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 export default {
   name: "index",
@@ -160,11 +161,11 @@ export default {
       data: [],           // 表格数据
       statusOptions: [    // 用户状态选择表
         {
-          value:true,
+          value: 1,
           label:'正常',
         },
         {
-          value:false,
+          value: 0,
           label:'已删除',
         }
       ],
@@ -205,7 +206,7 @@ export default {
         phone: '',
         email: '',
         departmentId: null,
-        itemStatus: '',
+        itemStatus: 1,
       },
       columns: [
         {
@@ -279,7 +280,7 @@ export default {
         phone: '',
         email: '',
         departmentId: null,
-        itemStatus: true,
+        itemStatus: 1,
       };
       this.formRules.password[0].required = true;
       this.formRules.passwordAgain[0].required = true;
@@ -359,13 +360,15 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteById(row.id).then(res => {
-          if (res.data.errorCode === 200) {
-            this.getUserList();
-            this.$message.success("删除成功");
-          }
-        });
-      });
+        return deleteById(row.id);
+      }).then(res => {
+        if (res.data.errorCode === 200) {
+          this.getUserList();
+          this.$message.success("删除成功");
+        }else{
+          this.$message.success(res.data.errorMsg);
+        }
+      }).catch(err=>{});
     },
     deleteAll(){
       let checkedIdList = this.$refs.curTable.getSelectedKeys();

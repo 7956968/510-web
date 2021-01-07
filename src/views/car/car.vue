@@ -162,15 +162,15 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteById(row.id).then(res => {
-          if (res.data.errorCode === 200) {
-            this.getCarList();
-            this.$message.success(res.data.errorMsg);
-          }else{
-            this.$message.error(res.data.errorMsg);
-          }
-        });
-      });
+        return deleteById(row.id);
+      }).then(res => {
+        if (res.data.errorCode === 200) {
+          this.getCarList();
+          this.$message.success("删除成功");
+        }else{
+          this.$message.error(res.data.errorMsg);
+        }
+      }).catch(err => {});
     },
     deleteAll() {
       let checkedIdList = this.$refs.curTable.getSelectedKeys();

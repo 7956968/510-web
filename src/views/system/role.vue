@@ -73,7 +73,7 @@
 import treeTable from '@/components/TreeTable';
 import {getRoleList, add, updateById, deleteById, deleteAll, getLast} from '@/api/role';
 import {getPermissionListByRoleId, addAll as addRPAll, deleteAll as deleteRPAll, deleteByRoleId, getPmsIdListByRoleId} from '@/api/rolePermission';
-import {listToTree, copyProperties, minus, intersect} from '@/utils';
+import {listToTree, copyProperties, setEachPidZero} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
@@ -172,11 +172,13 @@ export default {
       columns: [
         {
           text: '序号',
-          value: 'id'
+          value: 'id',
+          width: 120,
         },
         {
           text: '名称',
-          value: 'name'
+          value: 'name',
+          width: 200,
         },
         {
           text: '描述',
@@ -184,7 +186,8 @@ export default {
         },
         {
           text: '创建时间',
-          value: 'createTime'
+          value: 'createTime',
+          width: 180,
         },
       ],
       // 表格右边的操作按钮
@@ -300,12 +303,8 @@ export default {
     getRoleList() {
       getRoleList(this.param).then(res => {
         if (res.data.errorCode == 200) {
-          this.data = listToTree(res.data.data);  // 这一句可能不需要
-          if (this.data != null && this.data.length > 0) {
-            for (let i = 0; i < this.data.length; i++) {
-              this.data[i].pid = 0;
-            }
-          }
+          this.data = res.data.data;
+          setEachPidZero(this.data);
         }
       })
     },
