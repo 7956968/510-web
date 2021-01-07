@@ -24,6 +24,7 @@
                   border
                   not-tree
                   ref="curTable"
+                  option-column-width="165"
       />
     </div>
 

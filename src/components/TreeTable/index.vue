@@ -43,7 +43,7 @@
     </el-table-column>
 
 <!--    <el-table-column label="操作" header-align="center" align="center">-->
-    <el-table-column label="操作" width="165">
+    <el-table-column label="操作" :width="OptionColumnWidth">
       <template slot-scope="scope">
         <!--操作按钮区域-->
         <el-button type="text"
@@ -95,6 +95,10 @@ export default {
     highlightCurrentRow: { // 高亮选中行
       type: Boolean,
       default: false,
+    },
+    OptionColumnWidth: { // 操作列的宽度
+      default: 100,// 2个操作为94
+      //// 三字段是165
     }
   },
   data() {
