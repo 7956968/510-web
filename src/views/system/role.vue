@@ -11,6 +11,7 @@
                      type="primary"
                      size="mini"
                      :icon="item.icon"
+                     v-if="!item.invisible"
                      @click="handleMethod(item.methodd)">{{ item.name }}
           </el-button>
         </el-form-item>
@@ -482,7 +483,7 @@ export default {
         that.canDelete = true;
       }else if(item.methodd === 'update'){
         that.canUpdate = true;
-        array.splice(index, 1);
+        item.invisible = true;
       }
     })
     this.getRoleList();

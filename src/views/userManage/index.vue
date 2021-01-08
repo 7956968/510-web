@@ -7,7 +7,9 @@
         </el-form-item>
         <el-form-item>
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
-                     @click="handleMethod(item.methodd)">{{ item.name }}
+                     @click="handleMethod(item.methodd)"
+                     v-if="!item.invisible"
+          >{{ item.name }}
           </el-button>
         </el-form-item>
       </el-form>
@@ -407,7 +409,7 @@ export default {
         that.canDelete = true;
       }else if(item.methodd === 'update'){
         that.canUpdate = true;
-        array.splice(index, 1);
+        item.invisible = true;
       }
     })
     // 将部门列表存放

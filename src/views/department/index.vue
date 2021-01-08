@@ -6,7 +6,12 @@
           <el-input v-model="param.keyword" placeholder="请输入关键字" clearable @blur="getDepartmentList"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
+          <el-button v-for="(item,index) in bttns"
+                     :key="index"
+                     type="primary"
+                     size="mini"
+                     :icon="item.icon"
+                     v-if="!item.invisible"
                      @click="handleMethod(item.methodd)">{{ item.name }}
           </el-button>
         </el-form-item>
@@ -274,7 +279,7 @@ export default {
         that.canDelete = true;
       }else if(item.methodd === 'update'){
         that.canUpdate = true;
-        array.splice(index, 1);
+        item.invisible = true;
       }
     })
     this.getDepartmentList();

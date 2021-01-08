@@ -24,6 +24,7 @@
         </el-form-item>
         <el-form-item>
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
+                     v-if="!item.invisible"
                      @click="handleMethod(item.methodd)">{{ item.name }}
           </el-button>
 <!--          <el-button @click="showMoveDialog" style="font-size: 18px">-->
@@ -50,7 +51,7 @@
                    size="middle"
         >未分组设备</el-button>
         </el-row>
-        <div style="margin-top:10px;margin-bottom:10px;background:#d7ee0a;height:30px;text-align:center;line-height: 30px">
+        <div style="margin-top:10px;margin-bottom:10px;background:#97b5e7;height:30px;text-align:center;line-height: 30px">
           分组列表
         </div>
 
@@ -723,7 +724,7 @@ export default {
         that.canDelete = true;
       }else if(item.methodd === 'update'){
         that.canUpdate = true;
-        array.splice(index, 1);
+        item.invisible = true;
       }
     })
     this.getGroupList();
