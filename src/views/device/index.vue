@@ -73,7 +73,7 @@
                     :columns="columns"
                     :options="tableOption"
                     border
-                    ref="deviceTable"
+                    ref="curTable"
                     :handle-row-click="handleRowClick"
                     highlight-current-row
                     not-tree
@@ -309,10 +309,10 @@ export default {
       this.delete(row);
     }
     let isUpdateShow = (row) => {
-      return true;
+      return this.canUpdate;
     }
     let isDeleteShow = (row) => {
-      return (!row.children || row.children.length === 0);
+      return this.canDelete;
     }
     let validatePid = (rule, value, callback) => {
       if (value && value===this.groupForm.id) {
@@ -322,6 +322,9 @@ export default {
       }
     };
     return {
+      canUpdate: false,
+      canDelete: false,
+
       data: [],
       bttns: [],
       options: [],
@@ -512,7 +515,7 @@ export default {
         if (this.dialogName.indexOf("新增设备") !== -1) {//添加操作
           add(this.form).then(res => {
             if (res.data.errorCode === 200) {
-              this.$message.success("添加成功，被添加设备在未分组设备中");
+              this.$message.success("添加成功");
               this.getDeviceList()
             }else{
               this.$message.error(res.data.errorMsg);
@@ -687,7 +690,7 @@ export default {
       }).catch(err=>{});
     },
     deleteAll(){
-      let checkedIdList = this.$refs.deviceTable.getSelectedKeys();
+      let checkedIdList = this.$refs.curTable.getSelectedKeys();
       // 判空
       if( ! checkedIdList.length ){
         this.$message.warning("未勾选数据");
@@ -714,7 +717,15 @@ export default {
   },
   created() {
     this.bttns = this.$route.meta.btnPermission;
-    // this.bttns.forEach(function (value, index, array) {})
+    let that = this;
+    this.bttns.forEach(function (item, index, array) {
+      if (item.methodd === 'deleteAll'){
+        that.canDelete = true;
+      }else if(item.methodd === 'update'){
+        that.canUpdate = true;
+        array.splice(index, 1);
+      }
+    })
     this.getGroupList();
     this.getDeviceList();
     this.currentUserId = JSON.parse(getUser()).id;

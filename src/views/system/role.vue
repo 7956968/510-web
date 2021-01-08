@@ -135,9 +135,12 @@ export default {
     let deleteOption = (row) => {
       this.delete(row);
     }
-    let isUpdateShow = (row) => row.changeable;
-    let isDeleteShow = (row) => row.deleteable;
+    let isUpdateShow = (row) => (row.changeable && this.canUpdate);
+    let isDeleteShow = (row) => (row.deleteable && this.canDelete);
     return {
+      canDelete: false,
+      canUpdate: false,
+
       bttns: [],
       labelPosition: 'left',
       dialogFormVisible: false, // 弹窗不可见
@@ -236,7 +239,9 @@ export default {
     getMyPermissionList() {
       getPermissionListByRoleId(this.currentRoleId).then(res =>{
         if (res.data.errorCode == 200) {
-          this.$message.success(res.data.errorMsg);
+          // this.$message.success(res.data.errorMsg);
+          //// 在这里写pmsIdList为map(e=>e.id)方法获取
+
           // 数组转树
           this.permissionList = listToTree(res.data.data);
         }else{
@@ -354,6 +359,7 @@ export default {
           }).then(res3 => {
             if (res3.data.errorCode === 200) {
               this.$message.success("角色添加成功");
+              this.getRoleList();
             }else return Promise.reject(res3.data.errorMsg);
           }).catch(err => {
             console.log(err)
@@ -361,8 +367,8 @@ export default {
           })
 
           this.dialogFormVisible = false; // 隐藏"新增"弹窗
-          // 清空form?
-          // 清空keyword?
+          //// 清空form?
+          //// 清空keyword?
         } else {//修改操作
           // 获取勾选列表
           let chsIdList = this.$refs.tree.getCheckedKeys()
@@ -470,7 +476,15 @@ export default {
   },
   created() {
     this.bttns = this.$route.meta.btnPermission;
-    // this.bttns.forEach(function (value, index, array) {})
+    let that = this;
+    this.bttns.forEach(function (item, index, array) {
+      if (item.methodd === 'deleteAll'){
+        that.canDelete = true;
+      }else if(item.methodd === 'update'){
+        that.canUpdate = true;
+        array.splice(index, 1);
+      }
+    })
     this.getRoleList();
     /////// 这里获取用户有问题
     this.currentRoleId = JSON.parse(getUser()).roleId;

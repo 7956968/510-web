@@ -86,11 +86,9 @@ export default {
     let deleteOption = (row) => {
       this.delete(row);
     }
-    let isUpdateShow = (row) => {
-      return true;
-    }
+    let isUpdateShow = (row) => ( this.canUpdate);
     let isDeleteShow = (row) => {
-      return (!row.children || row.children.length === 0);
+      return (!row.children || row.children.length === 0) && this.canDelete;
     }
     let validatePid = (rule, value, callback) => {
       if (value && value===this.form.id) {
@@ -100,6 +98,9 @@ export default {
       }
     };
     return {
+      canDelete: false,
+      canUpdate: false,
+
       data: [],
       bttns: [],
       options: [],
@@ -267,7 +268,15 @@ export default {
   },
   created() {
     this.bttns = this.$route.meta.btnPermission;
-    // this.bttns.forEach(function (value, index, array) {})
+    let that = this;
+    this.bttns.forEach(function (item, index, array) {
+      if (item.methodd === 'deleteAll'){
+        that.canDelete = true;
+      }else if(item.methodd === 'update'){
+        that.canUpdate = true;
+        array.splice(index, 1);
+      }
+    })
     this.getDepartmentList();
     this.currentUserId = JSON.parse(getUser()).id;
   },

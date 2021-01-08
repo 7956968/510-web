@@ -137,8 +137,8 @@ export default {
     let isUpdateShow = (row) => {
       return this.canUpdate;
     }
-    let isDeleteShow = (row) => {return row.deleteable;}
-    let validatePsw2 = (rule, value, callback) => {
+    let isDeleteShow = (row) => {return row.deleteable && this.canDelete;}
+    let validatePsw2 = (rule, value, callback) => { // 二次密码校验
       if( ! this.formRules.password[0].required){
         callback();
       }else
@@ -152,8 +152,8 @@ export default {
     };
     return {
       bttns: [],
-      canUpdate: true, // 当前登录角色的修改权限
-      canDelete: true, // 同上，删除
+      canUpdate: false, // 当前登录角色的修改权限
+      canDelete: false, // 同上，删除
       options: [],
       labelPosition: 'left',
       dialogFormVisible: false, // 弹窗不可见
@@ -401,7 +401,15 @@ export default {
   },
   created() {
     this.bttns = this.$route.meta.btnPermission;
-    // this.bttns.forEach(function (value, index, array) {})
+    let that = this;
+    this.bttns.forEach(function (item, index, array) {
+      if (item.methodd === 'deleteAll'){
+        that.canDelete = true;
+      }else if(item.methodd === 'update'){
+        that.canUpdate = true;
+        array.splice(index, 1);
+      }
+    })
     // 将部门列表存放
     getDepartmentList().then(res => {
       if (res.data.errorCode === 200) {
