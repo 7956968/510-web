@@ -24,7 +24,7 @@ export function getLast() {
     method: 'get',
   })
 }
-
+// 添加角色(暂时不使用)
 export function add(params) {
   return request({
     url: '/role/add',
@@ -49,11 +49,11 @@ export function addWithPermissions(role, permissionIdList) {
   })
 }
 
-export function updateById(params) {
+export function updateById(role, permissionIdList) {
   return request({
     url: '/role/update_by_id',
     method: 'post',
-    params
+    data:{role:role, permissionIdList:permissionIdList}
   })
 }
 export function deleteById(id) {

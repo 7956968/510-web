@@ -14,14 +14,6 @@ export function getPermissionListByRoleId(roleId) {
   })
 }
 
-export function getPmsIdListByRoleId(roleId) {
-  return request({
-    url: '/role_permission/select_pmsId_by_role_id',
-    method: 'get',
-    params:{roleId:roleId}
-  })
-}
-
 /**
  * 为用户增加一项权限
  * @param params
@@ -46,18 +38,6 @@ export function addAll(data) {
     data: data
   })
 }
-
-/**
- * 删除id对应的rolepermission
- * @param id
- */
-// export function deleteById(id) {
-//   return request({
-//     url: '/role_permission/delete_by_id',
-//     method: 'post',
-//     data:{id:id}
-//   })
-// }
 
 /**
  * 删除roleId的部分权限

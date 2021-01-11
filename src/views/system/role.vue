@@ -73,7 +73,7 @@
 <script>
 import treeTable from '@/components/TreeTable';
 import {getRoleList, add, addWithPermissions, updateById, deleteById, deleteAll, getLast} from '@/api/role';
-import {getPermissionListByRoleId, addAll as addRPAll, deleteAll as deleteRPAll, deleteByRoleId, getPmsIdListByRoleId} from '@/api/rolePermission';
+import {getPermissionListByRoleId, addAll as addRPAll, deleteAll as deleteRPAll, deleteByRoleId} from '@/api/rolePermission';
 import {listToTree, copyProperties, setEachPidZero} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from '@riophae/vue-treeselect'
@@ -89,27 +89,21 @@ export default {
   },
   data() {
     let updateOpen = (row) => {
-      // this.setDisabled(this.permissionList)
       this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
       this.dialogName = "修改";
       this.dialogFormVisible = true;
       // 设置已有权限, 并设置为勾选状态
       getPmsIdListByRoleId(row.id)
         .then(res=>{
-          if (res.data.errorCode == 200) {
+          if (res.data.errorCode === 200) {
             this.chosenRowPmsIdList = res.data.data
-            // this.$refs.tree.setCheckedKeys(this.chosenRowPmsIdList)
             // 设置勾选
             this.setCheckedAll(this.permissionList);
-
-            this.$message.success(res.data.errorMsg);
           }else{
-            return Promise.reject('获取选中角色权限失败')
+            this.$message.error('获取选中角色权限失败，请稍后重试')
           }
         })
-        .catch(err => {
-          this.$message.error(err)
-        })
+        .catch(err => {})
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     }
@@ -120,10 +114,9 @@ export default {
     let viewOptions = (row) => {
       getPmsIdListByRoleId(row.id)
         .then(res=>{
-          if (res.data.errorCode == 200) {
+          if (res.data.errorCode === 200) {
             this.chosenRowPmsIdList = res.data.data
             this.viewVisible = true
-            this.$message.success(res.data.errorMsg);
           }else{
             return Promise.reject('获取选中角色权限失败')
           }
@@ -151,9 +144,7 @@ export default {
       currentRoleId: null,  // 当前登录角色id
       permissionList: [],   // 当前登录角色所拥有的权限列表
       addedRoleId: null,    // 新增角色的id
-      curRolePmsIdList: [],    // 当前登录角色的id权限列表
       chosenRowPmsIdList: [],   // 选中列的权限id列表
-
 
       defaultProps:{  // el-tree的props
         label: 'title',   // 权限列表的title作为展示文字
@@ -235,47 +226,25 @@ export default {
       this.getMyPermissionList()
     },
     /**
-     * 获取当前登录角色权限列表
+     * 获取当前登录角色权限列表, 提供给“新建角色”的表单
      */
     getMyPermissionList() {
       getPermissionListByRoleId(this.currentRoleId).then(res =>{
-        if (res.data.errorCode == 200) {
-          // this.$message.success(res.data.errorMsg);
-          //// 在这里写pmsIdList为map(e=>e.id)方法获取
-
-          // 数组转树
+        if (res.data.errorCode === 200) {
           this.permissionList = listToTree(res.data.data);
         }else{
           this.$message.error(res.data.errorMsg);
         }
-      });
-      getPmsIdListByRoleId(this.currentRoleId).then(res =>{
-        if (res.data.errorCode == 200) {
-          this.$message.success(res.data.errorMsg);
-          this.curRolePmsIdList = res.data.data;
-        }else{
-          this.$message.error(res.data.errorMsg);
-        }
-      });
-    },
-    // 将已有权限勾选
-    getChosenRowPmsIdList(roleId){
-      getPmsIdListByRoleId(roleId)
-        .then(res=>{
-          if (res.data.errorCode == 200) {
-            this.chosenRowPmsIdList = res.data.data
-            this.$message.success(res.data.errorMsg);
-          }else{
-            return Promise.reject('获取选中角色权限失败')
-          }
-        })
-        .catch(err => {
-          console.log(err)
-        })
+      }).catch(err => {});
     },
 
+    /**
+     * 在修改表单中，设置权限表中"选中列"已有的权限为勾选状态
+     * @param arr 当前登录角色的权限id列表
+     */
     setCheckedAll(arr){
       for (let i = 0; i < arr.length; i++) {
+        // 如果 选中列的权限列表 包含 当前登录角色的权限， 则设置勾选
         this.$refs.tree.setChecked(arr[i].id, this.chosenRowPmsIdList.includes(arr[i].id), false)
         if (arr[i].children && arr[i].children.length > 0) {
           this.setCheckedAll(arr[i].children)
@@ -308,7 +277,7 @@ export default {
     },
     getRoleList() {
       getRoleList(this.param).then(res => {
-        if (res.data.errorCode == 200) {
+        if (res.data.errorCode === 200) {
           this.data = res.data.data;
           setEachPidZero(this.data);
         }
@@ -324,33 +293,11 @@ export default {
           .concat(this.$refs.tree.getHalfCheckedKeys());
 
         if (this.dialogName.indexOf("新增") !== -1) {//添加操作
-
-          // add(this.form).then(res => {
-          //   if (res.data.errorCode === 200) {
-          //     // 获取新增角色id
-          //     return getLast()
-          //   }else return Promise.reject(res.data.errorMsg);
-          // }).then(res2 => {
-          //   if (res2.data.errorCode === 200) {
-          //     this.addedRoleId = res2.data.data.id;
-          //
-          //     return addRPAll({roleId: this.addedRoleId, pmsIdList: chsIdList});
-          //   }else return Promise.reject(res2.data.errorMsg);
-          // }).then(res3 => {
-          //   if (res3.data.errorCode === 200) {
-          //     this.$message.success("角色添加成功");
-          //     this.getRoleList();
-          //   }else return Promise.reject(res3.data.errorMsg);
-          // }).catch(err => {
-          //   console.log(err)
-          //   this.$message.error(err);
-          // })
-
-
           // 添加角色并添加权限
           addWithPermissions(this.form, chsIdList).then(res => {
             if(res.data.errorCode === 200) {
-
+              this.$message.success("添加角色成功");
+              this.getRoleList();
             }else {
               this.$message.error(res.data.errorMsg)
             }
@@ -361,26 +308,7 @@ export default {
           //// 清空keyword?
         } else {//修改操作
 
-
-          // 先删除所有权限，再增加权限
-          // deleteByRoleId(this.form.id)
-          // .then(res => {
-          //   if(res.data.errorCode === 200){
-          //     if(chsIdList.length!==0) {
-          //       return addRPAll({roleId: this.form.id, pmsIdList: chsIdList})
-          //     }else return {data:{errorCode: 200}}
-          //   }else return Promise.reject(res.data.errorMsg);
-          // }).then(res2 => {
-          //   if(res2.data.errorCode === 200){
-          //     this.$message.success("修改角色成功")
-          //     this.getRoleList()
-          //   }else return Promise.reject(res.data.errorMsg);
-          // }).catch(err => {
-          //   this.$message.error(err)
-          // })
-
-          // 更新名字和描述
-          updateById(this.form).then(res => {
+          updateById(this.form, chsIdList).then(res => {
             if (res.data.errorCode === 200) {
               this.getRoleList();
               this.$message.success(res.data.errorMsg);
@@ -413,7 +341,7 @@ export default {
             this.$message.error(res.data.errorMsg);
           }
         });
-      });
+      }).catch(err =>{});
     },
     deleteAll(){
       let checkedIdList = this.$refs.curTable.getSelectedKeys();
