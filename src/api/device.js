@@ -2,13 +2,29 @@ import request from '@/utils/request'
 
 /**
  * 设备管理的接口
- *    包括设备分组
+ *    包括设备分组，联动管理
  *
  */
 
 /**
- *
- * @param params
+ * 获取视频地址
+ * @param params 查询参数（暂时不使用）
+ * @return { device: [{}, {}, ... ] }
+ *          Array中的每一个元素的内容为 {id: *, stream: * }
+ *          id: 设备id
+ *          stream: 地址
+ */
+export function getStreamList(params) {
+  return request({
+    url: '/device/select_stream',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 设备管理页面：获取设备列表
+ * @param params {keyword: * , groupId: * , type: * }
  *        keyword 关键字
  *        groupId 组id
  *        type    设备类型

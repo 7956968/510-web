@@ -32,6 +32,23 @@ export function add(params) {
     params
   })
 }
+
+/**
+ * 添加角色，并添加角色权限
+ * @param role 角色实体
+ * @param permissionIdList 权限的id列表
+ */
+export function addWithPermissions(role, permissionIdList) {
+  return request({
+    url: '/role/add_with_permissions',
+    method: 'post',
+    data: {
+      role: role,
+      permissionIdList: permissionIdList,
+    }
+  })
+}
+
 export function updateById(params) {
   return request({
     url: '/role/update_by_id',
