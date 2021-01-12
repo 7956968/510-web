@@ -69,17 +69,17 @@ export default {
   },
   props: {
     /* eslint-disable */
-    data: {
+    data: { // 放入表格的具体数据
       type: [Array, Object],
       required: true
     },
-    columns: {
+    columns: { // 列字段名
       type: Array,
       default: () => []
     },
     evalFunc: Function,
     evalArgs: Array,
-    notTree: { // 非树表（也就是正常的表）
+    notTree: { // 为true = 非树表（也就是普通的表）
       type: Boolean,
       default: false
     },

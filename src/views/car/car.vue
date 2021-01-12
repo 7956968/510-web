@@ -60,8 +60,7 @@
 <script>
 import treeTable from '@/components/TreeTable';
 import Dialog from '@/components/dialog/index';
-// import {getCarList, add, updateById, deleteById, deleteAll} from '@/api/department';
-import {listToTree} from '@/utils';
+import {getCarList, add, updateById, deleteById, deleteAll} from '@/api/car';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 

@@ -5,7 +5,10 @@ import request from '@/utils/request'
  *
  */
 
-
+/**
+ * 通过角色id获取对应权限
+ * @param roleId 角色id
+ */
 export function getPermissionListByRoleId(roleId) {
   return request({
     url: '/role_permission/select_by_role_id',
@@ -16,6 +19,7 @@ export function getPermissionListByRoleId(roleId) {
 
 /**
  * 为用户增加一项权限
+ * 用于permission.vue, 在成功新增一项权限之后，需要调用另一个接口为
  * @param params
  */
 export function add(params) {
@@ -44,22 +48,22 @@ export function addAll(data) {
  * @param data
  *    {roleId:roleId, permissionId:permissionId}
  */
-// export function deleteAll(data) {
-//   return request({
-//     url: '/role_permission/delete_all',
-//     method: 'post',
-//     data:data
-//   })
-// }
+export function deleteAll(data) {
+  return request({
+    url: '/role_permission/delete_all',
+    method: 'post',
+    data:data
+  })
+}
 /**
  * 删除roleId的所有权限
  * @param data
  *    {roleId:roleId}
  */
-export function deleteByRoleId(roleId) {
-  return request({
-    url: '/role_permission/delete_by_role_id',
-    method: 'post',
-    data: {roleId:roleId}
-  })
-}
+// export function deleteByRoleId(roleId) {
+//   return request({
+//     url: '/role_permission/delete_by_role_id',
+//     method: 'post',
+//     data: {roleId:roleId}
+//   })
+// }

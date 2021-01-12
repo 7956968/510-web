@@ -39,3 +39,15 @@ export function deleteById(id) {
   })
 }
 
+/**
+ * 批量删除设备通道（未测试）
+ * @param idList 通道的id列表
+ */
+export function deleteAll(idList) {
+  return request({
+    url: '/channel/delete_all',
+    method: 'post',
+    //// params改一下
+    params:{idList:idList}
+  })
+}

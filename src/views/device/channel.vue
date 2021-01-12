@@ -55,7 +55,7 @@
 import selectTree from "@riophae/vue-treeselect";
 import treeTable from '@/components/TreeTable';
 import Dialog from '@/components/dialog/index';
-import {getChannelList, add, updateById, deleteByDeviceId, deleteById} from "@/api/channel";
+import {getChannelList, add, updateById, deleteByDeviceId, deleteById, deleteAll} from "@/api/channel";
 import {getUser} from '@/utils/auth'
 
 export default {

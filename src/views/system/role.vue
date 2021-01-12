@@ -72,8 +72,8 @@
 
 <script>
 import treeTable from '@/components/TreeTable';
-import {getRoleList, add, addWithPermissions, updateById, deleteById, deleteAll, getLast} from '@/api/role';
-import {getPermissionListByRoleId, addAll as addRPAll, deleteAll as deleteRPAll, deleteByRoleId} from '@/api/rolePermission';
+import {getRoleList, add, addWithPermissions, updateById, deleteById, deleteAll } from '@/api/role';
+import {getPermissionListByRoleId} from '@/api/rolePermission';
 import {listToTree, copyProperties, setEachPidZero} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from '@riophae/vue-treeselect'
@@ -93,10 +93,10 @@ export default {
       this.dialogName = "修改";
       this.dialogFormVisible = true;
       // 设置已有权限, 并设置为勾选状态
-      getPmsIdListByRoleId(row.id)
+      getPermissionListByRoleId(row.id)
         .then(res=>{
           if (res.data.errorCode === 200) {
-            this.chosenRowPmsIdList = res.data.data
+            this.chosenRowPmsIdList = res.data.data.map(item=>item.id)
             // 设置勾选
             this.setCheckedAll(this.permissionList);
           }else{
@@ -112,10 +112,10 @@ export default {
      * @param row
      */
     let viewOptions = (row) => {
-      getPmsIdListByRoleId(row.id)
+      getPermissionListByRoleId(row.id)
         .then(res=>{
           if (res.data.errorCode === 200) {
-            this.chosenRowPmsIdList = res.data.data
+            this.chosenRowPmsIdList = res.data.data.map(item=>item.id)
             this.viewVisible = true
           }else{
             return Promise.reject('获取选中角色权限失败')
@@ -327,20 +327,14 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(()=>{
-        deleteByRoleId(row.id).then(res => {
-          if (res.data.errorCode === 200) {
-            deleteById(row.id).then(res2 => {
-              if (res2.data.errorCode === 200) {
-                this.$message.success(res.data.errorMsg);
-                this.getRoleList();
-              }else{
-                this.$message.error(res2.data.errorMsg);
-              }
-            });
+        deleteById(row.id).then(res => {
+          if(res.data.errorCode === 200) {
+            this.$message.success("删除成功");
+            this.getRoleList();
           }else{
             this.$message.error(res.data.errorMsg);
           }
-        });
+        }).catch(err => {});
       }).catch(err =>{});
     },
     deleteAll(){
