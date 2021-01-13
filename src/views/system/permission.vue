@@ -103,7 +103,7 @@ export default {
       this.isButton = this.form.type===dictType.button;
       this.formRules.component[0].required = !this.isButton;
       //this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
-      this.form.hidden = row.hidden == true ? 1 : 0;
+      this.form.hidden = row.hidden === true ? 1 : 0;
       this.isParentShow = false;
       this.dialogName = "修改";
       this.dialogFormVisible = true;
@@ -117,7 +117,7 @@ export default {
       return true;
     }
     let isDeleteShow = (row) => {
-      return !row.children || row.children.length == 0;
+      return !row.children || row.children.length === 0;
     }
     return {
       bttns: [],
@@ -261,15 +261,15 @@ export default {
         hidden: 0,
       };
 
-      if (value == dictType.button) {
+      if (value === dictType.button) {
         this.isButton = true;
         this.formRules.component = false;
         this.form.component = '';
         // this.form.path = '/' + '在此处填入父节点对应路径' + '/add';
-      } else if (value == dictType.page) {
+      } else if (value === dictType.page) {
         this.isButton = false;
 
-      } else if (value == dictType.menu) {
+      } else if (value === dictType.menu) {
         this.isButton = false;
       } else {
         this.isButton = false;
@@ -305,7 +305,7 @@ export default {
     },
     getList() {
       getList(this.param).then(res => {
-        if (res.data.errorCode == 200) {
+        if (res.data.errorCode === 200) {
           let a = res.data.data;
           this.data = listToTree(a);
           if (this.data != null && this.data.length > 0) {
@@ -319,7 +319,7 @@ export default {
     },
     selectByParentCode(code) {
       selectByParentCode(code).then(res => {
-        if (res.data.errorCode == 200) {
+        if (res.data.errorCode === 200) {
           this.dicts = res.data.data;
           this.form.type = this.dicts[0].code;
         }
@@ -330,8 +330,8 @@ export default {
         if (!valid) {
           return;
         }
-        this.form.hidden = this.form.hidden == 1 ? true : false;
-        if (this.dialogName.indexOf("新增") != -1) {//添加操作
+        this.form.hidden = this.form.hidden === 1;
+        if (this.dialogName.indexOf("新增") !== -1) {//添加操作
           // add(this.form).then(res => {
           //   if (res.data.errorCode == 200){
           //     this.getList();
@@ -344,7 +344,7 @@ export default {
 
           // 添加权限->获取最后添加的权限->为当前角色赋予权限
           add(this.form).then(res => {
-            if (res.data.errorCode == 200){
+            if (res.data.errorCode === 200){
               // this.getList();
               // this.dialogFormVisible = false;
               return getLast()
@@ -372,7 +372,7 @@ export default {
 
         }else{
           updateById(this.form).then(res=>{
-            if (res.data.errorCode == 200){
+            if (res.data.errorCode === 200){
               this.getList();
               this.dialogFormVisible = false;
               this.$message.success(res.data.errorMsg)
@@ -391,7 +391,7 @@ export default {
       }).then( () => {
         return deleteById(row.id)
       }).then( res => {
-        if (res.data.errorCode == 200){
+        if (res.data.errorCode === 200){
           this.getList();
           this.$message.success(res.data.errorMsg)
         }else{
