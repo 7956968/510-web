@@ -11,8 +11,8 @@ import request from '@/utils/request'
  * @param params 查询参数（暂时不使用）
  * @return { device: [{}, {}, ... ] }
  *          Array中的每一个元素的内容为 {id: *, stream: * }
- *          id: 设备id
- *          stream: 地址
+ *            id: 摄像头设备id
+ *            stream: 地址
  */
 export function getStreamList(params) {
   return request({
@@ -25,9 +25,9 @@ export function getStreamList(params) {
 /**
  * 设备管理页面：获取设备列表
  * @param params {keyword: * , groupId: * , type: * }
- *        keyword 关键字
- *        groupId 组id
- *        type    设备类型
+ *          keyword 关键字
+ *          groupId 组id
+ *          type    设备类型
  */
 export function getDeviceList(params) {
   return request({
@@ -72,7 +72,10 @@ export function deleteAll(idList) {
  */
 
 
-// 获取所有分组
+/**
+ * 查询所有分组
+ * @param params 查询参数（暂时无意义）
+ */
 export function getGroupList(params) {
   return request({
     url: '/group/select',
@@ -93,7 +96,14 @@ export function getGroupListWithDevices(params) {
   })
 }
 
-// 添加分组
+/**
+ * 添加分组
+ * @param params 分组实体 {id:null, name: *, pid: *, createUser: *, updateUser: *, }
+ *          pid 父分组id，为null则设置pid为0
+ *          name 分组名
+ *          createUser 创建者的id
+ *          updateUser 修改者的id
+ */
 export function addGroup(params) {
   return request({
     url: '/group/add',

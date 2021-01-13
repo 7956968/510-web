@@ -126,11 +126,11 @@ export default {
       },
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入通道名"}],
-        serialNumber: [{required: true, trigger: 'blur', message: "请输入序列号"}],
-        number: [
-          {type: 'number',  trigger: 'blur', message: "必须为数字"},
-          {required: true, message: "请输入通道号"},
-        ],
+        // serialNumber: [{required: true, trigger: 'blur', message: "请输入序列号"}],
+        // number: [
+        //   {type: 'number',  trigger: 'blur', message: "必须为数字"},
+        //   {required: true, message: "请输入通道号"},
+        // ],
       },
       bttns:[
         {
