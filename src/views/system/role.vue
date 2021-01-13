@@ -26,6 +26,7 @@
                   not-tree
                   ref="curTable"
                   option-column-width="165"
+                  :rowSelectable="rowSelectable"
       />
     </div>
 
@@ -274,6 +275,15 @@ export default {
     filterViewNode(value, data) {
       if (!value) return true;
       return this.chosenRowPmsIdList.includes(data.id);
+    },
+    /**
+     * 设置不能被删除的角色禁用表格勾选
+     * @param row
+     * @param rowIndex
+     * @return {boolean} true为可勾选
+     */
+    rowSelectable(row, rowIndex){
+      return row.deleteable;
     },
     getRoleList() {
       getRoleList(this.param).then(res => {

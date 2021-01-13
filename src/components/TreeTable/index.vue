@@ -11,7 +11,7 @@
     <el-table-column
       type="selection"
       width="42"
-      :selectable='setSelectable'
+      :selectable='rowSelectable'
     />
 
     <el-table-column v-if="columns.length===0" >
@@ -92,6 +92,16 @@ export default {
       type:Function,
       default: () => {},
     },
+    // 设置表格的勾选框是否可以勾选
+    // row 列对象
+    // rowIndex 列索引
+    // @return true: 可勾选
+    rowSelectable:{
+      type: Function,
+      default: (row, rowIndex) => {
+        return !row.children || row.children.length === 0;
+      },
+    },
     highlightCurrentRow: { // 高亮选中行
       type: Boolean,
       default: false,
@@ -165,14 +175,6 @@ export default {
     },
     handleSelectionChange(val){
       this.multipleSelection = val;
-    },
-    // 设置勾选框是否可以勾选
-    setSelectable (row, rowIndex) {
-      if ( !row.children || row.children.length === 0) {
-        return true // 不禁用
-      }else{
-        return false // 禁用禁用
-      }
     },
     // 获取勾选的列数组
     getSelectedRows(){

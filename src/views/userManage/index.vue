@@ -22,6 +22,7 @@
                   border
                   not-tree
                   ref="curTable"
+                  :rowSelectable="rowSelectable"
       />
     </div>
 
@@ -306,7 +307,7 @@ export default {
       })
     },
     /**
-     * 使{gender, itemStatus, roleId, departmentId}
+     * 使gender, itemStatus, roleId, departmentId
      * 字段以可读的方式呈现给用户
      * @param list
      */
@@ -328,6 +329,15 @@ export default {
         // 角色可读
         item.roleStr=(this.roleDict[item.roleId])?this.roleDict[item.roleId].name:'--';
       })
+    },
+    /**
+     * 设置可以被删除的用户，勾选项可点击
+     * @param row
+     * @param rowIndex
+     * @returns {boolean} true为可勾选
+     */
+    rowSelectable(row, rowIndex){
+      return row.itemStatus!==0;
     },
     submitForm() {
       this.$refs.dialogForm.validate(valid => {
