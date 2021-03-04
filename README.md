@@ -443,3 +443,14 @@ import selectTree from "@riophae/vue-treeselect";
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 ```
 第二行影响样式，少了第二行
+
+### watch监听某对象变化时，只想监听某对象的某个属性的变化
+使用单引号，'对象名.属性名'
+```vue
+watch: {
+    // 如果分组被切换，通道不显示数据
+    'param.groupId'(newVal, oldVal){
+      dosth();
+    }
+  },
+```

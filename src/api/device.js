@@ -161,16 +161,16 @@ export function deleteAllGroups(data) {
 // }
 
 /**
- * 把已分组的设备转移至某组
+ * 为多个设备分配多个分组
  *
- * @param data 结构体
- *    deviceIdList: [xxx,xxx,xxx,...],
- *    groupId: *, 如果为null, 则移至未分组设备
- *
+ * @param data
+ *    deviceIdList: 设备id的数组
+ *    groupIdList:  组id的数组;如果为空, 则移至未分组设备
+ *    createUser: 操作用户的ID
  */
-export function moveDevicesToGroups(data) {
+export function distributeDevicesToGroups(data) {
   return request({
-    url: '/group/move_devices',
+    url: '/group/distribute_devices_to groups',
     method: 'post',
     data: data,
   })

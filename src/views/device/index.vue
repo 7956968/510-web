@@ -27,13 +27,14 @@
                      v-if="!item.invisible"
                      @click="handleMethod(item.methodd)">{{ item.name }}
           </el-button>
-<!--          <el-button @click="showMoveDialog" style="font-size: 18px">-->
-<!--            转移至分组-->
-<!--          </el-button>-->
+          <el-button @click="showDistributeDialog" style="font-size: 18px">
+            为设备分配分组
+          </el-button>
         </el-form-item>
       </el-form>
     </el-header>
 
+    <!-- 侧边分组，表格 -->
     <el-container >
       <!-- 侧边分组 -->
       <el-aside width="200px" style="height: 650px; border: 1px solid #000000">
@@ -49,12 +50,12 @@
                    :type="btnType"
                    icon="el-icon-search"
                    size="middle"
-        >未分组设备</el-button>
+        >查看未分组设备</el-button>
         </el-row>
         <div style="margin-top:10px;margin-bottom:10px;background:#97b5e7;height:30px;text-align:center;line-height: 30px">
           分组列表
         </div>
-
+        <!-- 用于展示的分组列表 -->
         <el-tree :data="groupList"
                  :props="defaultProps"
                  @node-click="handleGroupNodeClick"
@@ -178,6 +179,7 @@
           点击右侧<i class="el-icon-edit"></i>对分组修改
         </el-alert>
         <span>
+          <!--用于修改的分组列表-->
           <el-tree :data="groupList"
                    :props="defaultProps"
                    show-checkbox
@@ -185,7 +187,6 @@
                    ref="groupTree"
                    node-key="id"
                    empty-text="当前无分组"
-                   check-strictly
           >
             <span class="custom-tree-node" slot-scope="{ node, data }">
               <span>{{ node.label }}</span>
@@ -243,31 +244,51 @@
       </div>
     </el-dialog>
 
-    <!-- 转移设备分组的弹窗 -->
-    <el-dialog title="转移至分组"
-               :visible.sync="moveDialogVisible"
+    <!-- 分配设备分组的弹窗 -->
+    <el-dialog title="分配分组"
+               :visible.sync="distributeDialogVisible"
                @close=""
                center
                :close-on-click-modal="false"
     >
+      <el-alert title="请注意"
+                type="info"
+      >
+        <br/>
+        1. 每个设备可以存在于多个分组中<br/>
+        2. 若不选择分组，则将设备设置为'未分组设备'
+      </el-alert>
+
       <el-row style="margin: 15px 0;text-align:center;font-size: 22px">将设备{{checkedDeviceNameList}}</el-row>
-      <el-row style="margin: 15px 0;text-align:center;font-size: 22px;color:#1ca6f5">移动至</el-row>
+      <el-row style="margin: 15px 0;text-align:center;font-size: 22px;color:#1ca6f5">添加至</el-row>
       <div style="text-align:center">
-        <selectTree
-          style="width:270px;margin:auto;font-size: 18px"
-          placeholder="请选择分组"
-          ref="selectTreeGroup2"
-          :options="groupList"
-          v-model="moveForm.groupId"
-          clearable
-          accordion="true"
-          :defaultExpandLevel=3
-          :normalizer="normalizer"
-        />* 若不选，则设为未分组设备
+<!--        <selectTree-->
+<!--          style="width:270px;margin:auto;font-size: 18px"-->
+<!--          placeholder="请选择分组"-->
+<!--          ref="selectTreeGroup2"-->
+<!--          :options="groupList"-->
+<!--          v-model="distributeForm.groupId"-->
+<!--          clearable-->
+<!--          accordion="true"-->
+<!--          :defaultExpandLevel=3-->
+<!--          :normalizer="normalizer"-->
+<!--        />-->
+        <!-- 用于分配的分组列表 -->
+        <el-tree :data="groupList"
+                 :props="defaultProps"
+                 show-checkbox
+                 default-expand-all
+                 ref="distributeTree"
+                 node-key="id"
+                 empty-text="当前无分组"
+                 check-strictly
+        >
+        </el-tree>
+
       </div>
       <div style="margin: 15px 0;text-align:center">
-        <el-button @click="moveDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="moveDevicesToGroups">确 认</el-button>
+        <el-button @click="distributeDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="distributeDevicesToGroups">确 认</el-button>
       </div>
     </el-dialog>
   </div>
@@ -282,7 +303,7 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth'
 import {getDeviceList, add, updateById, deleteById, deleteAll,
   getGroupList, addGroup, updateGroupById, deleteAllGroups,
-  moveDevicesToGroups} from '@/api/device';
+  distributeDevicesToGroups} from '@/api/device';
 import channel from "./channel";
 import liandong from "./liandong";
 
@@ -332,7 +353,7 @@ export default {
       labelPosition: 'left',
       dialogFormVisible: false, // 新增设备弹窗不可见
       groupFormVisible: false,
-      moveDialogVisible: false,
+      distributeDialogVisible: false,
       innerVisible: false,// 分组的内层对话框可见性
       dialogName: '新增设备', // 弹窗名
       currentUserId: null,    // 当前用户id
@@ -364,6 +385,7 @@ export default {
       },
       defaultProps:{  // el-tree的props
         label: 'name',   // name作为展示文字
+        disable: 'children',
       },
       param:{
         keyword:'',   // 关键字
@@ -392,11 +414,11 @@ export default {
         createUser: this.currentUserId,
         updateUser: this.currentUserId,
       },
-      moveForm:{    // 设备转移分组的表单
-        groupId:null,
-        createUser:this.currentUserId,
-        updateUser:this.currentUserId,
-      },
+      // distributeForm:{    // 设备转移分组的表单
+      //   groupIdList:[],
+      //   createUser:this.currentUserId,
+      //   updateUser:this.currentUserId,
+      // },
       checkedDeviceNameList: [],  // 勾选的设备.name列表
       columns: [
         {
@@ -477,6 +499,7 @@ export default {
 
         groupId: this.curGroup?this.curGroup.id:null,
       };
+      console.log("curGroup is " + this.form.groupId)
       this.dialogName = "新增设备";
       this.dialogFormVisible = true;
       // 清除校验结果
@@ -506,7 +529,7 @@ export default {
           let a = res.data.data;
           this.groupList = listToTree(a);
           setEachPidZero(this.groupList);
-          setNotLeafDisabled(this.groupList)
+          // setNotLeafDisabled(this.groupList)
         }
       }).catch(err=>{})
     },
@@ -633,9 +656,9 @@ export default {
     },
     // 设置要查找的设备是无分组的
     setNotInGroup(){
-      if(this.param.groupId){
-        // 如果选择了分组，将选择的分组取消
+      if(this.param.groupId){// 如果选择了分组，将选择的分组取消
         this.$refs.groupTreeShow.store.currentNode = null;
+        this.curGroup = null;
       }
       this.param.groupId = this.param.groupId===0?null:0;
       this.btnType = this.param.groupId===0?'primary':'plain';
@@ -643,16 +666,17 @@ export default {
       this.getDeviceList()
     },
     // 将设备移动至别的分组
-    moveDevicesToGroups(){
-      let deviceIdList = this.$refs.deviceTable.getSelectedKeys();
-      moveDevicesToGroups({
-        groupId:this.moveForm.groupId,
+    distributeDevicesToGroups(){
+      let deviceIdList = this.$refs.curTable.getSelectedKeys();
+      let groupIdList = this.$refs.distributeTree.getCheckedKeys();
+      distributeDevicesToGroups({
         deviceIdList:deviceIdList,
+        groupIdList:groupIdList,
         updateUser:this.currentUserId,
         createUser:this.currentUserId,
       }).then(res => {
         if(res.data.errorCode === 200){
-          this.$message.success("转移分组成功")
+          this.$message.success("操作成功")
           this.getDeviceList()
         }else {
           this.$message.error(res.data.errorMsg)
@@ -660,18 +684,19 @@ export default {
       }).catch(err => {
         console.log(err)
       });
-      this.moveDialogVisible = false;
+      this.distributeDialogVisible = false;
     },
-    // 展示"移动至分组"对话框
-    showMoveDialog(){
-      let deviceList = this.$refs.deviceTable.getSelectedRows();
+    // 展示"为设备分配分组"对话框
+    showDistributeDialog(){
+      let deviceList = this.$refs.curTable.getSelectedRows();
       if(deviceList.length===0){
         this.$message.warning("未勾选设备")
         return;
       }
       this.checkedDeviceNameList=deviceList.map((item)=>item.name);
-      this.moveDialogVisible = true;
-      this.moveForm.groupId = null;
+      this.distributeDialogVisible = true;
+      // this.distributeForm.groupIdList = [];
+      this.$refs.distributeTree.setCheckedKeys([]);
     },
     // 删除设备
     delete(row) {
