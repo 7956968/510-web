@@ -21,39 +21,6 @@
       />
     </div>
 
-    <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center :close-on-click-modal="false">
-      <el-form :model="form"
-               ref="dialogForm"
-               :rules="formRules"
-               :label-position="labelPosition"
-               label-width="100px"
-               size="mini">
-        <el-form-item label="名称" prop="name">
-          <el-input v-model="form.name" placeholder="名称" style="width: auto"></el-input>
-        </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="form.description" placeholder="描述" style="width: auto"></el-input>
-        </el-form-item>
-        <el-form-item label="父部门">
-          <selectTree
-            style="width: 79%"
-            placeholder="请选择"
-            ref="selectTreeDept"
-            :options="data"
-            v-model="form.pid"
-            clearable
-            accordion="true"
-            :defaultExpandLevel=4
-            :normalizer="normalizer"
-          />
-        </el-form-item>
-      </el-form>
-
-      <div>
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -72,21 +39,11 @@ export default {
     selectTree
   },
   data() {
-    let updateOpen = (row) => {
-      this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
-      this.dialogName = "修改";
-      this.dialogFormVisible = true;
-      // 清除校验结果
-      this.$nextTick(() => {
-        this.$refs["dialogForm"].clearValidate();
-      })
-    }
+
     let deleteOption = (row) => {
       this.delete(row);
     }
-    let isUpdateShow = (row) => {
-      return true;
-    }
+
     let isDeleteShow = (row) => {
       return true;
     }
@@ -95,16 +52,11 @@ export default {
       bttns: [],
       options: [],
       labelPosition: 'left',
-      dialogFormVisible: false, // 弹窗不可见
-      dialogName: '新增', // 弹窗名
-      formRules: {
-        // name: [{required: true, trigger: 'blur', message: "请输入名称"}],
-      },
+
       param:{
         // 查询的关键字
         keyword:''
       },
-      // form: {}
       columns: [
         {
           text: '车牌号',
@@ -125,11 +77,6 @@ export default {
       ],
       tableOption: [
         {
-          text: '修改',
-          onclick: updateOpen,
-          isShow: isUpdateShow,
-        },
-        {
           text: '删除',
           onclick: deleteOption,
           isShow: isDeleteShow,
@@ -145,7 +92,7 @@ export default {
     handleSelectionChange(val){
       console.log(val)
     },
-    //// add() {}
+
     search(){ // 查询
       this.getCarList();
     },
@@ -154,7 +101,7 @@ export default {
         console.log("write sth")
       })
     },
-    //// submitForm() {}
+
     delete(row) {
       this.$confirm('即将删除' + row.name + ', 是否继续?', '提示', {
         confirmButtonText: '确定',

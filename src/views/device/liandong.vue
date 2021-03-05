@@ -4,7 +4,7 @@
     <!--顶栏按钮-->
     <el-form label-position="left" :inline="true" :model="param" class="demo-form-inline" size="mini">
 <!--      <el-form-item label="关键字">-->
-<!--        <el-input v-model="param.keyword" placeholder="请输入关键字" clearable @blur="getDepartmentList"></el-input>-->
+<!--        <el-input v-model="param.keyword" placeholder="请输入关键字" maxlength="255" clearable @blur="getDepartmentList"></el-input>-->
 <!--      </el-form-item>-->
 
       <el-form-item>

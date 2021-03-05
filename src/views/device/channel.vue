@@ -34,13 +34,13 @@
           <el-input v-model="deviceName" :disabled="true" style="width: auto"/>
         </el-form-item>
         <el-form-item label="通道名" prop="name">
-          <el-input v-model="form.name" placeholder="通道名" style="width: auto"/>
+          <el-input v-model="form.name" placeholder="通道名" maxlength="30" style="width: auto"/>
         </el-form-item>
         <el-form-item label="序列号" prop="serialNumber">
-          <el-input v-model="form.serialNumber" placeholder="序列号" style="width: auto"/>
+          <el-input v-model="form.serialNumber" placeholder="序列号" maxlength="30" style="width: auto"/>
         </el-form-item>
         <el-form-item label="通道号" prop="number">
-          <el-input v-model.number="form.number" placeholder="通道号" style="width: auto"/>
+          <el-input v-model.number="form.number" placeholder="通道号" maxlength="11" style="width: auto"/>
         </el-form-item>
       </el-form>
       <div>

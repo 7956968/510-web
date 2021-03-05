@@ -6,7 +6,7 @@
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
           <!-- 失去焦点触发可以添加属性@blur="getDeviceList"-->
-          <el-input v-model="param.keyword" placeholder="请输入关键字" clearable/>
+          <el-input v-model="param.keyword" placeholder="请输入关键字" maxlength="255" clearable/>
         </el-form-item>
         <el-form-item label="设备类型" prop="">
           <!-- 失去焦点触发可以添加属性@blur="getDeviceList"-->
@@ -122,7 +122,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="设备名称" prop="name">
-          <el-input v-model="form.name" placeholder="名称" style="width: auto"></el-input>
+          <el-input v-model="form.name" placeholder="名称" maxlength="30" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="设备类型" prop="type">
           <el-select
@@ -142,19 +142,19 @@
           </el-select>
         </el-form-item>
         <el-form-item label="序列号" prop="serialNumber">
-          <el-input v-model="form.serialNumber" placeholder="序列号" style="width: auto"></el-input>
+          <el-input v-model="form.serialNumber" placeholder="序列号" maxlength="30" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="IP" prop="ip">
-          <el-input v-model="form.ip" placeholder="请输入IP" style="width: auto"></el-input>
+          <el-input v-model="form.ip" placeholder="请输入IP" maxlength="30" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="用户名" prop="loginName">
-          <el-input v-model="form.loginName" placeholder="请输入用户名" style="width: auto"></el-input>
+          <el-input v-model="form.loginName" placeholder="请输入用户名" maxlength="10" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" placeholder="请输入密码" style="width: auto"></el-input>
+          <el-input v-model="form.password" placeholder="请输入密码" maxlength="20" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="端口" prop="prot">
-          <el-input v-model="form.prot" placeholder="请输入端口号" style="width: auto"></el-input>
+          <el-input v-model="form.prot" placeholder="请输入端口号" maxlength="10" style="width: auto"></el-input>
         </el-form-item>
       </el-form>
       <div>
@@ -216,7 +216,7 @@
         <el-form :model="groupForm" ref="GroupForm" :rules="groupFormRules" :label-position="labelPosition" label-width="100px"
                  size="mini">
           <el-form-item label="分组名" prop="name">
-            <el-input v-model="groupForm.name" placeholder="请输入组名" />
+            <el-input v-model="groupForm.name" placeholder="请输入组名" maxlength="30" />
           </el-form-item>
           <el-form-item label="父分组" prop="pid">
             <selectTree
