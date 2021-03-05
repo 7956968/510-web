@@ -3,7 +3,7 @@
     <div>
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
-          <el-input v-model="param.keyword" placeholder="请输入关键字" clearable @blur="getUserList"></el-input>
+          <el-input v-model="param.keyword" placeholder="请输入关键字" maxlength="255" clearable @blur="getUserList"/>
         </el-form-item>
         <el-form-item>
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
@@ -69,7 +69,7 @@
           </el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="passwordAgain">
-          <el-input v-model="form.passwordAgain" placeholder="请再次输入密码" style="width: auto" >
+          <el-input v-model="form.passwordAgain" placeholder="请再次输入密码" maxlength="50" style="width: auto" >
 
           </el-input>
         </el-form-item>
