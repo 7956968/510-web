@@ -6,11 +6,11 @@
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
           <!-- 失去焦点触发可以添加属性@blur="getDeviceList"-->
-          <el-input v-model="param.keyword" placeholder="请输入关键字" maxlength="255" clearable/>
+          <el-input v-model.trim="param.keyword" placeholder="请输入关键字" maxlength="255" clearable/>
         </el-form-item>
         <el-form-item label="设备类型" prop="">
           <!-- 失去焦点触发可以添加属性@blur="getDeviceList"-->
-          <el-select v-model="param.type"
+          <el-select v-model.trim="param.type"
                      placeholder="请选择设备类型"
                      clearable
           >
@@ -106,7 +106,7 @@
         <el-form-item label="厂家" prop="manufacturers">
           <el-select
             placeholder="请选择厂家"
-            v-model="form.manufacturers"
+            v-model.trim="form.manufacturers"
             filterable
             allow-create
             @change.native="selectManufacturersBlur"
@@ -122,7 +122,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="设备名称" prop="name">
-          <el-input v-model="form.name" placeholder="名称" maxlength="30" style="width: auto"></el-input>
+          <el-input v-model.trim="form.name" placeholder="名称" maxlength="30" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="设备类型" prop="type">
           <el-select
@@ -142,19 +142,19 @@
           </el-select>
         </el-form-item>
         <el-form-item label="序列号" prop="serialNumber">
-          <el-input v-model="form.serialNumber" placeholder="序列号" maxlength="30" style="width: auto"></el-input>
+          <el-input v-model.trim="form.serialNumber" placeholder="序列号" maxlength="30" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="IP" prop="ip">
           <el-input v-model="form.ip" placeholder="请输入IP" maxlength="30" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="用户名" prop="loginName">
-          <el-input v-model="form.loginName" placeholder="请输入用户名" maxlength="10" style="width: auto"></el-input>
+          <el-input v-model.trim="form.loginName" placeholder="请输入用户名" maxlength="10" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" placeholder="请输入密码" maxlength="20" style="width: auto"></el-input>
+          <el-input v-model.trim="form.password" placeholder="请输入密码" maxlength="20" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="端口" prop="prot">
-          <el-input v-model="form.prot" placeholder="请输入端口号" maxlength="10" style="width: auto"></el-input>
+          <el-input v-model.trim="form.prot" placeholder="请输入端口号" maxlength="10" style="width: auto"></el-input>
         </el-form-item>
       </el-form>
       <div>
@@ -216,7 +216,7 @@
         <el-form :model="groupForm" ref="GroupForm" :rules="groupFormRules" :label-position="labelPosition" label-width="100px"
                  size="mini">
           <el-form-item label="分组名" prop="name">
-            <el-input v-model="groupForm.name" placeholder="请输入组名" maxlength="30" />
+            <el-input v-model.trim="groupForm.name" placeholder="请输入组名" maxlength="30" />
           </el-form-item>
           <el-form-item label="父分组" prop="pid">
             <selectTree
@@ -740,6 +740,48 @@ export default {
         }
       }).catch(err => {})
     },
+    ///// websocket test
+    websocketTest(){
+      this.init();
+    },
+    init: function () {
+      if(typeof(WebSocket) === "undefined"){
+        alert("您的浏览器不支持socket")
+      }else{
+        // 实例化socket
+        //// ws/{baseURL}/device/{deviceId}
+        this.path = "ws://localhost:8888/device_ws/1248";
+        this.socket = new WebSocket(this.path)
+        // 监听socket连接，错误，消息，关闭
+        this.socket.onopen = this.open;
+        this.socket.onerror = this.error;
+        this.socket.onmessage = this.getMessage;
+        this.socket.onclose = this.close;
+      }
+    },
+    open: function () {
+      let data = {
+        code: 0,
+        msg: '这是client：初次连接'
+      }
+      this.send(JSON.stringify(data))
+      console.log("socket连接成功")
+      // let inputstr = prompt("请输入","");
+      // this.socket.send(JSON.stringify({inputText:inputstr}));
+    },
+    error: function () {
+      console.log("连接错误")
+    },
+    getMessage: function (msg) {
+      console.log(msg.data)
+    },
+    send: function (data) {
+      this.socket.send(data)
+      console.log("data is " + data)
+    },
+    close: function (e) {
+      console.log("socket已经关闭")
+    }
   },
   created() {
     this.bttns = this.$route.meta.btnPermission;
@@ -755,6 +797,9 @@ export default {
     this.getGroupList();
     this.getDeviceList();
     this.currentUserId = JSON.parse(getUser()).id;
+
+    ////
+    this.websocketTest();
   },
   watch: {
     // 如果分组被切换，通道不显示数据
