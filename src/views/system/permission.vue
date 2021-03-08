@@ -3,7 +3,7 @@
     <div>
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
-          <el-input v-model="param.keyword" placeholder="请输入关键字" maxlength="255" clearable></el-input>
+          <el-input v-model.trim="param.keyword" placeholder="请输入关键字" maxlength="255" clearable></el-input>
         </el-form-item>
         <el-form-item>
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
@@ -38,30 +38,30 @@
         </el-form-item>
 <!--        <el-form-item label="路径" prop="path" v-show="!isButton">-->
         <el-form-item label="路径" prop="path">
-          <el-input v-model="form.path" placeholder="路径" maxlength="50" style="width: auto"></el-input>
+          <el-input v-model.trim="form.path" placeholder="路径" maxlength="50" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="顺序" prop="sortOrder">
           <el-input type="number" min="1" v-model="form.sortOrder" placeholder="顺序" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="控件" prop="component" v-show="!isButton">
-          <el-input v-model="form.component" placeholder="控件" maxlength="50" style="width: auto"></el-input>
+          <el-input v-model.trim="form.component" placeholder="控件" maxlength="50" style="width: auto"></el-input>
         </el-form-item>
 <!--        <el-form-item label="名称" prop="name" v-show="!isButton">-->
         <el-form-item label="名称" prop="name">
-          <el-input v-model="form.name" placeholder="名称" maxlength="50" style="width: auto"></el-input>
+          <el-input v-model.trim="form.name" placeholder="名称" maxlength="50" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="标题" prop="title">
-          <el-input v-model="form.title" placeholder="标题" maxlength="20" style="width: auto"></el-input>
+          <el-input v-model.trim="form.title" placeholder="标题" maxlength="20" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="事件"  v-show="isButton">
-          <el-input v-model="form.method" placeholder="事件" maxlength="50" style="width: auto"></el-input>
+          <el-input v-model.trim="form.method" placeholder="事件" maxlength="50" style="width: auto"></el-input>
            填入: add / deleteAll / search / update, 分别表示"新增", "删除", "查找", "修改"
         </el-form-item>
         <el-form-item label="图标" >
-          <el-input v-model="form.icon" placeholder="图标" style="width: auto"></el-input>
+          <el-input v-model.trim="form.icon" placeholder="图标" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="重定向"  v-show="!isButton">
-          <el-input v-model="form.redirect" placeholder="重定向路径" maxlength="20" style="width: auto"></el-input>
+          <el-input v-model.trim="form.redirect" placeholder="重定向路径" maxlength="20" style="width: auto"></el-input>
         </el-form-item>
 
         <el-form-item label="是否在菜单隐藏" v-show="!isButton">

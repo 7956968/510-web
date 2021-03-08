@@ -3,7 +3,7 @@
     <div>
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
-          <el-input v-model="param.keyword" placeholder="请输入关键字" clearable @blur="getDepartmentList"></el-input>
+          <el-input v-model.trim="param.keyword" placeholder="请输入关键字" clearable @blur="getDepartmentList"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button v-for="(item,index) in bttns"
@@ -32,10 +32,10 @@
                label-width="100px"
                size="mini">
         <el-form-item label="名称" prop="name">
-          <el-input v-model="form.name" placeholder="名称" style="width: auto"></el-input>
+          <el-input v-model.trim="form.name" placeholder="名称" style="width: auto"/>
         </el-form-item>
         <el-form-item label="描述" prop="description">
-          <el-input v-model="form.description" placeholder="描述" style="width: auto"></el-input>
+          <el-input v-model.trim="form.description" placeholder="描述" style="width: auto"/>
         </el-form-item>
         <el-form-item label="父部门" prop="pid">
           <selectTree

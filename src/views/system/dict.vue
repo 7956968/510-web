@@ -3,7 +3,7 @@
     <div>
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
-          <el-input v-model="param.keyword" placeholder="请输入关键字" maxlength="255" clearable></el-input>
+          <el-input v-model.trim="param.keyword" placeholder="请输入关键字" maxlength="255" clearable></el-input>
         </el-form-item>
         <el-form-item>
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
@@ -20,10 +20,10 @@
       <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
                size="mini">
         <el-form-item label="编码" prop="code">
-          <el-input v-model="form.code" placeholder="名称" maxlength="50" :readonly="codeReadonly" style="width: auto"></el-input>
+          <el-input v-model.trim="form.code" placeholder="名称" maxlength="50" :readonly="codeReadonly" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="名称" prop="name">
-          <el-input v-model="form.name" placeholder="编码" maxlength="50" style="width: auto"></el-input>
+          <el-input v-model.trim="form.name" placeholder="编码" maxlength="50" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="父节点" v-show="isParentShow">
           <selectTree

@@ -4,7 +4,7 @@
     <!--顶栏按钮-->
     <el-form label-position="left" :inline="true" :model="param" class="demo-form-inline" size="mini">
 <!--      <el-form-item label="关键字">-->
-<!--        <el-input v-model="param.keyword" placeholder="请输入关键字" maxlength="255" clearable @blur="getDepartmentList"></el-input>-->
+<!--        <el-input v-model.trim="param.keyword" placeholder="请输入关键字" maxlength="255" clearable @blur="getDepartmentList"></el-input>-->
 <!--      </el-form-item>-->
 
       <el-form-item>
@@ -34,7 +34,7 @@
                ref="liandongForm"
                :rules="formRules">
         <el-form-item label="报警设备">
-          <el-input v-model="deviceName" :disabled="true" style="width: auto"/>
+          <el-input v-model.trim="deviceName" :disabled="true" style="width: auto"/>
         </el-form-item>
         <el-form-item label="分组">
           <selectTree

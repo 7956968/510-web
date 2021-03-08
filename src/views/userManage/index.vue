@@ -3,7 +3,7 @@
     <div>
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
-          <el-input v-model="param.keyword" placeholder="请输入关键字" maxlength="255" clearable @blur="getUserList"/>
+          <el-input v-model.trim="param.keyword" placeholder="请输入关键字" maxlength="255" clearable @blur="getUserList"/>
         </el-form-item>
         <el-form-item>
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
@@ -30,7 +30,7 @@
       <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
                size="mini">
         <el-form-item label="姓名" prop="name">
-          <el-input v-model="form.name" placeholder="姓名" maxlength="50" style="width: auto"></el-input>
+          <el-input v-model.trim="form.name" placeholder="姓名" maxlength="50" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="性别" prop="gender">
           <el-radio-group v-model="form.gender" size="small">
@@ -40,10 +40,10 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="工号" prop="jobNumber">
-          <el-input v-model="form.jobNumber" placeholder="请输入工号" maxlength="50" style="width: auto"></el-input>
+          <el-input v-model.trim="form.jobNumber" placeholder="请输入工号" maxlength="50" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="职位" prop="position">
-          <el-input v-model="form.position" placeholder="请输入职位" maxlength="50" style="width: auto"></el-input>
+          <el-input v-model.trim="form.position" placeholder="请输入职位" maxlength="50" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="角色" prop="roleId">
           <el-select placeholder="请选择角色"
@@ -58,18 +58,18 @@
           </el-select>
         </el-form-item>
         <el-form-item label="手机号" prop="phone">
-          <el-input v-model="form.phone" placeholder="请输入手机号" maxlength="20" style="width: auto"></el-input>
+          <el-input v-model.trim="form.phone" placeholder="请输入手机号" maxlength="20" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="请输入邮箱" maxlength="30" style="width: auto"></el-input>
+          <el-input v-model.trim="form.email" placeholder="请输入邮箱" maxlength="30" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" placeholder="请输入密码" maxlength="50" style="width: auto" >
+          <el-input v-model.trim="form.password" placeholder="请输入密码" maxlength="50" style="width: auto" >
 <!--            <i slot="suffix" class="el-input_icon el-icon-view" @click="showPsw"></i>-->
           </el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="passwordAgain">
-          <el-input v-model="form.passwordAgain" placeholder="请再次输入密码" maxlength="50" style="width: auto" >
+          <el-input v-model.trim="form.passwordAgain" placeholder="请再次输入密码" maxlength="50" style="width: auto" >
 
           </el-input>
         </el-form-item>
