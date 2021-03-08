@@ -34,7 +34,7 @@
         </el-form-item>
         <el-form-item label="性别" prop="gender">
           <el-radio-group v-model="form.gender" size="small">
-            <el-radio-button :label="0">暂时不填</el-radio-button>
+<!--            <el-radio-button :label="0">暂时不填</el-radio-button>-->
             <el-radio-button :label="1">男</el-radio-button>
             <el-radio-button :label="2">女</el-radio-button>
           </el-radio-group>
@@ -117,6 +117,7 @@ import {listToTree, copyProperties, normalizer} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from "@riophae/vue-treeselect";
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import {isValidatePhone} from '@/utils/validate';
 
 export default {
   name: "index",
@@ -185,9 +186,28 @@ export default {
         jobNumber: [{required: true, trigger: 'blur', message: "请输入工号"}],
         gender: [{required: true, trigger: 'blur', message: "请选择性别"}],
         // career: [{required: true, trigger: 'blur', message: "请填写职位"}],
-        // phone: [{required: true, trigger: 'blur', message: "请输入手机号"}],
+        phone: [
+            // {required: true, message: '请输入手机号码', trigger: 'blur'},
+            {
+              validator: function (rule, value, callback) {
+                // 这里假定手机号不是必填项, 允许为空
+                if (value===''){
+                  callback();
+                }
+                if ( ! isValidatePhone(value)) {
+                  callback(new Error("手机号格式错误"));
+                } else {
+                  callback();
+                }
+              }, trigger: 'blur'
+            }
+        ],
         email:  [{type:'email', trigger: 'blur', message: "邮箱格式有误"}],
-        password: [{required: true, trigger: 'blur', message: "请输入密码"}],
+        password: [
+          {required: true, trigger: 'blur', message: "请输入密码"},
+          { min:6, max:20, message:'长度为 6 到 20 个字符'},
+          {pattern: /^(\w){6,20}$/, message: '只能输入字母、数字、下划线'},
+        ],
         passwordAgain: [{validator: validatePsw2, required: true, trigger: 'blur' }],
         roleId: [{required: true, trigger: 'blur', message: "请选择角色"}],
         // departmentId: [{required: true, trigger: 'blur', message: "请选择部门"}],
@@ -292,14 +312,20 @@ export default {
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     },
-    getUserList() {
+    async getUserList() {
+      if (this.roleDict === null || Object.keys(this.roleDict).length === 0) {
+        await this.refreshRoleDict();
+      }
+      if (this.departmentDict === null || Object.keys(this.departmentDict).length === 0) {
+        await this.refreshDepartmentDict();
+      }
       getUserList(this.param).then(res => {
         if (res.data.errorCode === 200) {
           let a = res.data.data;
           this.readable(a);
           this.data = a;
           this.$message.success("查询成功")
-        }else{
+        } else {
           this.$message.error(res.data.errorMsg)
         }
       }).catch(err => {
@@ -307,7 +333,37 @@ export default {
       })
     },
     /**
-     * 使gender, itemStatus, roleId, departmentId
+     * 获取角色列表，并将角色列表（id到name的映射）存放在roleDict中
+     */
+    refreshRoleDict(){
+       getRoleList().then(res => {
+        if (res.data.errorCode === 200) {
+          let a = res.data.data;
+          this.roleList = listToTree(a);
+          // 建立角色字典
+          a.forEach(item=>{
+            this.roleDict[item.id] = item;
+          });
+        }
+      });
+    },
+    /**
+     * 获取部门列表，并将部门列表（id到name的映射）存放在departmentDict中
+     */
+    refreshDepartmentDict(){
+      return getDepartmentList().then(res => {
+        if (res.data.errorCode === 200) {
+          let a = res.data.data;
+          this.departmentList = listToTree(a);
+          // 建立部门字典
+          a.forEach(item=>{
+            this.departmentDict[item.id] = item;
+          });
+        }
+      });
+    },
+    /**
+     * 使gender, itemStatus, roleId, departmentId (性别，状态，角色，部门)
      * 字段以可读的方式呈现给用户
      * @param list
      */
@@ -422,28 +478,6 @@ export default {
         item.invisible = true;
       }
     })
-    // 将部门列表存放
-    getDepartmentList().then(res => {
-      if (res.data.errorCode === 200) {
-        let a = res.data.data;
-        this.departmentList = listToTree(a);
-        // 建立部门字典
-        a.forEach(item=>{
-          this.departmentDict[item.id] = item;
-        });
-      }
-    });
-    // 将角色列表存放
-    getRoleList().then(res => {
-      if (res.data.errorCode === 200) {
-        let a = res.data.data;
-        this.roleList = listToTree(a);
-        // 建立角色字典
-        a.forEach(item=>{
-          this.roleDict[item.id] = item;
-        });
-      }
-    });
     this.getUserList();
   }
 }

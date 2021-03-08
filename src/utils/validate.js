@@ -40,12 +40,22 @@ export function validateEmail(email) {
 }
 
 export const validatePhone = (rule, value, callback) => {
-  if (/^1[34578]{1}\d{9}$/.test(value) == false) {
+  if (!isValidatePhone(value)) {
     callback(new Error("请输入正确的手机号"));
   } else {
     callback();
   }
 };
+
+/**
+ * 判断是否为中国大陆手机号
+ * @param phone 手机号字符串
+ * @returns {boolean} 判断结果
+ */
+export function isValidatePhone(phone){
+  const reg = /^1[34578]\d{9}$/;
+  return reg.test(phone);
+}
 
 export const validateIp = (rule, value, callback) => {
   if (!isValidIP(value)) {
