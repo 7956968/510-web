@@ -59,6 +59,12 @@ function datenum(v, date1904) {
   return (epoch - new Date(Date.UTC(1899, 11, 30))) / (24 * 60 * 60 * 1000);
 }
 
+/**
+ * 二维数组转化为sheet
+ * @param data 二维数组
+ * @param opts
+ * @returns {{}}
+ */
 function sheet_from_array_of_arrays(data, opts) {
   var ws = {};
   var range = {
@@ -145,6 +151,13 @@ export function export_table_to_excel(id) {
   }), "test.xlsx")
 }
 
+/**
+ *
+ * @param header 列名组成的数组
+ * @param data 二维数组，其中每个元素data[i][j]类型为string|number|boolean|
+ * @param filename 文件名
+ * @param autoWidth
+ */
 export function export_json_to_excel({
   header,
   data,

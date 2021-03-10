@@ -24,6 +24,11 @@ import * as filters from './filters' // global filters
 import '@/assets/iconFont/iconfont.css'
 import echarts from 'echarts'
 //import 'echarts-liquidfill/src/liquidFill.js'
+
+//// 右键菜单
+import VueContextMenu from 'vue-contextmenu'
+Vue.use(VueContextMenu)
+
 Vue.prototype.$echarts = echarts
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium', // set element-ui default size

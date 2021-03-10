@@ -2,8 +2,11 @@
   <div>
     <input id="excel-upload-input" ref="excel-upload-input" type="file" accept=".xlsx, .xls" @change="handleClick">
     <div id="drop" @drop="handleDrop" @dragover="handleDragover" @dragenter="handleDragover">
-      Drop excel file here or
-      <el-button :loading="loading" style="margin-left:16px;" size="mini" type="primary" @click="handleUpload">Browse</el-button>
+      <!--      Drop excel file here or-->
+      将xls/xlsx文件拖到此处，或
+      <el-button :loading="loading" style="margin-left:16px;" size="mini" type="primary" @click="handleUpload">
+        点击上传
+      </el-button>
     </div>
   </div>
 </template>
@@ -56,6 +59,7 @@ export default {
       e.dataTransfer.dropEffect = 'copy'
     },
     handleUpload() {
+      // 从文件资源管理器选择文件
       document.getElementById('excel-upload-input').click()
     },
     handleClick(e) {
@@ -118,6 +122,11 @@ export default {
       }
       return headers
     },
+    /**
+     * 判断是否是表格文件
+     * @param file 文件对象
+     * @returns {boolean}
+     */
     isExcel(file) {
       return /\.(xlsx|xls|csv)$/.test(file.name)
     }

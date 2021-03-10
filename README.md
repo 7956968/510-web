@@ -51,7 +51,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │      userManage.js
 │      video.js
 │
-├─assets
+├─assets 资源文件
 │  │  attendance.png
 │  │  background.jpg
 │  │  device.jpg
@@ -101,7 +101,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │      └─svg
 │              shiping.svg
 │
-├─components
+├─components 常用的小组件
 │  │  HelloWorld.vue
 │  │  type.vue
 │  │
@@ -196,10 +196,10 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │  │  └─components
 │  │          editorImage.vue
 │  │
-│  ├─treeSelect
+│  ├─treeSelect 树形下拉选择
 │  │      el-tree-select.vue
 │  │
-│  ├─TreeTable  自定义的树表
+│  ├─TreeTable  自定义的树形表格
 │  │      eval.js
 │  │      index.vue
 │  │      readme.md
@@ -208,12 +208,12 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │  │      dataTranslate.js
 │  │      index.vue
 │  │
-│  ├─Upload
+│  ├─Upload 图片上传
 │  │      singleImage.vue
 │  │      singleImage2.vue
 │  │      singleImage3.vue
 │  │
-│  └─UploadExcel
+│  └─UploadExcel excel文件上传
 │          index.vue
 │
 ├─directive
@@ -239,45 +239,11 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 ├─filters
 │      index.js
 │
-├─icons
+├─icons 图标
 │  │  index.js
 │  │  ship.jpg
 │  │
 │  └─svg
-│          404.svg
-│          alarm.svg
-│          butterfly.svg
-│          car.svg
-│          dealWith.svg
-│          dealWith1.svg
-│          delete.svg
-│          device.svg
-│          diagnostics.svg
-│          export.svg
-│          firefighting.svg
-│          home.svg
-│          Import.svg
-│          inbreak.svg
-│          linkage.svg
-│          log.svg
-│          log1.svg
-│          map.svg
-│          matrix.svg
-│          m_analysis.svg
-│          newly.svg
-│          newly1.svg
-│          nightPatrol.svg
-│          permission.svg
-│          playback.svg
-│          select.svg
-│          sys.svg
-│          trueTime.svg
-│          untreated.svg
-│          update.svg
-│          user.svg
-│          visitory.svg
-│          waterTank.svg
-│
 ├─lang
 │      en.js
 │      index.js
@@ -326,7 +292,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │          tagsView.js
 │          user.js
 │
-├─styles
+├─styles 样式
 │      btn.scss
 │      element-ui.scss
 │      index.scss
@@ -352,8 +318,8 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │
 ├─vendor
 │      Blob.js
-│      Export2Excel.js
-│      Export2Zip.js
+│      Export2Excel.js 导出excel表格
+│      Export2Zip.js 导出zip压缩包
 │
 └─views  页面组件
     ├─car  车辆管理
@@ -409,7 +375,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     │  └─mixin
     │          ResizeHandler.js
     │
-    ├─newlogin
+    ├─newlogin 登陆界面组件
     │  │  login.vue
     │  │
     │  └─components

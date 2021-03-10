@@ -232,7 +232,7 @@
               this.loading = false
               this.$router.push({path:  '/'})
             }).catch((err) => {
-              if(err.response.data.errorMsg.indexOf("验证码") != -1 ){
+              if(err.response.data.errorMsg.indexOf("验证码") !== -1 ){
                 this.refreshCode();
               }
               this.loading = false
@@ -243,12 +243,14 @@
           }
         })
       },
-      // //刷新验证码
-      // refreshCode(){
-      //   var validateImg = document.getElementById("validateImg");
-      //   validateImg.src = process.env.BASE_API+"code/image?width=67" +new Date().getTime();
-      //
-      // },
+      /**
+       * 刷新验证码
+       */
+      refreshCode(){
+        console.log("刷新验证码，功能待完善")
+        // var validateImg = document.getElementById("validateImg");
+        // validateImg.src = process.env.BASE_API+"code/image?width=67" +new Date().getTime();
+      },
 
 
       getCode () {
@@ -256,7 +258,7 @@
         this.$refs.registerForm.clearValidate();//清除上次的校验结果
 
         this.$refs.registerForm.validateField("phone",message=>{
-          if(message != "" ){
+          if(message !== "" ){
             return;
           }
           this.canClick = false

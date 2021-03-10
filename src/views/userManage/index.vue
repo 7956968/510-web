@@ -34,7 +34,7 @@
         </el-form-item>
         <el-form-item label="性别" prop="gender">
           <el-radio-group v-model="form.gender" size="small">
-<!--            <el-radio-button :label="0">暂时不填</el-radio-button>-->
+            <!--<el-radio-button :label="0">暂时不填</el-radio-button>-->
             <el-radio-button :label="1">男</el-radio-button>
             <el-radio-button :label="2">女</el-radio-button>
           </el-radio-group>
