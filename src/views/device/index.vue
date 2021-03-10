@@ -30,6 +30,9 @@
           <el-button @click="showDistributeDialog" style="font-size: 18px">
             为设备分配分组
           </el-button>
+          <el-button @click="uploadExcelVisible=true" style="font-size: 18px">
+            上传设备数据
+          </el-button>
         </el-form-item>
       </el-form>
     </el-header>
@@ -291,6 +294,21 @@
         <el-button type="primary" @click="distributeDevicesToGroups">确 认</el-button>
       </div>
     </el-dialog>
+
+<!--    上传excel文件-->
+<!--    <el-dialog title="上传设备数据"-->
+<!--               :visible="uploadExcelVisible"-->
+<!--               @close="uploadExcelVisible=false"-->
+<!--               center-->
+<!--               :close-on-click-modal="false"-->
+<!--    >-->
+<!--      <upload-excel :beforeUpload="beforeUpload"-->
+<!--                    :onSuccess="onSuccess"-->
+<!--                    ref="uploadExcel"-->
+<!--      />-->
+<!--    </el-dialog>-->
+
+
   </div>
 </template>
 
@@ -302,10 +320,13 @@ import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth'
 import {getDeviceList, add, updateById, deleteById, deleteAll,
-  getGroupList, addGroup, updateGroupById, deleteAllGroups,
+  getGroupList, getGroupListByDeviceId, addGroup, updateGroupById, deleteAllGroups,
   distributeDevicesToGroups} from '@/api/device';
 import channel from "./channel";
 import liandong from "./liandong";
+import UploadExcel from "@/components/UploadExcel";
+//// 右键菜单组件
+// import VueContextMenu from "vue-contextmenu"
 
 
 export default {
@@ -315,7 +336,9 @@ export default {
     liandong,
     Dialog,
     treeTable,
-    selectTree
+    selectTree,
+    UploadExcel,
+    // VueContextMenu,
   },
   data() {
     let updateOpen = (row) => {
@@ -353,11 +376,12 @@ export default {
       labelPosition: 'left',
       dialogFormVisible: false, // 新增设备弹窗不可见
       groupFormVisible: false,
+      uploadExcelVisible: false, // 上传excel对话框可见性
       distributeDialogVisible: false,
       innerVisible: false,// 分组的内层对话框可见性
       dialogName: '新增设备', // 弹窗名
       currentUserId: null,    // 当前用户id
-      btnType: 'plain',   // "未分组设备"按钮的类型，按下会变蓝
+      btnType: 'plain',   // "未分组设备"按钮的类型，反复按会蓝/白色切换
       curGroupName: '全部',   // 当前所在组名，id=null:全部;=0:未分组设备;>0:具体组名
       curDevice: null,// 当前选中设备行
       curGroup: null,   // 当前选中组
@@ -692,11 +716,25 @@ export default {
       if(deviceList.length===0){
         this.$message.warning("未勾选设备")
         return;
+      }else if(deviceList.length===1){
+        // 选中的设备只有一个，为复选框勾选已经所在的分组
+        let groupIdList = [];
+        getGroupListByDeviceId(deviceList[0].id).then(res=>{
+          if(res.data.errorCode===200){
+            groupIdList = res.data.data;
+          }else{
+            console.log("获取设备所在组失败")
+          }
+          // 设为勾选
+          this.$nextTick(()=>{this.$refs.distributeTree.setCheckedKeys(groupIdList);});
+        }).catch(err => {
+          console.log(err)
+        })
       }
       this.checkedDeviceNameList=deviceList.map((item)=>item.name);
       this.distributeDialogVisible = true;
       // this.distributeForm.groupIdList = [];
-      this.$refs.distributeTree.setCheckedKeys([]);
+      this.$refs.distributeTree.setCheckedKeys([]);// 清空上一次留存的勾选
     },
     // 删除设备
     delete(row) {
@@ -741,47 +779,71 @@ export default {
       }).catch(err => {})
     },
     ///// websocket test
-    websocketTest(){
-      this.init();
-    },
-    init: function () {
-      if(typeof(WebSocket) === "undefined"){
-        alert("您的浏览器不支持socket")
-      }else{
-        // 实例化socket
-        //// ws/{baseURL}/device/{deviceId}
-        this.path = "ws://localhost:8888/device_ws/1248";
-        this.socket = new WebSocket(this.path)
-        // 监听socket连接，错误，消息，关闭
-        this.socket.onopen = this.open;
-        this.socket.onerror = this.error;
-        this.socket.onmessage = this.getMessage;
-        this.socket.onclose = this.close;
-      }
-    },
-    open: function () {
-      let data = {
-        code: 0,
-        msg: '这是client：初次连接'
-      }
-      this.send(JSON.stringify(data))
-      console.log("socket连接成功")
-      // let inputstr = prompt("请输入","");
-      // this.socket.send(JSON.stringify({inputText:inputstr}));
-    },
-    error: function () {
-      console.log("连接错误")
-    },
-    getMessage: function (msg) {
-      console.log(msg.data)
-    },
-    send: function (data) {
-      this.socket.send(data)
-      console.log("data is " + data)
-    },
-    close: function (e) {
-      console.log("socket已经关闭")
-    }
+    // websocketTest(){
+    //   this.init();
+    // },
+    // init: function () {
+    //   if(typeof(WebSocket) === "undefined"){
+    //     alert("您的浏览器不支持socket")
+    //   }else{
+    //     // 实例化socket
+    //     //// ws://{baseURL}/device_ws/{deviceId}
+    //     this.path = "ws://localhost:8888/device_ws/1248";
+    //     this.socket = new WebSocket(this.path)
+    //     // 监听socket连接，错误，消息，关闭
+    //     this.socket.onopen = this.open;
+    //     this.socket.onerror = this.error;
+    //     this.socket.onmessage = this.getMessage;
+    //     this.socket.onclose = this.close;
+    //   }
+    // },
+    // open: function () {
+    //   let data = {
+    //     code: 0,
+    //     msg: '这是client：初次连接'
+    //   }
+    //   this.send(JSON.stringify(data))
+    //   console.log("socket连接成功")
+    //   // let inputstr = prompt("请输入","");
+    //   // this.socket.send(JSON.stringify({inputText:inputstr}));
+    // },
+    // error: function () {
+    //   console.log("连接错误")
+    // },
+    // getMessage: function (msg) {
+    //   console.log(msg.data)
+    // },
+    // send: function (data) {
+    //   this.socket.send(data)
+    //   console.log("data is " + data)
+    // },
+    // close: function (e) {
+    //   console.log("socket已经关闭")
+    // },
+    //
+    // /**
+    //  * 在上传文件之前执行，判断文件大小
+    //  * @param rawFile 文件对象
+    //  * @returns {boolean} 是否允许上传
+    //  */
+    // beforeUpload(rawFile){
+    //   // console.log(rawFile);
+    //   if(rawFile.size>=20*1024*1024){
+    //     this.$message.error("上传的文件应小于20m");
+    //     return false;
+    //   }
+    //   return true;
+    // },
+    // /**
+    //  * 上传excel成功执行的函数
+    //  * @returns {boolean}
+    //  */
+    // onSuccess(){
+    //   console.log("onSuccess");
+    //   console.log(this.$refs.uploadExcel.excelData)
+    //   return true;
+    // },
+
   },
   created() {
     this.bttns = this.$route.meta.btnPermission;
@@ -798,8 +860,8 @@ export default {
     this.getDeviceList();
     this.currentUserId = JSON.parse(getUser()).id;
 
-    ////
-    this.websocketTest();
+    //////  ws test
+    // this.websocketTest();
   },
   watch: {
     // 如果分组被切换，通道不显示数据

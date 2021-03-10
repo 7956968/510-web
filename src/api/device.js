@@ -66,9 +66,9 @@ export function deleteAll(idList) {
   })
 }
 
-/**
+/***************************************************
  * 分组设置
- * 包括：添加, 修改, 删除, 获取
+ * 包括：添加, 修改, 删除, 获取, 通过设备ID获取
  */
 
 
@@ -81,6 +81,14 @@ export function getGroupList(params) {
     url: '/group/select',
     method: 'get',
     params
+  })
+}
+
+export function getGroupListByDeviceId(deviceId) {
+  return request({
+    url: '/group/select_by_device_id',
+    method: 'get',
+    params:{deviceId:deviceId}
   })
 }
 
