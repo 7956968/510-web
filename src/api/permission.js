@@ -9,11 +9,18 @@ export function getList(params) {
     params
   })
 }
-export function add(params) {
+
+/**
+ * 添加权限，并为创建者所属角色赋予权限
+ * @param data {permission:xxx, roleId:xxx}
+ *           permission 权限实体
+ *           roleId 创建者所属角色的id
+ */
+export function add(data) {
   return request({
     url: '/permission/add',
     method: 'post',
-    params
+    data: data,
   })
 }
 

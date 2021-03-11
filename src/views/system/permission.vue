@@ -343,15 +343,19 @@ export default {
           // })
 
           // 添加权限->获取最后添加的权限->为当前角色赋予权限
-          add(this.form).then(res => {
+          add({permission:this.form, roleId:this.currentRoleId}).then(res => {
             if (res.data.errorCode === 200){
-              // this.getList();
-              // this.dialogFormVisible = false;
-              return getLast()
+              this.getList();
+              this.dialogFormVisible = false;
+              this.$message.success("添加成功");
             }else{
-              return Promise.reject(new Error(res.data.errorMsg));
+              this.$message.error(res.data.errorMsg);
             }
-          }).then(res => {
+          }).catch(err=>{
+            console.log(err)
+          });
+/**
+            .then(res => {
             if (res.data.errorCode === 200){
               return addRP({roleId:this.currentRoleId,permissionId:res.data.data.id})
             }else{
@@ -369,7 +373,7 @@ export default {
             console.log(err)
             this.$message.error(err.message)
           })
-
+*/
         }else{
           updateById(this.form).then(res=>{
             if (res.data.errorCode === 200){
