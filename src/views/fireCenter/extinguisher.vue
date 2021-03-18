@@ -3,7 +3,12 @@
     <div>
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
-          <el-input v-model.trim="param.keyword" placeholder="请输入关键字" clearable @blur="getDepartmentList"></el-input>
+          <el-input v-model.trim="param.keyword"
+                    placeholder="请输入关键字"
+                    maxlength="255"
+                    clearable
+                    @blur="getExtinguisherList"
+          />
         </el-form-item>
         <el-form-item>
           <el-button v-for="(item,index) in bttns"
@@ -19,59 +24,52 @@
     </div>
 
     <div>
-      <tree-table :data="data" :columns="columns" :options="tableOption" border expandAll
+      <tree-table :data="data"
+                  :columns="columns"
+                  :options="tableOption"
+                  border
+                  not-tree
                   ref="curTable"
+                  option-column-width="165"
       />
     </div>
 
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center :close-on-click-modal="false">
-      <el-form :model="form"
-               ref="dialogForm"
-               :rules="formRules"
-               :label-position="labelPosition"
-               label-width="100px"
+      <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
                size="mini">
         <el-form-item label="名称" prop="name">
-          <el-input v-model.trim="form.name" placeholder="名称" style="width: auto"/>
+          <el-input v-model.trim="form.name" placeholder="名称" maxlength="30" style="width: auto"/>
         </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model.trim="form.description" placeholder="描述" style="width: auto"/>
+        <el-form-item label="位置" prop="description">
+          <el-input v-model.trim="form.location" placeholder="位置" maxlength="100" style="width: auto"/>
         </el-form-item>
-        <el-form-item label="父部门" prop="pid">
-          <selectTree
-            style="width: 79%"
-            placeholder="请选择"
-            ref="selectTreeDept"
-            :options="data"
-            v-model="form.pid"
-            clearable
-            accordion="true"
-            :defaultExpandLevel=4
-            :normalizer="normalizer"
-          />
+        <el-form-item label="到期时间" prop="expirationTime">
+          <el-input v-model.trim="form.expirationTime" placeholder="到期时间" style="width: auto"/>
+        </el-form-item>
+        <el-form-item label="巡检周期" prop="inspectionCycle">
+          <el-input v-model.number="form.inspectionCycle" placeholder="巡检周期" maxlength="10" style="width: auto"/>
         </el-form-item>
       </el-form>
-
       <div>
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitForm">确 定</el-button>
       </div>
     </el-dialog>
+
   </div>
 </template>
 
 <script>
 import treeTable from '@/components/TreeTable';
+import {getExtinguisherList, add, updateById, deleteById, deleteAll} from '@/api/extinguisher';
+import {listToTree, copyProperties, setEachPid} from '@/utils';
 import Dialog from '@/components/dialog/index';
-import {getDepartmentList, add, updateById, deleteById, deleteAll} from '@/api/department';
-import {listToTree, copyProperties, normalizer} from '@/utils';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth'
 
-
 export default {
-  name: "index",
+  name: "extinguisher",
   components: {
     Dialog,
     treeTable,
@@ -79,72 +77,74 @@ export default {
   },
   data() {
     let updateOpen = (row) => {
-      delete row.children;
-      row.pid = null;
       this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
-      this.form.updateUser = this.currentUserId
       this.dialogName = "修改";
       this.dialogFormVisible = true;
+
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     }
     let deleteOption = (row) => {
       this.delete(row);
     }
-    let isUpdateShow = (row) => ( this.canUpdate);
-    let isDeleteShow = (row) => {
-      return (!row.children || row.children.length === 0) && this.canDelete;
-    }
-    let validatePid = (rule, value, callback) => {
-      if (value && value===this.form.id) {
-        callback(new Error('父部门不可以是它自己'));
-      }else {
-        callback();
-      }
-    };
+    let isUpdateShow = (row) => (row.changeable && this.canUpdate);
+    let isDeleteShow = (row) => (row.deleteable && this.canDelete);
     return {
       canDelete: false,
       canUpdate: false,
 
-      data: [],
       bttns: [],
-      options: [],
       labelPosition: 'left',
       dialogFormVisible: false, // 弹窗不可见
       dialogName: '新增', // 弹窗名
-      currentUserId: null,    // 当前用户id
+      data: [],           // 表格数据
+
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
-        description: [{required: true, trigger: 'blur', message: "请输入描述"}],
-        pid: [{validator: validatePid, trigger: 'blur', }]
+        location: [{required: true, trigger: 'blur', message: "请输入位置"}],
+        expirationTime: [{required: true, trigger: 'blur', message: "请输入到期时间"}],
+        status: [{required: true, trigger: 'blur', message: "请选择状态"}],
+        inspectionCycle: [{required: true, trigger: 'blur', message: "请输入巡检周期"}],
       },
       param:{
         // 查询的关键字
-        keyword:''
+        keyword: ''
       },
       form: {
         id: null,
         name: '',
-        pid: null,  // 父部门的id
-        description: '',
+        location: '',
+        expirationTime: '',
+        status: '',
+        inspectionCycle: '',
         createUser: null,
-        updateUser: this.currentUserId,
+        updateUser: null,
       },
       columns: [
         {
-          text: '名称',
-          value: 'name',
-          align: 'left'
+          text: '序号',
+          value: 'id',
+          width: 120,
         },
         {
-          text: '描述',
-          value: 'description'
+          text: '位置',
+          value: 'location',
         },
         {
-          text: '创建时间',
-          value: 'createTime'
+          text: '到期时间',
+          value: 'expirationTime',
+        },
+        {
+          text: '状态',
+          value: 'status',
+          width: 120,
+        },
+        {
+          text: '巡检周期',
+          value: 'inspectionCycle',
         },
       ],
+      // 表格右边的操作按钮
       tableOption: [
         {
           text: '修改',
@@ -160,39 +160,31 @@ export default {
     }
   },
   methods: {
-    // 后台返回的数据和VueTreeselect要求的数据结构不同，需要进行转换
-    normalizer,
     handleMethod(ms) {
       this[ms]();
     },
+    search() {
+      this.getExtinguisherList();
+    },
+    // 显示新增表单
     add() {
       this.form = {
         id: null,
         name: '',
-        pid: null,
         description: '',
-        createUser: this.currentUserId,
-        updateUser: this.currentUserId
       };
       this.dialogName = "新增";
       this.dialogFormVisible = true;
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
+      // 获取当前角色的权限列表, 提供给“新建角色”的表单
+      this.getMyPermissionList()
     },
-    search() {
-      this.getDepartmentList();
-    },
-    getDepartmentList() {
-      getDepartmentList(this.param).then(res => {
+    getExtinguisherList() {
+      getExtinguisherList(this.param).then(res => {
         if (res.data.errorCode === 200) {
-          let a = res.data.data;
-          this.data = listToTree(a);
-          if (this.data != null && this.data.length > 0) {
-            for (let i = 0; i < this.data.length; i++) {
-              this.data[i].pid = 0;
-            }
-          }
-          //this.options = re.data.data;
+          this.data = res.data.data;
+          setEachPid(this.data, 0);
         }
       })
     },
@@ -201,24 +193,18 @@ export default {
         if (!valid) {
           return;
         }
+
         if (this.dialogName.indexOf("新增") !== -1) {//添加操作
-          add(this.form).then(res => {
-            if (res.data.errorCode === 200) {
-              this.$message.success(res.data.errorMsg);
-              this.getDepartmentList()
-            }else{
-              this.$message.error(res.data.errorMsg);
-            }
-          })
+
           this.dialogFormVisible = false; // 隐藏"新增"弹窗
-          // 清空form?
-          // 清空keyword?
+          //// 清空keyword?
         } else {//修改操作
+
           updateById(this.form).then(res => {
             if (res.data.errorCode === 200) {
+              this.getExtinguisherList();
               this.$message.success(res.data.errorMsg);
-              this.getDepartmentList();
-            }else{
+            }else {
               this.$message.error(res.data.errorMsg);
             }
           })
@@ -232,16 +218,18 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
+      }).then(()=>{
         return deleteById(row.id);
       }).then(res => {
-        if (res.data.errorCode === 200) {
-          this.getDepartmentList();
+        if(res.data.errorCode === 200) {
           this.$message.success("删除成功");
+          this.getExtinguisherList();
         }else{
           this.$message.error(res.data.errorMsg);
         }
-      }).catch( err => {})
+      }).catch(err =>{
+        console.log(err);
+      });
     },
     deleteAll(){
       let checkedIdList = this.$refs.curTable.getSelectedKeys();
@@ -262,7 +250,7 @@ export default {
       }).then(res => {
         if(res.data.errorCode === 200){
           this.$message.success("批量删除成功");
-          this.getDepartmentList()
+          this.getExtinguisherList()
         }else{
           this.$message.error(res.data.errorMsg);
         }
@@ -280,7 +268,8 @@ export default {
         item.invisible = true;
       }
     })
-    this.getDepartmentList();
+    this.getExtinguisherList();
+
     this.currentUserId = JSON.parse(getUser()).id;
   },
   mounted() {
@@ -290,5 +279,7 @@ export default {
 </script>
 
 <style scoped>
-
+.item-lable {
+  width: 17%;
+}
 </style>

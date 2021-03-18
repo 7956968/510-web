@@ -75,7 +75,7 @@
 import treeTable from '@/components/TreeTable';
 import {getRoleList, add, addWithPermissions, updateById, deleteById, deleteAll } from '@/api/role';
 import {getPermissionListByRoleId} from '@/api/rolePermission';
-import {listToTree, copyProperties, setEachPidZero} from '@/utils';
+import {listToTree, copyProperties, setEachPid} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
@@ -289,7 +289,6 @@ export default {
       getRoleList(this.param).then(res => {
         if (res.data.errorCode === 200) {
           this.data = res.data.data;
-          setEachPidZero(this.data);
         }
       })
     },

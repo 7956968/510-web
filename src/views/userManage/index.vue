@@ -234,11 +234,13 @@ export default {
       columns: [
         {
           text: '姓名',
-          value: 'name'
+          value: 'name',
+          width: 100,
         },
         {
           text: '性别',
-          value: 'genderStr'
+          value: 'genderStr',
+          width: 50,
         },
         {
           text: '工号',
@@ -246,11 +248,13 @@ export default {
         },
         {
           text: '职位',
-          value: 'position'
+          value: 'position',
+          width: 100,
         },
         {
           text: '角色',
-          value: 'roleStr'
+          value: 'roleStr',
+          width: 100,
         },
         {
           text: '部门',
@@ -264,6 +268,7 @@ export default {
         {
           text: '状态',
           value: 'itemStatusStr',
+          width: 70,
         },
       ],
       tableOption: [
@@ -281,9 +286,7 @@ export default {
     }
   },
   methods: {
-    normalizer(node) {
-      return normalizer(node);
-    },
+    normalizer,
     handleMethod(ms) {
       this[ms]();
     },

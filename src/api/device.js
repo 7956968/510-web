@@ -2,25 +2,9 @@ import request from '@/utils/request'
 
 /**
  * 设备管理的接口
- *    包括设备分组，联动管理
+ *    包括设备增删改查，设备分组，联动管理
  *
  */
-
-/**
- * 获取视频地址
- * @param params 查询参数（暂时不使用）
- * @return { device: [{}, {}, ... ] }
- *          Array中的每一个元素的内容为 {id: *, stream: * }
- *            id: 摄像头设备id
- *            stream: 地址
- */
-export function getStreamList(params) {
-  return request({
-    url: '/device/select_stream',
-    method: 'get',
-    params
-  })
-}
 
 /**
  * 设备管理页面：获取设备列表
@@ -170,7 +154,6 @@ export function deleteAllGroups(data) {
 
 /**
  * 为多个设备分配多个分组
- *
  * @param data
  *    deviceIdList: 设备id的数组
  *    groupIdList:  组id的数组;如果为空, 则移至未分组设备
@@ -235,7 +218,7 @@ export function addAllLiandong(data) {
 
 /**
  * 删除联动
- * @param id
+ * @param data
  */
 export function deleteLiandong(data) {
   return request({

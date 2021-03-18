@@ -27,12 +27,9 @@
                      v-if="!item.invisible"
                      @click="handleMethod(item.methodd)">{{ item.name }}
           </el-button>
-          <el-button @click="showDistributeDialog" style="font-size: 18px">
-            为设备分配分组
-          </el-button>
-          <el-button @click="uploadExcelVisible=true" style="font-size: 18px">
-            上传设备数据
-          </el-button>
+<!--          <el-button @click="uploadExcelVisible=true" style="font-size: 18px">-->
+<!--            上传设备数据-->
+<!--          </el-button>-->
         </el-form-item>
       </el-form>
     </el-header>
@@ -48,26 +45,26 @@
                    size="middle"
         >分组设置</el-button>
         </el-row>
-        <el-row style="margin-top:10px;margin-bottom:10px;text-align:center">
-        <el-button @click="setNotInGroup"
-                   :type="btnType"
-                   icon="el-icon-search"
-                   size="middle"
-        >查看未分组设备</el-button>
-        </el-row>
         <div style="margin-top:10px;margin-bottom:10px;background:#97b5e7;height:30px;text-align:center;line-height: 30px">
           分组列表
         </div>
         <!-- 用于展示的分组列表 -->
+        <!-- 默认分组独自一个eltree -->
+        <el-tree :data="defaultGroup"
+                 @node-click="handleGroupNodeClick"
+                 highlight-current
+                 ref="defaultGroupTree"
+        />
+        <!-- 自定义的分组 -->
         <el-tree :data="groupList"
                  :props="defaultProps"
                  @node-click="handleGroupNodeClick"
                  highlight-current
-                 empty-text="当前无分组"
+                 empty-text="当前无自定义分组，请创建"
                  default-expand-all
                  :expand-on-click-node="false"
                  ref="groupTreeShow"
-        ></el-tree>
+        />
       </el-aside>
       <!-- 表格-->
       <el-main>
@@ -85,7 +82,7 @@
         />
         <!--与设备表格保持距离-->
         <div style="margin-top:40px;" >
-          <span style="color:#5b47c9">当前选中设备: </span>{{curDeviceName}}
+          <span style="color:#5b47c9">当前选中设备: </span>{{curDeviceName||'--'}}
         </div>
         <!--表格[通道, 联动摄像头]-->
         <el-tabs type="border-card">
@@ -259,23 +256,12 @@
       >
         <br/>
         1. 每个设备可以存在于多个分组中<br/>
-        2. 若不选择分组，则将设备设置为'未分组设备'
+        2. 若不选择分组，设备将被添加至'默认分组'
       </el-alert>
 
       <el-row style="margin: 15px 0;text-align:center;font-size: 22px">将设备{{checkedDeviceNameList}}</el-row>
       <el-row style="margin: 15px 0;text-align:center;font-size: 22px;color:#1ca6f5">添加至</el-row>
       <div style="text-align:center">
-<!--        <selectTree-->
-<!--          style="width:270px;margin:auto;font-size: 18px"-->
-<!--          placeholder="请选择分组"-->
-<!--          ref="selectTreeGroup2"-->
-<!--          :options="groupList"-->
-<!--          v-model="distributeForm.groupId"-->
-<!--          clearable-->
-<!--          accordion="true"-->
-<!--          :defaultExpandLevel=3-->
-<!--          :normalizer="normalizer"-->
-<!--        />-->
         <!-- 用于分配的分组列表 -->
         <el-tree :data="groupList"
                  :props="defaultProps"
@@ -315,7 +301,7 @@
 <script>
 import treeTable from '@/components/TreeTable';
 import Dialog from '@/components/dialog/index';
-import {listToTree, copyProperties, setEachPidZero, setNotLeafDisabled, normalizer} from '@/utils';
+import {listToTree, copyProperties, setEachPid, setNotLeafDisabled, normalizer} from '@/utils';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth'
@@ -377,11 +363,10 @@ export default {
       dialogFormVisible: false, // 新增设备弹窗不可见
       groupFormVisible: false,
       uploadExcelVisible: false, // 上传excel对话框可见性
-      distributeDialogVisible: false,
+      distributeDialogVisible: false, // 分配分组对话框可见性
       innerVisible: false,// 分组的内层对话框可见性
       dialogName: '新增设备', // 弹窗名
       currentUserId: null,    // 当前用户id
-      btnType: 'plain',   // "未分组设备"按钮的类型，反复按会蓝/白色切换
       curGroupName: '全部',   // 当前所在组名，id=null:全部;=0:未分组设备;>0:具体组名
       curDevice: null,// 当前选中设备行
       curGroup: null,   // 当前选中组
@@ -398,7 +383,14 @@ export default {
         "门禁读卡器",
       ],
       innerDialogTitle: '添加分组',
-      groupList: [],
+      defaultGroup: [{
+        id: 0,
+        label: '默认分组',
+        name: '默认分组',
+        // children: [],
+
+      }],
+      groupList: [], // 分组列表
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
         // serialNumber: [{required: true, trigger: 'blur', message: "请输入序列号"}],
@@ -438,11 +430,6 @@ export default {
         createUser: this.currentUserId,
         updateUser: this.currentUserId,
       },
-      // distributeForm:{    // 设备转移分组的表单
-      //   groupIdList:[],
-      //   createUser:this.currentUserId,
-      //   updateUser:this.currentUserId,
-      // },
       checkedDeviceNameList: [],  // 勾选的设备.name列表
       columns: [
         {
@@ -493,9 +480,7 @@ export default {
     }
   },
   methods: {
-    normalizer(node) {
-      return normalizer(node)
-    },
+    normalizer,
     handleMethod(ms) {
       this[ms]();
     },
@@ -523,7 +508,6 @@ export default {
 
         groupId: this.curGroup?this.curGroup.id:null,
       };
-      console.log("curGroup is " + this.form.groupId)
       this.dialogName = "新增设备";
       this.dialogFormVisible = true;
       // 清除校验结果
@@ -547,12 +531,13 @@ export default {
         }
       })
     },
+    // 获取分组列表
     getGroupList(){
       getGroupList().then(res => {
         if (res.data.errorCode === 200) {
           let a = res.data.data;
           this.groupList = listToTree(a);
-          setEachPidZero(this.groupList);
+          // setEachPid(this.groupList,-1);
           // setNotLeafDisabled(this.groupList)
         }
       }).catch(err=>{})
@@ -664,29 +649,27 @@ export default {
     },
     // 分组被点击时触发
     handleGroupNodeClick(node){
+      // 第二次点击某节点，相当于取消点击
       if(this.param.groupId===node.id){
         // 取消选择当前节点
         this.param.groupId = null
-        this.$refs.groupTreeShow.store.currentNode = null;
-        this.curGroupName = "全部";
+        // 节点样式的高亮取消
+        if(this.$refs.defaultGroupTree.store.currentNode){
+          this.$refs.defaultGroupTree.store.currentNode = null;
+        }else{
+          this.$refs.groupTreeShow.store.currentNode = null;
+        }
         this.curGroup = null;
-      }else{
-        this.param.groupId = node.id
-        this.btnType = 'plain'
-        this.curGroupName = node.name;
+      }else{// 首次点击某节点 or 点击另外的节点
+        this.param.groupId = node.id;
+        // 节点样式的高亮切换
+        if(node.id===0){
+          this.$refs.groupTreeShow.store.currentNode = null;
+        } else{
+          this.$refs.defaultGroupTree.store.currentNode = null;
+        }
         this.curGroup = node;
       }
-      this.getDeviceList()
-    },
-    // 设置要查找的设备是无分组的
-    setNotInGroup(){
-      if(this.param.groupId){// 如果选择了分组，将选择的分组取消
-        this.$refs.groupTreeShow.store.currentNode = null;
-        this.curGroup = null;
-      }
-      this.param.groupId = this.param.groupId===0?null:0;
-      this.btnType = this.param.groupId===0?'primary':'plain';
-      this.curGroupName =  this.param.groupId===0?'未分组设备':'全部';
       this.getDeviceList()
     },
     // 将设备移动至别的分组
@@ -712,11 +695,17 @@ export default {
     },
     // 展示"为设备分配分组"对话框
     showDistributeDialog(){
+
       let deviceList = this.$refs.curTable.getSelectedRows();
       if(deviceList.length===0){
         this.$message.warning("未勾选设备")
         return;
-      }else if(deviceList.length===1){
+      }
+
+      // 清空上一次留存的勾选
+      this.$nextTick(()=>{this.$refs.distributeTree.setCheckedKeys([]);});
+
+      if(deviceList.length===1){
         // 选中的设备只有一个，为复选框勾选已经所在的分组
         let groupIdList = [];
         getGroupListByDeviceId(deviceList[0].id).then(res=>{
@@ -726,15 +715,13 @@ export default {
             console.log("获取设备所在组失败")
           }
           // 设为勾选
-          this.$nextTick(()=>{this.$refs.distributeTree.setCheckedKeys(groupIdList);});
+          this.$refs.distributeTree.setCheckedKeys(groupIdList);
         }).catch(err => {
           console.log(err)
         })
       }
       this.checkedDeviceNameList=deviceList.map((item)=>item.name);
       this.distributeDialogVisible = true;
-      // this.distributeForm.groupIdList = [];
-      this.$refs.distributeTree.setCheckedKeys([]);// 清空上一次留存的勾选
     },
     // 删除设备
     delete(row) {
@@ -787,8 +774,8 @@ export default {
     //     alert("您的浏览器不支持socket")
     //   }else{
     //     // 实例化socket
-    //     //// ws://{baseURL}/device_ws/{deviceId}
-    //     this.path = "ws://localhost:8888/device_ws/1248";
+    //     //// ws://{baseURL}/websocket/stream/{sessionId}
+    //     this.path = "ws://localhost:8888/websocket/stream/9587";
     //     this.socket = new WebSocket(this.path)
     //     // 监听socket连接，错误，消息，关闭
     //     this.socket.onopen = this.open;
@@ -799,13 +786,12 @@ export default {
     // },
     // open: function () {
     //   let data = {
-    //     code: 0,
-    //     msg: '这是client：初次连接'
+    //     method: 'selectStream',
     //   }
     //   this.send(JSON.stringify(data))
     //   console.log("socket连接成功")
-    //   // let inputstr = prompt("请输入","");
-    //   // this.socket.send(JSON.stringify({inputText:inputstr}));
+    //   let inputstr = prompt("请输入","");
+    //   this.socket.send(JSON.stringify({method:inputstr}));
     // },
     // error: function () {
     //   console.log("连接错误")
@@ -820,7 +806,8 @@ export default {
     // close: function (e) {
     //   console.log("socket已经关闭")
     // },
-    //
+
+    // //// 上传excel相关
     // /**
     //  * 在上传文件之前执行，判断文件大小
     //  * @param rawFile 文件对象
@@ -867,6 +854,14 @@ export default {
     // 如果分组被切换，通道不显示数据
     'param.groupId'(newVal, oldVal){
       this.curDevice = null
+    },
+    // 选中的分组被切换，"当前分组名"随之改变
+    curGroup(newVal, oldVal){
+      if(newVal){
+        this.curGroupName = newVal.name;
+      }else{
+        this.curGroupName = '全部';
+      }
     }
   },
   computed:{

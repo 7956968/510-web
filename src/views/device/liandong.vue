@@ -175,7 +175,7 @@ export default {
     }
   },
   methods: {
-    normalizer(node) {return normalizer(node)},
+    normalizer,
     handleMethod(ms) {this[ms]();},
     getLiandongList(){
       if(this.device==null)return ;

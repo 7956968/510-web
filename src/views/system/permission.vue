@@ -82,11 +82,11 @@
 <script>
 import treeTable from '@/components/TreeTable'
 import dictType from '@/components/type'
-import {getList, add,updateById,deleteById,getLast} from '@/api/permission'
+import {getList, add, updateById, deleteById} from '@/api/permission'
 import {getUser} from '@/utils/auth'
 import {getRolePermissionList, add as addRP} from '@/api/rolePermission'
 import {selectByParentCode} from '@/api/dict'
-import {listToTree, copyProperties} from '@/utils'
+import {listToTree, copyProperties, normalizer} from '@/utils'
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
@@ -235,17 +235,7 @@ export default {
   },
   methods: {
     // 后台返回的数据和VueTreeselect要求的数据结构不同，需要进行转换
-    normalizer(node) {
-      //去掉children=[]的children属性
-      if (node.children && !node.children.length) {
-        delete node.children;
-      }
-      return {
-        id: node.id,
-        label: node.title,
-        children: node.children
-      }
-    },
+    normalizer,
     selectChanged(value) {
       this.form = {
         id:null,

@@ -2,6 +2,12 @@
  * Created by jiachenpan on 16/11/18.
  */
 
+/**
+ * 将时间转化为字符串格式
+ * @param time 时间对象
+ * @param cFormat 日期格式
+ * @returns {string|null}
+ */
 export function parseTime(time, cFormat) {
   if (arguments.length === 0) {
     return null
@@ -35,6 +41,12 @@ export function parseTime(time, cFormat) {
   return time_str
 }
 
+/**
+ * 格式化时间，转化为一个差值描述，xx分钟前/xx小时前/1天前，超过两天是一般的时间描述
+ * @param time 时间
+ * @param option 时间格式
+ * @returns {string|null}
+ */
 export function formatTime(time, option) {
   time = +time * 1000
   const d = new Date(time)
@@ -52,6 +64,7 @@ export function formatTime(time, option) {
   } else if (diff < 3600 * 24 * 2) {
     return '1天前'
   }
+  // 超过两天
   if (option) {
     return parseTime(time, option)
   } else {
@@ -384,13 +397,14 @@ export function intersect(a, b){
 }
 
 /**
- * 将树列表中每一个顶级元素的父序号pid设置为0
+ * 将树形列表中每一个元素的父序号pid设置为value
  * @param treeList
+ * @param value
  */
-export function setEachPidZero(treeList){
+export function setEachPid(treeList, value=0){
   if (treeList != null && treeList.length > 0) {
     for (let i = 0; i < treeList.length; i++) {
-      treeList[i].pid = 0;
+      treeList[i].pid = value;
     }
   }
 }
@@ -430,9 +444,9 @@ export function normalizer(node) {
 }
 
 /**
- * 将每个用户放入部门数组
- * @param de
- * @param user
+ * 将每个用户放入部门数组，要求用户的departmentId=部门的id
+ * @param de 部门数组
+ * @param user 用户数组
  * @returns {*}
  */
 export function f(de,user) {
@@ -460,6 +474,13 @@ export function base64Encode(source) {
   return  Base64.encode(source);
 }
 
+/**
+ * 复制对象的属性到另一个对象
+ * @param inSrcObj 源对象
+ * @param inDestObj 目的对象
+ * @param inOverride
+ * @returns {*}
+ */
 export function copyProperties (inSrcObj,inDestObj,inOverride){
   var prop;
   for(prop in inDestObj){
