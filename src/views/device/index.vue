@@ -1,103 +1,105 @@
 <template>
   <div class="content_container">
     <el-container>
-    <!-- 顶栏按钮 -->
-    <el-header>
-      <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
-        <el-form-item label="关键字">
-          <!-- 失去焦点触发可以添加属性@blur="getDeviceList"-->
-          <el-input v-model.trim="param.keyword" placeholder="请输入关键字" maxlength="255" clearable/>
-        </el-form-item>
-        <el-form-item label="设备类型" prop="">
-          <!-- 失去焦点触发可以添加属性@blur="getDeviceList"-->
-          <el-select v-model.trim="param.type"
-                     placeholder="请选择设备类型"
-                     clearable
-          >
-            <el-option
-              v-for="(item,idx) in deviceTypeOptions"
-              :key="item"
-              :label="item"
-              :value="item"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
-                     v-if="!item.invisible"
-                     @click="handleMethod(item.methodd)">{{ item.name }}
-          </el-button>
-<!--          <el-button @click="uploadExcelVisible=true" style="font-size: 18px">-->
-<!--            上传设备数据-->
-<!--          </el-button>-->
-        </el-form-item>
-      </el-form>
-    </el-header>
+      <!-- 顶栏按钮 -->
+      <el-header>
+        <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
+          <el-form-item label="关键字">
+            <!-- 失去焦点触发可以添加属性@blur="getDeviceList"-->
+            <el-input v-model.trim="param.keyword" placeholder="请输入关键字" maxlength="255" clearable/>
+          </el-form-item>
+          <el-form-item label="设备类型" prop="">
+            <!-- 失去焦点触发可以添加属性@blur="getDeviceList"-->
+            <el-select v-model.trim="param.type"
+                       placeholder="请选择设备类型"
+                       clearable
+            >
+              <el-option
+                v-for="(item,idx) in deviceTypeOptions"
+                :key="item"
+                :label="item"
+                :value="item"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
+                       v-if="!item.invisible"
+                       @click="handleMethod(item.methodd)">{{ item.name }}
+            </el-button>
+            <!--          <el-button @click="uploadExcelVisible=true" style="font-size: 18px">-->
+            <!--            上传设备数据-->
+            <!--          </el-button>-->
+          </el-form-item>
+        </el-form>
+      </el-header>
 
-    <!-- 侧边分组，表格 -->
-    <el-container >
-      <!-- 侧边分组 -->
-      <el-aside width="200px" style="height: 650px; border: 1px solid #000000">
-        <el-row style="margin-top:10px;margin-bottom:10px;text-align:center">
-        <el-button @click="groupFormVisible=true"
-                   style="background:#e3e4f5;"
-                   icon="el-icon-setting"
-                   size="middle"
-        >分组设置</el-button>
-        </el-row>
-        <div style="margin-top:10px;margin-bottom:10px;background:#97b5e7;height:30px;text-align:center;line-height: 30px">
-          分组列表
-        </div>
-        <!-- 用于展示的分组列表 -->
-        <!-- 默认分组独自一个eltree -->
-        <el-tree :data="defaultGroup"
-                 @node-click="handleGroupNodeClick"
-                 highlight-current
-                 ref="defaultGroupTree"
-        />
-        <!-- 自定义的分组 -->
-        <el-tree :data="groupList"
-                 :props="defaultProps"
-                 @node-click="handleGroupNodeClick"
-                 highlight-current
-                 empty-text="当前无自定义分组，请创建"
-                 default-expand-all
-                 :expand-on-click-node="false"
-                 ref="groupTreeShow"
-        />
-      </el-aside>
-      <!-- 表格-->
-      <el-main>
-        <div>
-          <span  style="color:#5b47c9">当前所在组: </span>{{curGroupName}}
-        </div>
-        <tree-table :data="data"
-                    :columns="columns"
-                    :options="tableOption"
-                    border
-                    ref="curTable"
-                    :handle-row-click="handleRowClick"
-                    highlight-current-row
-                    not-tree
-        />
-        <!--与设备表格保持距离-->
-        <div style="margin-top:40px;" >
-          <span style="color:#5b47c9">当前选中设备: </span>{{curDeviceName||'--'}}
-        </div>
-        <!--表格[通道, 联动摄像头]-->
-        <el-tabs type="border-card">
-          <el-tab-pane label="通道">
-            <channel :device="curDevice"></channel>
-          </el-tab-pane>
-          <el-tab-pane label="联动摄像头">
-            <liandong :device="curDevice"
-                      :group-list="groupList"
-            ></liandong>
-          </el-tab-pane>
-        </el-tabs>
+      <!-- 侧边分组，表格 -->
+      <el-container>
+        <!-- 侧边分组 -->
+        <el-aside width="200px" style="height: 650px; border: 1px solid #000000">
+          <el-row style="margin-top:10px;margin-bottom:10px;text-align:center">
+            <el-button @click="groupFormVisible=true"
+                       style="background:#e3e4f5;"
+                       icon="el-icon-setting"
+                       size="middle"
+            >分组设置
+            </el-button>
+          </el-row>
+          <div
+            style="margin-top:10px;margin-bottom:10px;background:#97b5e7;height:30px;text-align:center;line-height: 30px">
+            分组列表
+          </div>
+          <!-- 用于展示的分组列表 -->
+          <!-- 默认分组独自一个eltree -->
+          <el-tree :data="defaultGroup"
+                   @node-click="handleGroupNodeClick"
+                   highlight-current
+                   ref="defaultGroupTree"
+          />
+          <!-- 自定义的分组 -->
+          <el-tree :data="groupList"
+                   :props="defaultProps"
+                   @node-click="handleGroupNodeClick"
+                   highlight-current
+                   empty-text="当前无自定义分组，请创建"
+                   default-expand-all
+                   :expand-on-click-node="false"
+                   ref="groupTreeShow"
+          />
+        </el-aside>
+        <!-- 表格-->
+        <el-main>
+          <div>
+            <span style="color:#5b47c9">当前所在组: </span>{{ curGroupName }}
+          </div>
+          <tree-table :data="data"
+                      :columns="columns"
+                      :options="tableOption"
+                      border
+                      ref="curTable"
+                      :handle-row-click="handleRowClick"
+                      highlight-current-row
+                      not-tree
+          />
+          <!--与设备表格保持距离-->
+          <div style="margin-top:40px;">
+            <span style="color:#5b47c9">当前选中设备: </span>{{ curDeviceName || '--' }}
+          </div>
+          <!--表格[通道, 联动摄像头]-->
+          <el-tabs type="border-card">
+            <el-tab-pane label="通道">
+              <channel :device="curDevice"></channel>
+            </el-tab-pane>
+            <el-tab-pane label="联动摄像头">
+              <liandong :device="curDevice"
+                        :group-list="groupList"
+              ></liandong>
+            </el-tab-pane>
+          </el-tabs>
 
-      </el-main>
-    </el-container>
+        </el-main>
+      </el-container>
     </el-container>
     <!--add/modify 设备表单-->
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center :close-on-click-modal="false">
@@ -170,7 +172,7 @@
                center
                :close-on-click-modal="false"
     >
-      <div style="height: 500px;" >
+      <div style="height: 500px;">
         <el-alert
           title=""
           type="info"
@@ -213,10 +215,11 @@
         append-to-body
         :close-on-click-modal="false"
       >
-        <el-form :model="groupForm" ref="GroupForm" :rules="groupFormRules" :label-position="labelPosition" label-width="100px"
+        <el-form :model="groupForm" ref="GroupForm" :rules="groupFormRules" :label-position="labelPosition"
+                 label-width="100px"
                  size="mini">
           <el-form-item label="分组名" prop="name">
-            <el-input v-model.trim="groupForm.name" placeholder="请输入组名" maxlength="30" />
+            <el-input v-model.trim="groupForm.name" placeholder="请输入组名" maxlength="30"/>
           </el-form-item>
           <el-form-item label="父分组" prop="pid">
             <selectTree
@@ -259,7 +262,7 @@
         2. 若不选择分组，设备将被添加至'默认分组'
       </el-alert>
 
-      <el-row style="margin: 15px 0;text-align:center;font-size: 22px">将设备{{checkedDeviceNameList}}</el-row>
+      <el-row style="margin: 15px 0;text-align:center;font-size: 22px">将设备{{ checkedDeviceNameList }}</el-row>
       <el-row style="margin: 15px 0;text-align:center;font-size: 22px;color:#1ca6f5">添加至</el-row>
       <div style="text-align:center">
         <!-- 用于分配的分组列表 -->
@@ -281,19 +284,18 @@
       </div>
     </el-dialog>
 
-<!--    上传excel文件-->
-<!--    <el-dialog title="上传设备数据"-->
-<!--               :visible="uploadExcelVisible"-->
-<!--               @close="uploadExcelVisible=false"-->
-<!--               center-->
-<!--               :close-on-click-modal="false"-->
-<!--    >-->
-<!--      <upload-excel :beforeUpload="beforeUpload"-->
-<!--                    :onSuccess="onSuccess"-->
-<!--                    ref="uploadExcel"-->
-<!--      />-->
-<!--    </el-dialog>-->
-
+    <!--    上传excel文件-->
+    <!--    <el-dialog title="上传设备数据"-->
+    <!--               :visible="uploadExcelVisible"-->
+    <!--               @close="uploadExcelVisible=false"-->
+    <!--               center-->
+    <!--               :close-on-click-modal="false"-->
+    <!--    >-->
+    <!--      <upload-excel :beforeUpload="beforeUpload"-->
+    <!--                    :onSuccess="onSuccess"-->
+    <!--                    ref="uploadExcel"-->
+    <!--      />-->
+    <!--    </el-dialog>-->
 
   </div>
 </template>

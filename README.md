@@ -348,6 +348,9 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     │      401.vue
     │      404.vue
     │
+    ├─fireCenter 消防中心
+    │      extinguisher.vue 灭火器信息
+    │
     ├─font
     │      fontawesome-webfont.eot
     │      fontawesome-webfont.svg
@@ -367,10 +370,10 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     │  │  │  Navbar.vue
     │  │  │  TagsView.vue
     │  │  │
-    │  │  └─Sidebar
+    │  │  └─Sidebar 侧边栏
     │  │          index.vue
     │  │          Item.vue
-    │  │          SidebarItem.vue
+    │  │          SidebarItem.vue 侧边栏的项目
     │  │
     │  └─mixin
     │          ResizeHandler.js
@@ -384,7 +387,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     │          LoginForm.vue
     │          LoginNavbar.vue
     │
-    ├─redirect
+    ├─redirect 重定向
     │      index.vue
     │
     ├─svg-icons
@@ -392,11 +395,9 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     │      requireIcons.js
     │
     ├─system  系统管理
-    │      dict.vue
-    │      live.vue
-    │      permission.vue
-    │      playback.vue
-    │      role.vue
+    │      dict.vue 数据字典
+    │      permission.vue 权限管理
+    │      role.vue 角色管理
     │
     └─userManage  用户管理
             index.vue

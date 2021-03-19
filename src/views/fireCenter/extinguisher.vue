@@ -44,10 +44,22 @@
           <el-input v-model.trim="form.location" placeholder="位置" maxlength="100" style="width: auto"/>
         </el-form-item>
         <el-form-item label="到期时间" prop="expirationTime">
-          <el-input v-model.trim="form.expirationTime" placeholder="到期时间" style="width: auto"/>
+          <el-date-picker
+            v-model="form.expirationTime"
+            type="date"
+            placeholder="选择过期日期"
+            format="yyyy-MM-dd"
+          />
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-radio-group v-model="form.status" size="small">
+            <!--<el-radio-button :label="0">未知</el-radio-button>-->
+            <el-radio-button :label="1">正常</el-radio-button>
+            <el-radio-button :label="2">过期</el-radio-button>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="巡检周期" prop="inspectionCycle">
-          <el-input v-model.number="form.inspectionCycle" placeholder="巡检周期" maxlength="10" style="width: auto"/>
+          <el-input v-model.number="form.inspectionCycle" placeholder="巡检周期" maxlength="10" style="width: auto"/>天
         </el-form-item>
       </el-form>
       <div>
@@ -87,8 +99,8 @@ export default {
     let deleteOption = (row) => {
       this.delete(row);
     }
-    let isUpdateShow = (row) => (row.changeable && this.canUpdate);
-    let isDeleteShow = (row) => (row.deleteable && this.canDelete);
+    let isUpdateShow = this.canUpdate;
+    let isDeleteShow = this.canDelete;
     return {
       canDelete: false,
       canUpdate: false,
@@ -125,6 +137,10 @@ export default {
           text: '序号',
           value: 'id',
           width: 120,
+        },
+        {
+          text: '名称',
+          value: 'name',
         },
         {
           text: '位置',
@@ -171,14 +187,15 @@ export default {
       this.form = {
         id: null,
         name: '',
-        description: '',
+        location: '',
+        expirationTime: null,
+        status: 0,
+        inspectionCycle: 7,
       };
       this.dialogName = "新增";
       this.dialogFormVisible = true;
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
-      // 获取当前角色的权限列表, 提供给“新建角色”的表单
-      this.getMyPermissionList()
     },
     getExtinguisherList() {
       getExtinguisherList(this.param).then(res => {
