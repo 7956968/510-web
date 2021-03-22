@@ -6,6 +6,14 @@ import request from '@/utils/request'
  *
  */
 
+export function countByGroupId(groupId){
+  return request({
+    url: '/device/count_by_group_id',
+    method: 'get',
+    params:{groupId: groupId},
+  })
+}
+
 /**
  * 设备管理页面：获取设备列表
  * @param params {keyword: * , groupId: * , type: * }

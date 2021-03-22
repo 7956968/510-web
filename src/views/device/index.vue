@@ -82,6 +82,17 @@
                       highlight-current-row
                       not-tree
           />
+          <!-- 页码  -->
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :page-size.sync="pageSize"
+            :total="total"
+            :current-page="currentPage"
+            @current-change="changePage"
+            @prev-click="changePage"
+            @next-click="changePage"
+          />
           <!--与设备表格保持距离-->
           <div style="margin-top:40px;">
             <span style="color:#5b47c9">当前选中设备: </span>{{ curDeviceName || '--' }}
@@ -307,7 +318,7 @@ import {listToTree, copyProperties, setEachPid, setNotLeafDisabled, normalizer} 
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth'
-import {getDeviceList, add, updateById, deleteById, deleteAll,
+import {getDeviceList, add, updateById, deleteById, deleteAll, countByGroupId,
   getGroupList, getGroupListByDeviceId, addGroup, updateGroupById, deleteAllGroups,
   distributeDevicesToGroups} from '@/api/device';
 import channel from "./channel";
@@ -372,6 +383,11 @@ export default {
       curGroupName: '全部',   // 当前所在组名，id=null:全部;=0:未分组设备;>0:具体组名
       curDevice: null,// 当前选中设备行
       curGroup: null,   // 当前选中组
+      // 分页相关
+      total: 0, // 总条目数
+      pageSize: 10, // 每页显示条目数
+      currentPage: 1, // 当前页，从1开始
+
       manufacturersOptions: [
         "海康",
         "豪恩",
@@ -408,7 +424,9 @@ export default {
       param:{
         keyword:'',   // 关键字
         groupId:null, // 组id
-        type:'',
+        type:'', // 类型
+        start: 0, // 起始位置
+        length: 10, // 页大小
       },
       form: {
         id: null,
@@ -624,6 +642,19 @@ export default {
         })
       }).catch(()=>{});
 
+    },
+
+    // 刷新设备统计总数（用于分页）
+    refreshTotal(groupId){
+      countByGroupId(groupId).then(res => {
+        if(res.data.errorCode===200){
+          this.total = res.data.data;
+        }
+      }).catch(err=>{})
+    },
+    // 当前页码改变
+    changePage(e){
+      this.currentPage = e;
     },
 
     // 添加分组
@@ -848,28 +879,41 @@ export default {
     this.getGroupList();
     this.getDeviceList();
     this.currentUserId = JSON.parse(getUser()).id;
-
+    this.refreshTotal(null);
     //////  ws test
     // this.websocketTest();
   },
   watch: {
     // 如果分组被切换，通道不显示数据
     'param.groupId'(newVal, oldVal){
-      this.curDevice = null
+      this.curDevice = null;
     },
-    // 选中的分组被切换，"当前分组名"随之改变
+    // 选中的分组被切换，"当前分组名"随之改变, 分页计数也改变
     curGroup(newVal, oldVal){
       if(newVal){
         this.curGroupName = newVal.name;
+        this.refreshTotal(newVal.id);
       }else{
         this.curGroupName = '全部';
+        this.refreshTotal(null);
       }
+      this.currentPage = 1;
+    },
+    currentPage(newVal, oldVal){
+      this.param.start=(newVal-1)*this.pageSize;
+      this.param.length=this.pageSize;
+      this.getDeviceList();
     }
   },
   computed:{
+    // 当前选中设备的名称
     curDeviceName(){
       return this.curDevice==null ? "--" : this.curDevice.name;
-    }
+    },
+    // 总页数
+    pageCount(){
+      return this.total / this.pageSize;
+    },
   },
 }
 </script>

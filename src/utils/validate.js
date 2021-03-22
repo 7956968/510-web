@@ -58,14 +58,27 @@ export function isValidatePhone(phone){
 }
 
 export const validateIp = (rule, value, callback) => {
-  if (!isValidIP(value)) {
+  if (!isValidIp(value)) {
     callback(new Error("请输入正确IP"));
   } else {
     callback();
   }
 };
-function isValidIP(ip) {
-  var reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
+
+/**
+ * 判断是否是有效的ip地址(ipv4)
+ * @param ip 字符串类型的ip
+ * @returns {boolean}
+ */
+export function isValidIp(ip) {
+  const reg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
   return reg.test(ip);
 }
 
+/**
+ * 判断是否是有效的单词（只允许数字,字母,下划线）
+ */
+export function isValidWord(str){
+  let reg = /\w+/;
+  return reg.test(str);
+}

@@ -127,10 +127,10 @@ export default {
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入通道名"}],
         // serialNumber: [{required: true, trigger: 'blur', message: "请输入序列号"}],
-        // number: [
-        //   {type: 'number',  trigger: 'blur', message: "必须为数字"},
-        //   {required: true, message: "请输入通道号"},
-        // ],
+        number: [
+          {type: 'number',  trigger: 'blur', message: "必须为数字"},
+          {required: true, message: "请输入通道号"},
+        ],
       },
       bttns:[
         {
@@ -170,8 +170,12 @@ export default {
         this.$message.warning('未选中设备，左键点击以选择')
         return ;
       }
-      this.form.deviceId = this.device.id;
-      this.form.createUser = this.form.updateUser = this.currentUserId;
+      this.form = {
+        deviceId: this.device.id,
+        createUser: this.currentUserId,
+        updateUser: this.currentUserId,
+        name: '',
+      }
       this.formVisible=true;
       this.dialogName="添加通道";
     },
