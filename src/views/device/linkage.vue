@@ -15,11 +15,11 @@
     </el-form>
 
     <!--表格-->
-    <tree-table :data="liandongData"
-                :columns="liandongColumns"
-                :options="liandongOptions"
+    <tree-table :data="linkageData"
+                :columns="linkageColumns"
+                :options="linkageOptions"
                 border
-                ref="liandongTable"
+                ref="linkageTable"
                 not-tree
     />
 
@@ -31,7 +31,7 @@
                :close-on-click-modal="false"
     >
       <el-form :model="form" size="mini" label-position="left" label-width="100px"
-               ref="liandongForm"
+               ref="linkageForm"
                :rules="formRules">
         <el-form-item label="报警设备">
           <el-input v-model.trim="deviceName" :disabled="true" style="width: auto"/>
@@ -78,14 +78,14 @@ import treeTable from '@/components/TreeTable';
 import Dialog from '@/components/dialog/index';
 import {getUser} from '@/utils/auth';
 import {getDeviceList,
-  addAllLiandong, deleteLiandong, deleteAllLiandongByIdList, selectLiandong} from '@/api/device';
+  addAllLinkage, deleteLinkage, deleteAllLinkageByIdList, selectLinkage} from '@/api/device';
 import {listToTree, copyProperties, normalizer} from '@/utils';
 import selectTree from "@riophae/vue-treeselect";
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 
 export default {
-  name: "liandong",
+  name: "linkage",
   components: {
     Dialog,
     treeTable,
@@ -117,8 +117,8 @@ export default {
       currentUserId:null,
       currentGroupId: null, // 对话框-选择分组-分组id
       cameraList: [],   // 为添加联动提供选项
-      liandongData: [], // 表格数据
-      liandongColumns: [ // 列字段
+      linkageData: [], // 表格数据
+      linkageColumns: [ // 列字段
         {
           text: '名称',
           value: 'name',
@@ -140,7 +140,7 @@ export default {
           value: 'prot'
         },
       ],
-      liandongOptions: [ // 操作列选项
+      linkageOptions: [ // 操作列选项
         {
           text: '取消联动',
           onclick: deleteOption,
@@ -156,7 +156,7 @@ export default {
         },
         {
           name:'刷新',
-          methodd: 'getLiandongList',
+          methodd: 'getLinkageList',
           icon:'el-icon-refresh',
           title:'刷新',
         },
@@ -177,24 +177,24 @@ export default {
   methods: {
     normalizer,
     handleMethod(ms) {this[ms]();},
-    getLiandongList(){
+    getLinkageList(){
       if(this.device==null)return ;
 
-      selectLiandong(this.device.id).then(res => {
+      selectLinkage(this.device.id).then(res => {
         if(res.data.errorCode===200){
-          this.liandongData = res.data.data;
+          this.linkageData = res.data.data;
           // this.$message.success("获取联动信息成功")
         }else{this.$message.error(res.data.errorMsg)}
       }).catch(err => {console.log(err)});
     },
     // 更新表单的摄像头选项
     getCameraList(){
-      getDeviceList({groupId:this.currentGroupId,type:'摄像头'})
+      getDeviceList({groupId:this.currentGroupId,type:'camera'})
         .then(res => {
             if(res.data.errorCode===200){
               this.cameraList = res.data.data;
               // 已经联动的摄像头idArray
-              let cameraIdList = this.liandongData.map(e=>e.id);
+              let cameraIdList = this.linkageData.map(e=>e.id);
               this.cameraList.forEach(item=>{
                 if(cameraIdList.indexOf(item.id)>-1){// 设置禁用
                   item.disabled = true;
@@ -220,13 +220,13 @@ export default {
       // this.dialogName='添加"报警-摄像头"联动';
     },
     submitForm(){
-      this.$refs.liandongForm.validate(valid => {
+      this.$refs.linkageForm.validate(valid => {
         if(!valid) return ;
         // 调用接口, 批量添加
-        addAllLiandong(this.form).then(res => {
+        addAllLinkage(this.form).then(res => {
           if(res.data.errorCode === 200) {
             this.$message.success("添加成功");
-            this.getLiandongList();
+            this.getLinkageList();
             this.formVisible = false;
           }else {
             this.$message.error(res.data.errorMsg);
@@ -240,24 +240,24 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        return deleteLiandong({deviceId:row.id,alarmId:this.device.id});
+        return deleteLinkage({deviceId:row.id,alarmId:this.device.id});
       }).then(res => {
         if (res.data.errorCode === 200) {
           this.$message.success("取消联动成功");
-          this.getLiandongList();
+          this.getLinkageList();
         }else{
           this.$message.error(res.data.errorMsg);
         }
       }).catch(err=>{});
     },
     deleteAll(){
-      let checkedIdList = this.$refs.liandongTable.getSelectedKeys();
+      let checkedIdList = this.$refs.linkageTable.getSelectedKeys();
       // 判空
       if( ! checkedIdList.length ){
         this.$message.warning("未勾选数据");
         return ;
       }
-      let checkedRowList = this.$refs.liandongTable.getSelectedRows(); // 被勾选的列数组
+      let checkedRowList = this.$refs.linkageTable.getSelectedRows(); // 被勾选的列数组
       let deletedNameList = checkedRowList.map(e=>e.name);  // 待删除列的名字列表
       this.$confirm('即将取消"'+this.device.name+'"与[' + deletedNameList + ']联动, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -265,11 +265,11 @@ export default {
         type: 'warning'
       }).then(() => {
         // 调用接口
-        return deleteAllLiandongByIdList(checkedIdList)
+        return deleteAllLinkageByIdList(checkedIdList)
       }).then(res => {
         if(res.data.errorCode === 200){
           this.$message.success("删除成功")
-          this.getLiandongList()
+          this.getLinkageList()
         }else{
           this.$message.error(res.data.errorMsg)
         }
@@ -279,8 +279,8 @@ export default {
   watch: {
     device(){
       this.deviceName = this.device==null?'--':this.device.name;
-      if(this.device==null){this.liandongData = [];}
-      else this.getLiandongList()
+      if(this.device==null){this.linkageData = [];}
+      else this.getLinkageList()
     },
     currentGroupId(){
       // 在分组选定/更改后, 更新选项

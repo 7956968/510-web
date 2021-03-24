@@ -199,9 +199,9 @@ export function distributeDevicesToGroups(data) {
  *    deviceId:摄像头id
  *    createUser:创建者id
  */
-// export function addLiandong(data) {
+// export function addLinkage(data) {
 //   return request({
-//     url: '/device/addLiandong',
+//     url: '/device/addLinkage',
 //     method: 'post',
 //     data: data,
 //   })
@@ -216,9 +216,9 @@ export function distributeDevicesToGroups(data) {
  *          createUser: 创建者id
  *        }
  */
-export function addAllLiandong(data) {
+export function addAllLinkage(data) {
   return request({
-    url: '/device/addAllLiandong',
+    url: '/device/addAllLinkage',
     method: 'post',
     data: data,
   })
@@ -228,17 +228,17 @@ export function addAllLiandong(data) {
  * 删除联动
  * @param data
  */
-export function deleteLiandong(data) {
+export function deleteLinkage(data) {
   return request({
-    url: '/device/deleteLiandong',
+    url: '/device/deleteLinkage',
     method: 'post',
     data: data,
   })
 }
 
-export function deleteAllLiandongByIdList(idList) {
+export function deleteAllLinkageByIdList(idList) {
   return request({
-    url: '/device/deleteAllLiandong',
+    url: '/device/deleteAllLinkage',
     method: 'post',
     data:{idList:idList}
   })
@@ -248,9 +248,9 @@ export function deleteAllLiandongByIdList(idList) {
  * 通过报警设备id查找联动的设备
  * @param alarmId 报警设备id
  */
-export function selectLiandong(alarmId) {
+export function selectLinkage(alarmId) {
   return request({
-    url: '/device/selectLiandong',
+    url: '/device/selectLinkage',
     method: 'get',
     params:{alarmId:alarmId}
   })

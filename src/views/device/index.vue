@@ -16,9 +16,9 @@
             >
               <el-option
                 v-for="(item,idx) in deviceTypeOptions"
-                :key="item"
-                :label="item"
-                :value="item"
+                :key="item.index"
+                :label="item.label"
+                :value="item.value"
               />
             </el-select>
           </el-form-item>
@@ -103,9 +103,9 @@
               <channel :device="curDevice"></channel>
             </el-tab-pane>
             <el-tab-pane label="联动摄像头">
-              <liandong :device="curDevice"
-                        :group-list="groupList"
-              ></liandong>
+              <linkage :device="curDevice"
+                       :group-list="groupList"
+              />
             </el-tab-pane>
           </el-tabs>
 
@@ -148,9 +148,9 @@
             style="width: 79%">
             <el-option
               v-for="(item,idx) in deviceTypeOptions"
-              :key="item"
-              :label="item"
-              :value="item"
+              :key="item.index"
+              :label="item.label"
+              :value="item.value"
             />
           </el-select>
         </el-form-item>
@@ -322,7 +322,7 @@ import {getDeviceList, add, updateById, deleteById, deleteAll, countByGroupId,
   getGroupList, getGroupListByDeviceId, addGroup, updateGroupById, deleteAllGroups,
   distributeDevicesToGroups} from '@/api/device';
 import channel from "./channel";
-import liandong from "./liandong";
+import linkage from "./linkage";
 import UploadExcel from "@/components/UploadExcel";
 //// 右键菜单组件
 // import VueContextMenu from "vue-contextmenu"
@@ -332,7 +332,7 @@ export default {
   name: "index",
   components: {
     channel,
-    liandong,
+    linkage,
     Dialog,
     treeTable,
     selectTree,
@@ -393,12 +393,17 @@ export default {
         "豪恩",
         "华拓",
       ],
+      // 设备类型的选项
       deviceTypeOptions: [
-        "摄像头",
-        "温感报警器",
-        "烟感报警器",
-        "手动报警按钮",
-        "门禁读卡器",
+        {
+          label: "摄像头",
+          value: "camera",
+        },
+        {
+          label: "报警设备",
+          value: "alarm",
+        },
+        // "温感报警器", "烟感报警器", "手动报警按钮", "门禁读卡器",
       ],
       innerDialogTitle: '添加分组',
       defaultGroup: [{
@@ -412,6 +417,7 @@ export default {
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
         // serialNumber: [{required: true, trigger: 'blur', message: "请输入序列号"}],
+        type: [{required: true, trigger: 'blur', message: "请选择类型"}],
       },
       groupFormRules: {
         name: [{required: true, trigger: 'blur', message: "请输入分组名"}],
@@ -512,6 +518,7 @@ export default {
     selectDeviceTypeBlur(event){
       this.form.type = event.target.value;
     },
+    // 显示"添加表单"
     add() {
       this.form = {
         id: null,
@@ -533,6 +540,7 @@ export default {
       // 清除校验结果
       this.$nextTick(()=>{this.$refs["dialogForm"].clearValidate();})
     },
+    // 根据条件查询设备
     search() {
       this.getDeviceList();
     },
@@ -562,6 +570,7 @@ export default {
         }
       }).catch(err=>{})
     },
+    // 提交表单
     submitForm() {
       this.$refs.dialogForm.validate(valid => {
         if (!valid) {return;}
@@ -773,6 +782,7 @@ export default {
         }
       }).catch(err=>{});
     },
+    // 批量删除设备
     deleteAll(){
       let checkedIdList = this.$refs.curTable.getSelectedKeys();
       // 判空

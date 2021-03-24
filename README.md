@@ -98,17 +98,16 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │  │      iconfont.woff2
 │  │
 │  └─icons
-│      └─svg
-│              shiping.svg
+│      └─svg  存放各种小图标
 │
 ├─components 常用的小组件
 │  │  HelloWorld.vue
 │  │  type.vue
 │  │
-│  ├─BackToTop
+│  ├─BackToTop 回顶部
 │  │      index.vue
 │  │
-│  ├─Breadcrumb
+│  ├─Breadcrumb 面包屑
 │  │      index.vue
 │  │
 │  ├─Charts
@@ -314,7 +313,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │      openWindow.js
 │      permission.js
 │      request.js
-│      validate.js
+│      validate.js 表单检验数据格式
 │
 ├─vendor
 │      Blob.js
@@ -351,15 +350,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     ├─fireCenter 消防中心
     │      extinguisher.vue 灭火器信息
     │
-    ├─font
-    │      fontawesome-webfont.eot
-    │      fontawesome-webfont.svg
-    │      fontawesome-webfont.ttf
-    │      fontawesome-webfont.woff
-    │      fontawesome-webfont.woff2
-    │      iconfont.eot
-    │      iconfont.ttf
-    │      iconfont.woff
+    ├─font 字体
     │
     ├─layout
     │  │  Layout.vue
@@ -402,6 +393,40 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     └─userManage  用户管理
             index.vue
 ```
+
+## src/icons/svg下的图标
+|文件名|解释|
+|----|----|
+|alarm|报警|
+|butterfly|蝶阀检测|
+|car|汽车|
+|dealWith|待处理|
+|delete|删除|
+|device|设备|
+|diagnostics|诊断|
+|export|导出|
+|firefighting|灭火器|
+|home|首页|
+|import|导入|
+|inbreak|（周界）入侵|
+|linkage|联动|
+|log|日志|
+|m_analysis|数据分析|
+|map|地图|
+|matrix|矩阵管理|
+|newly|添加|
+|nightPatrol|夜晚巡更|
+|permission|权限|
+|playback|视频回放|
+|select|查找（放大镜）|
+|sys|系统设置|
+|trueTime|实时视频|
+|untreated|未处理|
+|update|修改|
+|user|用户|
+|visitory|访客|
+|waterTank|水箱|
+
 ## 常见问题
 
 ### treeselect组件变得巨大，影响正常使用
@@ -409,7 +434,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 import selectTree from "@riophae/vue-treeselect";
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 ```
-第二行影响样式，少了第二行
+第二行影响样式，如果缺少第二行，组件变得巨大
 
 ### watch监听某对象变化时，只想监听某对象的某个属性的变化
 使用单引号，'对象名.属性名'

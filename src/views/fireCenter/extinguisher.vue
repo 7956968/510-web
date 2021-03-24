@@ -40,7 +40,7 @@
         <el-form-item label="名称" prop="name">
           <el-input v-model.trim="form.name" placeholder="名称" maxlength="30" style="width: auto"/>
         </el-form-item>
-        <el-form-item label="位置" prop="description">
+        <el-form-item label="位置" prop="location">
           <el-input v-model.trim="form.location" placeholder="位置" maxlength="100" style="width: auto"/>
         </el-form-item>
         <el-form-item label="到期时间" prop="expirationTime">

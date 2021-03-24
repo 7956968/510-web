@@ -40,7 +40,7 @@
           <el-input v-model.trim="form.serialNumber" placeholder="序列号" maxlength="30" style="width: auto"/>
         </el-form-item>
         <el-form-item label="通道号" prop="number">
-          <el-input v-model.number="form.number" placeholder="通道号" maxlength="11" style="width: auto"/>
+          <el-input type="number" v-model="form.number" placeholder="通道号" maxlength="11" style="width: auto"/>
         </el-form-item>
       </el-form>
       <div>

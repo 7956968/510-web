@@ -240,7 +240,7 @@ export default {
       this.form = {
         id:null,
         type: value,
-        path: '/',
+        path: '',
         sortOrder: 1,
         component: 'Layout',
         redirect: '',
