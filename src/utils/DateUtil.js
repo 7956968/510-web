@@ -1,5 +1,9 @@
-
-
+/**
+ * 格式化日期
+ * @param date 日期对象
+ * @param fmt 字符串形式的格式
+ * @returns {*} 格式化的日期字符串
+ */
 export function formatDate (date, fmt) {
   if (/(y+)/.test(fmt)) {
     fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length))
@@ -26,9 +30,9 @@ function padLeftZero (str) {
 
 /***
  * 列表中的日期格式化
- * @param row
- * @param column
- * @returns {*}
+ * @param row 行号
+ * @param column 列号
+ * @returns {*} 格式化后的日期
  */
 export function dateFormat(row, column){
   let temp = row[column.property];
@@ -82,6 +86,13 @@ export function getDateArr(day1, day2) {
   dateArr.push(day2);
   return dateArr;
 }
+
+/**
+ * 计算两个时间的天数间隔
+ * @param start 起始日
+ * @param end 结束日
+ * @returns {number} 天数间隔
+ */
 export function getDay(start,end){
   let day;
   let ss = 24 * 60 * 60 * 1000; //一天的毫秒数86400

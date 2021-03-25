@@ -49,6 +49,7 @@
             type="date"
             placeholder="选择过期日期"
             format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd"
           />
         </el-form-item>
         <el-form-item label="状态" prop="status">
@@ -59,7 +60,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="巡检周期" prop="inspectionCycle">
-          <el-input v-model.number="form.inspectionCycle" placeholder="巡检周期" maxlength="10" style="width: auto"/>天
+          <el-input type="number" v-model="form.inspectionCycle" placeholder="巡检周期" maxlength="10" style="width: auto"/>天
         </el-form-item>
       </el-form>
       <div>
@@ -76,9 +77,10 @@ import treeTable from '@/components/TreeTable';
 import {getExtinguisherList, add, updateById, deleteById, deleteAll} from '@/api/extinguisher';
 import {listToTree, copyProperties, setEachPid} from '@/utils';
 import Dialog from '@/components/dialog/index';
-import selectTree from '@riophae/vue-treeselect'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import {getUser} from '@/utils/auth'
+import selectTree from '@riophae/vue-treeselect';
+import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+import {getUser} from '@/utils/auth';
+import {formatDate} from '@/utils/DateUtil'
 
 export default {
   name: "extinguisher",
@@ -99,8 +101,8 @@ export default {
     let deleteOption = (row) => {
       this.delete(row);
     }
-    let isUpdateShow = this.canUpdate;
-    let isDeleteShow = this.canDelete;
+    let isUpdateShow = ()=>this.canUpdate;
+    let isDeleteShow = ()=>this.canDelete;
     return {
       canDelete: false,
       canUpdate: false,
@@ -127,8 +129,8 @@ export default {
         name: '',
         location: '',
         expirationTime: '',
-        status: '',
-        inspectionCycle: '',
+        status: null,
+        inspectionCycle: 7,
         createUser: null,
         updateUser: null,
       },
@@ -141,6 +143,7 @@ export default {
         {
           text: '名称',
           value: 'name',
+          width: 200,
         },
         {
           text: '位置',
@@ -148,16 +151,18 @@ export default {
         },
         {
           text: '到期时间',
-          value: 'expirationTime',
+          value: 'expirationTimeStr',
+          width: 100,
         },
         {
           text: '状态',
-          value: 'status',
-          width: 120,
+          value: 'statusStr',
+          width: 80,
         },
         {
           text: '巡检周期',
           value: 'inspectionCycle',
+          width: 100,
         },
       ],
       // 表格右边的操作按钮
@@ -189,7 +194,7 @@ export default {
         name: '',
         location: '',
         expirationTime: null,
-        status: 0,
+        status: null,
         inspectionCycle: 7,
       };
       this.dialogName = "新增";
@@ -201,10 +206,14 @@ export default {
       getExtinguisherList(this.param).then(res => {
         if (res.data.errorCode === 200) {
           this.data = res.data.data;
+          this.readable(this.data)
           setEachPid(this.data, 0);
         }
       })
     },
+    /**
+     * 提交表单
+     */
     submitForm() {
       this.$refs.dialogForm.validate(valid => {
         if (!valid) {
@@ -212,24 +221,35 @@ export default {
         }
 
         if (this.dialogName.indexOf("新增") !== -1) {//添加操作
+          add(this.form).then(res=> {
+            if(res.data.errorCode===200){
+              this.$message.success("添加成功");
+              this.getExtinguisherList();
+              this.dialogFormVisible = false; // 隐藏"新增"弹窗
+            }else{
+              this.$message.error(res.data.errorMsg);
+            }
+          }).catch(err => {})
 
-          this.dialogFormVisible = false; // 隐藏"新增"弹窗
-          //// 清空keyword?
         } else {//修改操作
 
           updateById(this.form).then(res => {
             if (res.data.errorCode === 200) {
-              this.getExtinguisherList();
               this.$message.success(res.data.errorMsg);
+              this.getExtinguisherList();
+              this.dialogFormVisible = false;
             }else {
               this.$message.error(res.data.errorMsg);
             }
-          })
-          this.dialogFormVisible = false;
+          }).catch(err=>{})
         }
       })
 
     },
+    /**
+     * 删除某列数据
+     * @param row 数据列
+     */
     delete(row) {
       this.$confirm('即将删除' + row.name + ', 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -248,6 +268,9 @@ export default {
         console.log(err);
       });
     },
+    /**
+     * 批量删除
+     */
     deleteAll(){
       let checkedIdList = this.$refs.curTable.getSelectedKeys();
       // 判空
@@ -272,6 +295,21 @@ export default {
           this.$message.error(res.data.errorMsg);
         }
       }).catch(err=>{})
+    },
+    /**
+     * 是status以可读形式表现给用户
+     * @param list 表格数组
+     */
+    readable(list){
+      list.forEach(item => {
+        // 状态可读
+        switch (item.status){
+          case 1: item.statusStr='正常';break;
+          case 2: item.statusStr='过期';break;
+          default: item.statusStr='--';break;
+        }
+        item.expirationTimeStr = formatDate(new Date(item.expirationTime), "yyyy-MM-dd");
+      })
     },
   },
   created() {
