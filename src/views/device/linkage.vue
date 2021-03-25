@@ -30,17 +30,17 @@
                center
                :close-on-click-modal="false"
     >
-      <el-form :model="form" size="mini" label-position="left" label-width="100px"
+      <el-form :model="form" size="mini" label-position="left" label-width="120px"
                ref="linkageForm"
                :rules="formRules">
         <el-form-item label="报警设备">
           <el-input v-model.trim="deviceName" :disabled="true" style="width: auto"/>
         </el-form-item>
-        <el-form-item label="分组">
+        <el-form-item label="摄像头所在分组">
           <selectTree
             style="width: 40%"
             placeholder="选择分组"
-            :options="groupList"
+            :options="groupListAddDefaultGroup"
             v-model="currentGroupId"
             clearable
             accordion="true"
@@ -79,7 +79,7 @@ import Dialog from '@/components/dialog/index';
 import {getUser} from '@/utils/auth';
 import {getDeviceList,
   addAllLinkage, deleteLinkage, deleteAllLinkageByIdList, selectLinkage} from '@/api/device';
-import {listToTree, copyProperties, normalizer} from '@/utils';
+import {copyProperties, normalizer} from '@/utils';
 import selectTree from "@riophae/vue-treeselect";
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
@@ -176,7 +176,14 @@ export default {
   },
   methods: {
     normalizer,
+    /**
+     * 按钮的方法映射
+     * @param ms
+     */
     handleMethod(ms) {this[ms]();},
+    /**
+     * 获取联动列表
+     */
     getLinkageList(){
       if(this.device==null)return ;
 
@@ -187,7 +194,9 @@ export default {
         }else{this.$message.error(res.data.errorMsg)}
       }).catch(err => {console.log(err)});
     },
-    // 更新表单的摄像头选项
+    /**
+     *  更新表单的摄像头选项
+     */
     getCameraList(){
       getDeviceList({groupId:this.currentGroupId,type:'camera'})
         .then(res => {
@@ -289,6 +298,17 @@ export default {
   },
   created() {
     this.currentUserId = JSON.parse(getUser()).id;
+
+    this.getCameraList();
+  },
+  computed: {
+    /**
+     * 获取分组列表 and 默认分组（id为0，数据库不存在实体）
+     * @returns {*[]}
+     */
+    groupListAddDefaultGroup() {
+      return this.groupList.concat({name:"默认分组",id:0,pid:null});
+    },
   },
 }
 </script>
