@@ -52,13 +52,13 @@
             value-format="yyyy-MM-dd"
           />
         </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="form.status" size="small">
-            <!--<el-radio-button :label="0">未知</el-radio-button>-->
-            <el-radio-button :label="1">正常</el-radio-button>
-            <el-radio-button :label="2">过期</el-radio-button>
-          </el-radio-group>
-        </el-form-item>
+<!--        <el-form-item label="状态" prop="status">-->
+<!--          <el-radio-group v-model="form.status" size="small">-->
+<!--            &lt;!&ndash;<el-radio-button :label="0">未知</el-radio-button>&ndash;&gt;-->
+<!--            <el-radio-button :label="1">正常</el-radio-button>-->
+<!--            <el-radio-button :label="2">过期</el-radio-button>-->
+<!--          </el-radio-group>-->
+<!--        </el-form-item>-->
         <el-form-item label="巡检周期" prop="inspectionCycle">
           <el-input type="number" v-model="form.inspectionCycle" placeholder="巡检周期" maxlength="10" style="width: auto"/>天
         </el-form-item>
@@ -308,7 +308,11 @@ export default {
           case 2: item.statusStr='过期';break;
           default: item.statusStr='--';break;
         }
-        item.expirationTimeStr = formatDate(new Date(item.expirationTime), "yyyy-MM-dd");
+        let dateNow = new Date(),dateExpiration= new Date(item.expirationTime);
+        item.expirationTimeStr = formatDate(dateExpiration, "yyyy-MM-dd");
+
+        item.statusStr = (dateExpiration.getTime()-dateNow.getTime()>0)?
+          '正常': '过期';
       })
     },
   },

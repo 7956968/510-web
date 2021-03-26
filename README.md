@@ -119,20 +119,10 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │  │          resize.js
 │  │
 │  ├─Dialog
-│  │      index.vue
-│  │
 │  ├─DndList
-│  │      index.vue
-│  │
 │  ├─Dropzone
-│  │      index.vue
-│  │
 │  ├─ErrorLog
-│  │      index.vue
-│  │
 │  ├─Hamburger
-│  │      index.vue
-│  │
 │  ├─ImageCropper
 │  │  │  index.vue
 │  │  │
@@ -143,50 +133,20 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │  │          mimes.js
 │  │
 │  ├─JsonEditor
-│  │      index.vue
-│  │
 │  ├─Kanban
-│  │      index.vue
-│  │
 │  ├─LangSelect
-│  │      index.vue
-│  │
 │  ├─MapTable
-│  │      index.vue
-│  │
 │  ├─MarkdownEditor
-│  │      index.vue
-│  │
-│  ├─MDinput
-│  │      index.vue
-│  │
+│  ├─MDinput  markdown编辑
 │  ├─PanThumb
-│  │      index.vue
-│  │
 │  ├─Screenfull
-│  │      index.vue
-│  │
 │  ├─ScrollPane
-│  │      index.vue
-│  │
 │  ├─Share
-│  │      dropdownMenu.vue
-│  │
 │  ├─SizeSelect
-│  │      index.vue
-│  │
 │  ├─Sticky
-│  │      index.vue
-│  │
-│  ├─SvgIcon
-│  │      index.vue
-│  │
+│  ├─SvgIcon 图标
 │  ├─TextHoverEffect
-│  │      Mallki.vue
-│  │
 │  ├─ThemePicker
-│  │      index.vue
-│  │
 │  ├─Tinymce
 │  │  │  index.vue
 │  │  │  plugins.js

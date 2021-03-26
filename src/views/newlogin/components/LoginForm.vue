@@ -25,7 +25,10 @@
               :placeholder="$t('login.password')"
               name="password"
               auto-complete="on"
-              @keyup.enter.native="handleLogin"/>
+              @keyup.enter.native="handleLogin">
+              <i slot="suffix" :class="passwordIcon" @click="showPwd"/>
+            </el-input>
+
           </el-form-item>
 
 <!--          <el-form-item prop="imageCode">-->
@@ -195,6 +198,7 @@
           password: [{required: true, trigger: 'blur', validator: validatePassword}],
           smsCode: [{required: true, trigger: 'blur', validator: validateCheckCode}]
         },
+        passwordIcon: 'el-input__icon el-icon-view', // 密码的显示隐藏图标的样式
         passwordType: 'password',
         loading: false,
         showDialog: false,
@@ -218,9 +222,11 @@
       checkPhone,
       showPwd() {
         if (this.passwordType === 'password') {
-          this.passwordType = ''
+          this.passwordType = '';
+          this.passwordIcon = 'el-input__icon el-icon-minus';
         } else {
           this.passwordType = 'password'
+          this.passwordIcon = 'el-input__icon el-icon-view';
         }
       },
       handleLogin() {

@@ -42,6 +42,13 @@ export function dateFormat(row, column){
   const createTime = formatDate(new Date(temp),"yyyy-MM-dd hh:mm:ss");
   return createTime;
 }
+
+/**
+ * 获取两个日期之间所有日期组成的字符串的数组，不包括day1和day2
+ * @param day1
+ * @param day2
+ * @returns {[]}
+ */
 export function getDateArr(day1, day2) {
   let getDate = function(str) {
     let tempDate = new Date();
@@ -53,6 +60,7 @@ export function getDateArr(day1, day2) {
   }
   let date1 = getDate(day1);
   let date2 = getDate(day2);
+  // 使day1日期早于day2
   if (date1 > date2) {
     let tempDate = date1;
     date1 = date2;
@@ -61,9 +69,11 @@ export function getDateArr(day1, day2) {
   date1.setDate(date1.getDate() + 1);
   let dateArr = [];
   let i = 0;
-  while (!(date1.getFullYear() == date2.getFullYear()
-    && date1.getMonth() == date2.getMonth() && date1.getDate() == date2
-      .getDate())) {
+  while (!(
+    date1.getFullYear() === date2.getFullYear()
+    && date1.getMonth() === date2.getMonth()
+    && date1.getDate() === date2.getDate())
+    ) {
     let dayStr =date1.getDate().toString();
     if(dayStr.length ==1){
       dayStr="0"+dayStr;
@@ -89,6 +99,7 @@ export function getDateArr(day1, day2) {
 
 /**
  * 计算两个时间的天数间隔
+ * 要求：结束日大于起始日
  * @param start 起始日
  * @param end 结束日
  * @returns {number} 天数间隔

@@ -25,7 +25,16 @@
       </template>
     </el-table-column>
 <!--    <el-table-column v-for="(column, index) in columns" v-else :key="column.value" :label="column.text" :width="column.width" header-align="center" align="center">-->
-    <el-table-column v-for="(column, index) in columns" v-else :key="column.value" :label="column.text" :width="column.width" >
+    <!--  没有prop无法使用filter  -->
+    <el-table-column v-else
+                     v-for="(column, index) in columns"
+                     :key="column.value"
+                     :label="column.text"
+                     :width="column.width"
+                     :filter-method="column.filterMethod"
+                     :filters="column.filters"
+                     :prop="column.value"
+    >
       <template slot-scope="scope">
         <!-- Todo -->
         <!-- eslint-disable-next-line vue/no-confusing-v-for-v-if -->
@@ -75,7 +84,14 @@ export default {
     },
     columns: { // 列字段名
       type: Array,
-      default: () => []
+      default: () => [],
+      // [{
+      //  value: 值,
+      //  text: 显示的文本,
+      //  width: 列宽度,
+      //  filterMethod(value, row, column): 过滤方法, value是目标值(比如关键词), row是待筛选数据行, column是列对象
+      //  filters: 过滤选项数组
+      // }, {}, ... ]
     },
     evalFunc: Function,
     evalArgs: Array,

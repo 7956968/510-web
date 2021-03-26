@@ -17,7 +17,7 @@
               <el-option
                 v-for="(item,idx) in deviceTypeOptions"
                 :key="item.index"
-                :label="item.label"
+                :label="item.text"
                 :value="item.value"
               />
             </el-select>
@@ -365,6 +365,21 @@ export default {
         callback();
       }
     };
+    let deviceTypeFilter = (value, row, column)=>{
+      // 获取列对象对应数据对象的属性名
+      const property = column['property'];
+      return row[property] === value;
+      };
+    let deviceTypeArr = [
+        {
+          text: '摄像头',
+          value: "camera",
+        },
+        {
+          text: '报警设备',
+          value: "alarm",
+        },
+      ];
     return {
       canUpdate: false,
       canDelete: false,
@@ -394,17 +409,7 @@ export default {
         "华拓",
       ],
       // 设备类型的选项
-      deviceTypeOptions: [
-        {
-          label: "摄像头",
-          value: "camera",
-        },
-        {
-          label: "报警设备",
-          value: "alarm",
-        },
-        // "温感报警器", "烟感报警器", "手动报警按钮", "门禁读卡器",
-      ],
+      deviceTypeOptions: deviceTypeArr,// 使用value和label属性
       innerDialogTitle: '添加分组',
       defaultGroup: [{
         id: 0,
@@ -459,28 +464,39 @@ export default {
       checkedDeviceNameList: [],  // 勾选的设备.name列表
       columns: [
         {
+          text: '序号',
+          value: 'id',
+          width: 70,
+        },
+        {
           text: '名称',
           value: 'name',
         },
         {
           text: '厂家',
-          value: 'manufacturers'
+          value: 'manufacturers',
+          width: 100,
+        },
+        {
+          text: '类型',
+          value: 'type',
+          width: 100,
+          filters: deviceTypeArr,
+          filterMethod: deviceTypeFilter,
+        },
+        {
+          text: 'IP',
+          value: 'ip',
+          width: 130,
+        },
+        {
+          text: '端口号',
+          value: 'prot',
+          width: 120,
         },
         {
           text: '序列号',
           value: 'serialNumber'
-        },
-        {
-          text: '类型',
-          value: 'type'
-        },
-        {
-          text: 'IP',
-          value: 'ip'
-        },
-        {
-          text: '端口号',
-          value: 'prot'
         },
         // {
         //   text: '用户名',
