@@ -132,9 +132,14 @@ export default {
       },
       columns: [
         {
+          text: '序号',
+          value: 'id',
+          width: 100,
+        },
+        {
           text: '名称',
           value: 'name',
-          align: 'left'
+          width: 140,
         },
         {
           text: '描述',
@@ -142,7 +147,8 @@ export default {
         },
         {
           text: '创建时间',
-          value: 'createTime'
+          value: 'createTime',
+          width: 170,
         },
       ],
       tableOption: [

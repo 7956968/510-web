@@ -483,6 +483,13 @@ export default {
           width: 100,
           filters: deviceTypeArr,
           filterMethod: deviceTypeFilter,
+          formatter: (row, column, cellValue, index)=>{
+            if(row.type==='camera')
+              return '摄像头';
+            else if(row.type==='alarm')
+              return '报警设备';
+            return '--';
+          },
         },
         {
           text: 'IP',

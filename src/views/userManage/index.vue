@@ -235,12 +235,19 @@ export default {
         {
           text: '姓名',
           value: 'name',
-          width: 100,
+          width: 120,
         },
         {
           text: '性别',
-          value: 'genderStr',
+          value: 'gender',
           width: 50,
+          formatter: (row, column, cellValue, index)=>{
+            switch(row.gender){
+              case 1: return '男';
+              case 2: return '女';
+              default: return '--';
+            }
+          },
         },
         {
           text: '工号',
@@ -249,26 +256,42 @@ export default {
         {
           text: '职位',
           value: 'position',
-          width: 100,
+          width: 150,
         },
         {
           text: '角色',
-          value: 'roleStr',
-          width: 100,
+          value: 'roleId',
+          width: 150,
+          formatter: (row, column, cellValue, index)=>{
+            let a = this.roleDict[row.roleId];
+            return (a && a.name) || '--';
+          }
         },
         {
           text: '部门',
-          value: 'deptStr'
-        },
+          value: 'departmentId',
+          width: 140,
+          formatter: (row, column, cellValue, index)=>{
+            let a = this.departmentDict[row.departmentId];
+            return (a && a.name) || '--';
+          },
 
+        },
         {
           text: '手机号',
-          value: 'phone'
+          value: 'phone',
+          width: 150,
         },
         {
           text: '状态',
-          value: 'itemStatusStr',
+          value: 'itemStatus',
           width: 70,
+          formatter: (row, column, cellValue, index)=>{
+            switch (row.itemStatus){
+              case 1: return '正常';
+              default: return '已删除';
+            }
+          }
         },
       ],
       tableOption: [
@@ -324,9 +347,7 @@ export default {
       }
       getUserList(this.param).then(res => {
         if (res.data.errorCode === 200) {
-          let a = res.data.data;
-          this.readable(a);
-          this.data = a;
+          this.data = res.data.data;
           this.$message.success("查询成功")
         } else {
           this.$message.error(res.data.errorMsg)
@@ -364,30 +385,6 @@ export default {
           });
         }
       });
-    },
-    /**
-     * 使gender, itemStatus, roleId, departmentId (性别，状态，角色，部门)
-     * 字段以可读的方式呈现给用户
-     * @param list
-     */
-    readable(list){
-      list.forEach(item => {
-        // 性别可读
-        switch(item.gender){
-          case 1: item.genderStr='男';break;
-          case 2: item.genderStr='女';break;
-          default: item.genderStr='--';break;
-        }
-        // 状态可读
-        switch (item.itemStatus){
-          case 1: item.itemStatusStr='正常';break;
-          default: item.itemStatusStr='已删除';break;
-        }
-        // 部门可读
-        item.deptStr=(this.departmentDict[item.departmentId])?this.departmentDict[item.departmentId].name:'--';
-        // 角色可读
-        item.roleStr=(this.roleDict[item.roleId])?this.roleDict[item.roleId].name:'--';
-      })
     },
     /**
      * 设置可以被删除的用户，勾选项可点击

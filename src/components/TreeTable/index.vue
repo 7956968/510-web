@@ -26,6 +26,7 @@
     </el-table-column>
 <!--    <el-table-column v-for="(column, index) in columns" v-else :key="column.value" :label="column.text" :width="column.width" header-align="center" align="center">-->
     <!--  没有prop无法使用filter  -->
+    <!--  formatter和插槽slot不能兼容，所以在插槽内部改写使formatter生效  -->
     <el-table-column v-else
                      v-for="(column, index) in columns"
                      :key="column.value"
@@ -47,7 +48,7 @@
         </span>
         <!-- 第一个字段内部的勾选框-->
         <!--  <el-checkbox v-if="index === 0"  v-model="scope.row._checked" @change="checked=>handleChecked(checked,scope.row)"> </el-checkbox>-->
-        {{ scope.row[column.value] || "--"}}
+        {{ column.formatter ? column.formatter(scope.row) : scope.row[column.value] || "--"}}
       </template>
     </el-table-column>
 
@@ -91,6 +92,7 @@ export default {
       //  width: 列宽度,
       //  filterMethod(value, row, column): 过滤方法, value是目标值(比如关键词), row是待筛选数据行, column是列对象
       //  filters: 过滤选项数组
+      //  formatter(row, column, cellValue, index): 格式化方法，将数据格式化为想要的形式
       // }, {}, ... ]
     },
     evalFunc: Function,

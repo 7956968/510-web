@@ -151,13 +151,25 @@ export default {
         },
         {
           text: '到期时间',
-          value: 'expirationTimeStr',
+          value: 'expirationTime',
           width: 100,
+          formatter: (row, column, cellValue, index)=>{
+            return formatDate(new Date(row.expirationTime), "yyyy-MM-dd");
+          },
         },
         {
           text: '状态',
-          value: 'statusStr',
+          value: 'status',
           width: 80,
+          formatter: (row, column, cellValue, index)=>{
+            // switch(row.status){
+            //   case 1: return '正常';
+            //   case 2: return '过期';
+            //   default: return '--';
+            // }
+            let dateNow = new Date(), dateExpiration= new Date(row.expirationTime);
+            return dateExpiration.getTime()-dateNow.getTime()>0? '正常': '过期';
+          },
         },
         {
           text: '巡检周期',
@@ -206,7 +218,6 @@ export default {
       getExtinguisherList(this.param).then(res => {
         if (res.data.errorCode === 200) {
           this.data = res.data.data;
-          this.readable(this.data)
           setEachPid(this.data, 0);
         }
       })
@@ -295,25 +306,6 @@ export default {
           this.$message.error(res.data.errorMsg);
         }
       }).catch(err=>{})
-    },
-    /**
-     * 是status以可读形式表现给用户
-     * @param list 表格数组
-     */
-    readable(list){
-      list.forEach(item => {
-        // 状态可读
-        switch (item.status){
-          case 1: item.statusStr='正常';break;
-          case 2: item.statusStr='过期';break;
-          default: item.statusStr='--';break;
-        }
-        let dateNow = new Date(),dateExpiration= new Date(item.expirationTime);
-        item.expirationTimeStr = formatDate(dateExpiration, "yyyy-MM-dd");
-
-        item.statusStr = (dateExpiration.getTime()-dateNow.getTime()>0)?
-          '正常': '过期';
-      })
     },
   },
   created() {
