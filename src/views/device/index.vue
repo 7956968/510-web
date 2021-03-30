@@ -467,6 +467,7 @@ export default {
           text: '序号',
           value: 'id',
           width: 70,
+          sortable: true,
         },
         {
           text: '名称',
@@ -490,6 +491,7 @@ export default {
               return '报警设备';
             return '--';
           },
+          sortable: true,
         },
         {
           text: 'IP',

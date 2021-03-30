@@ -13,7 +13,7 @@
       width="42"
       :selectable='rowSelectable'
     />
-
+    <!-- 没有列对象时，只显示索引 -->
     <el-table-column v-if="columns.length===0" >
       <template slot-scope="scope">
         <span v-for="space in scope.row._level" :key="space" class="ms-tree-space"/>
@@ -35,11 +35,12 @@
                      :filter-method="column.filterMethod"
                      :filters="column.filters"
                      :prop="column.value"
+                     :sortable="column.sortable"
     >
       <template slot-scope="scope">
         <!-- Todo -->
         <!-- eslint-disable-next-line vue/no-confusing-v-for-v-if -->
-        <!--树层级越大，缩进越多-->
+        <!--树层级越深，空格缩进越多-->
         <span v-for="space in scope.row._level" v-if="index===0&&!notTree" :key="space" class="ms-tree-space"/>
         <!--展开/收缩 符号-->
         <span v-if="iconShow(index,scope.row)" class="tree-ctrl" @click="toggleExpanded(scope.$index)">
@@ -48,7 +49,11 @@
         </span>
         <!-- 第一个字段内部的勾选框-->
         <!--  <el-checkbox v-if="index === 0"  v-model="scope.row._checked" @change="checked=>handleChecked(checked,scope.row)"> </el-checkbox>-->
-        {{ column.formatter ? column.formatter(scope.row) : scope.row[column.value] || "--"}}
+        {{ column.formatter ?
+            column.formatter(scope.row, column, scope.row[column.value], scope.$index)
+            : scope.row[column.value]
+            || "--"
+        }}
       </template>
     </el-table-column>
 
@@ -92,7 +97,9 @@ export default {
       //  width: 列宽度,
       //  filterMethod(value, row, column): 过滤方法, value是目标值(比如关键词), row是待筛选数据行, column是列对象
       //  filters: 过滤选项数组
-      //  formatter(row, column, cellValue, index): 格式化方法，将数据格式化为想要的形式
+      //  formatter(row, column, cellValue, index): 格式化方法，将数据格式化为想要的形式,
+      //            row是待筛选数据行, column是列对象(也就是formatter这个方法所在的对象), cellValue是单元格内部的值, index是当前行的下标
+      //  sortable: false,  是否可排序，默认否
       // }, {}, ... ]
     },
     evalFunc: Function,
@@ -152,13 +159,20 @@ export default {
     }
   },
   methods: {
-
+    /**
+     * 行数据的样式，
+     * @param row 行对象
+     * @return {string} 行数据的样式
+     */
     showRow: function(row) {
       const show = (row.row.pid ? (row.row.pid._expanded && row.row.pid._show) : true)
       row.row._show = show
       return show ? 'animation:treeTableShow 1s;-webkit-animation:treeTableShow 1s;' : 'display:none;'
     },
-    // 切换下级是否展开
+    /**
+     * 切换下级是否展开
+     * @param trIndex 表格行的下标
+     */
     toggleExpanded: function(trIndex) {
       const record = this.formatData[trIndex]
       record._expanded = !record._expanded

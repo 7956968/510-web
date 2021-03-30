@@ -135,11 +135,13 @@ export default {
           text: '序号',
           value: 'id',
           width: 100,
+          // sortable: true,
         },
         {
           text: '名称',
           value: 'name',
           width: 140,
+          // sortable: true,
         },
         {
           text: '描述',

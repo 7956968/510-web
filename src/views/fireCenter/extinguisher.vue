@@ -139,6 +139,7 @@ export default {
           text: '序号',
           value: 'id',
           width: 120,
+          sortable: true,
         },
         {
           text: '名称',
@@ -148,6 +149,7 @@ export default {
         {
           text: '位置',
           value: 'location',
+          sortable: true,
         },
         {
           text: '到期时间',

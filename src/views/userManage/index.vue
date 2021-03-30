@@ -233,9 +233,16 @@ export default {
       },
       columns: [
         {
+          text: '序号',
+          value: 'id',
+          width: 80,
+          sortable: true,
+        },
+        {
           text: '姓名',
           value: 'name',
           width: 120,
+          sortable: true,
         },
         {
           text: '性别',
@@ -251,12 +258,14 @@ export default {
         },
         {
           text: '工号',
-          value: 'jobNumber'
+          value: 'jobNumber',
+          sortable: true,
         },
         {
           text: '职位',
           value: 'position',
           width: 150,
+          sortable: true,
         },
         {
           text: '角色',

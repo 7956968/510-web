@@ -170,11 +170,13 @@ export default {
           text: '序号',
           value: 'id',
           width: 120,
+          sortable: true,
         },
         {
           text: '名称',
           value: 'name',
           width: 200,
+          sortable: true,
         },
         {
           text: '描述',

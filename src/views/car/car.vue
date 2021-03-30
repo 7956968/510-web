@@ -59,8 +59,14 @@ export default {
       },
       columns: [
         {
+          text: '序号',
+          value: 'id',
+          sortable: true,
+        },
+        {
           text: '车牌号',
           value: 'carNumber',
+          sortable: true,
         },
         {
           text: '使用单位',
