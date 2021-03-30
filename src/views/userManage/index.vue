@@ -6,6 +6,20 @@
           <el-input v-model.trim="param.keyword" placeholder="请输入关键字" maxlength="255" clearable @blur="getUserList"/>
         </el-form-item>
         <el-form-item>
+          <!-- 失去焦点触发可以添加属性@blur="getUserList"-->
+          <el-select v-model.trim="param.itemStatus"
+                     placeholder="请选择用户状态"
+                     clearable
+          >
+            <el-option
+              v-for="(item,idx) in statusOptions"
+              :key="item.index"
+              :label="item.text"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
                      @click="handleMethod(item.methodd)"
                      v-if="!item.invisible"
@@ -23,6 +37,17 @@
                   not-tree
                   ref="curTable"
                   :rowSelectable="rowSelectable"
+      />
+      <!-- 页码  -->
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :page-size.sync="pageSize"
+        :total="total"
+        :current-page="currentPage"
+        @current-change="changePage"
+        @prev-click="changePage"
+        @next-click="changePage"
       />
     </div>
 
@@ -81,7 +106,7 @@
               v-for="(item,idx) in statusOptions"
               :key="idx"
               :value="item.value"
-              :label="item.label"
+              :label="item.text"
             >
             </el-option>
           </el-select>
@@ -166,11 +191,11 @@ export default {
       statusOptions: [    // 用户状态选择表
         {
           value: 1,
-          label:'正常',
+          text:'正常',
         },
         {
           value: 0,
-          label:'已删除',
+          text:'已删除',
         }
       ],
 
@@ -214,9 +239,15 @@ export default {
         itemStatus: [{required: true, trigger: 'blur', message: "请选择状态"}],
       },
       param:{
-        // 检索用的关键字
-        keyword:''
+        keyword: '',// 关键字
+        itemStatus: null,// 用户状态
+        start: 0,// 起始偏移
+        length: 10,// 页大小
       },
+      // 分页相关
+      total: 0, // 总条目数
+      pageSize: 10, // 每页显示条目数
+      currentPage: 1, // 当前页，从1开始
       form: {
         id: null,
         roleId: '',
@@ -356,7 +387,8 @@ export default {
       }
       getUserList(this.param).then(res => {
         if (res.data.errorCode === 200) {
-          this.data = res.data.data;
+          this.data = res.data.data.list;
+          this.total = res.data.data.total;
           this.$message.success("查询成功")
         } else {
           this.$message.error(res.data.errorMsg)
@@ -472,6 +504,10 @@ export default {
         }
       }).catch(err=>{})
     },
+    // 当前页码改变时，保存改变的页码
+    changePage(e){
+      this.currentPage = e;
+    },
     showPsw(){
       console.log("in showPsw")
     }
@@ -488,7 +524,20 @@ export default {
       }
     })
     this.getUserList();
-  }
+  },
+  watch: {
+    currentPage(newVal, oldVal){
+      this.param.start=(newVal-1)*this.pageSize;
+      this.param.length=this.pageSize;
+      this.getUserList();
+    }
+  },
+  computed:{
+    // 总页数
+    pageCount(){
+      return this.total / this.pageSize;
+    },
+  },
 }
 </script>
 

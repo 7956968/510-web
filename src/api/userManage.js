@@ -6,7 +6,7 @@ export function getUserList(params) {
   return request({
     url: '/user_manage/select',
     method: 'get',
-    params
+    params:params
   })
   // return request({
   //   url: '/device/select',

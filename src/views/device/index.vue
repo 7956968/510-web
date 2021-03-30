@@ -466,7 +466,7 @@ export default {
         {
           text: '序号',
           value: 'id',
-          width: 70,
+          width: 80,
           sortable: true,
         },
         {
@@ -574,7 +574,8 @@ export default {
       this.curDevice = null; // 更新列表时，通道表格清空
       getDeviceList(this.param).then(res => {
         if (res.data.errorCode === 200) {
-          let a = res.data.data;
+          this.total = res.data.data.total;
+          let a = res.data.data.list;
           this.data = listToTree(a);
           if (this.data != null && this.data.length > 0) {
             for (let i = 0; i < this.data.length; i++) {
@@ -676,15 +677,6 @@ export default {
         })
       }).catch(()=>{});
 
-    },
-
-    // 刷新设备统计总数（用于分页）
-    refreshTotal(groupId){
-      countByGroupId(groupId).then(res => {
-        if(res.data.errorCode===200){
-          this.total = res.data.data;
-        }
-      }).catch(err=>{})
     },
     // 当前页码改变
     changePage(e){
@@ -914,7 +906,6 @@ export default {
     this.getGroupList();
     this.getDeviceList();
     this.currentUserId = JSON.parse(getUser()).id;
-    this.refreshTotal(null);
     //////  ws test
     // this.websocketTest();
   },
@@ -927,10 +918,8 @@ export default {
     curGroup(newVal, oldVal){
       if(newVal){
         this.curGroupName = newVal.name;
-        this.refreshTotal(newVal.id);
       }else{
         this.curGroupName = '全部';
-        this.refreshTotal(null);
       }
       this.currentPage = 1;
     },
