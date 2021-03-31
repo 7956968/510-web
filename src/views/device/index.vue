@@ -99,10 +99,11 @@
           </div>
           <!--表格[通道, 联动摄像头]-->
           <el-tabs type="border-card">
-            <el-tab-pane label="通道">
+            <!-- v-show对el-tab-pane无效, 故使用v-if -->
+            <el-tab-pane label="通道" v-if="curDevice && curDevice.type==='camera'">
               <channel :device="curDevice"></channel>
             </el-tab-pane>
-            <el-tab-pane label="联动摄像头">
+            <el-tab-pane label="联动摄像头" v-else-if="curDevice && curDevice.type==='alarm'">
               <linkage :device="curDevice"
                        :group-list="groupList"
               />
