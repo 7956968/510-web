@@ -167,8 +167,8 @@
         <el-form-item label="密码" prop="password">
           <el-input v-model.trim="form.password" placeholder="请输入密码" maxlength="20" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="端口" prop="prot">
-          <el-input v-model.trim="form.prot" placeholder="请输入端口号" maxlength="10" style="width: auto"></el-input>
+        <el-form-item label="端口" prop="port">
+          <el-input v-model.trim="form.port" placeholder="请输入端口号" maxlength="10" style="width: auto"></el-input>
         </el-form-item>
       </el-form>
       <div>
@@ -447,7 +447,7 @@ export default {
         serialNumber: '', // 序列号
         type: '',
         ip: '',
-        prot: '',       // 端口号
+        port: '',       // 端口号
         loginName: '',
         password: '',
         createUser: this.currentUserId,
@@ -501,7 +501,7 @@ export default {
         },
         {
           text: '端口号',
-          value: 'prot',
+          value: 'port',
           width: 120,
         },
         {
@@ -553,7 +553,7 @@ export default {
         serialNumber: '', // 序列号
         type: '',
         ip: '',
-        prot: '',       // 端口号
+        port: '',       // 端口号
         loginName: '',
         password: '',
         createUser: this.currentUserId,
