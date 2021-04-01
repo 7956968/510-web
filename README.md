@@ -51,52 +51,15 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │      userManage.js
 │      video.js
 │
-├─assets 资源文件
-│  │  attendance.png
-│  │  background.jpg
-│  │  device.jpg
-│  │  device.png
-│  │  device1.jpg
-│  │  echarts-macarons.js
-│  │  head1.jpg
-│  │  login-bg.jpg
-│  │  login1.jpg
-│  │  login_pic.png
-│  │  login_pic1.png
-│  │  logo.png
-│  │  logo@2x.png
-│  │  logo_black.png
-│  │  logo_new_white.jpg
-│  │  logo_new_white.png
-│  │  nav_logo.png
-│  │  ship.jpg
-│  │  title-logo.png
-│  │  visitor.jpg
-│  │  yuangong.jpg
-│  │  yuangong.png
-│  │
+├─assets 资源文件（存放各种图片，字体）
+│  │  ...
 │  ├─401_images
-│  │      401.gif
-│  │
 │  ├─404_images
-│  │      404.png
-│  │      404_cloud.png
-│  │
 │  ├─custom-theme
 │  │  └─fonts
 │  │          element-icons.ttf
 │  │          element-icons.woff
-│  │
 │  ├─iconFont
-│  │      iconfont.css
-│  │      iconfont.eot
-│  │      iconfont.js
-│  │      iconfont.json
-│  │      iconfont.svg
-│  │      iconfont.ttf
-│  │      iconfont.woff
-│  │      iconfont.woff2
-│  │
 │  └─icons
 │      └─svg  存放各种小图标
 │
@@ -105,11 +68,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │  │  type.vue
 │  │
 │  ├─BackToTop 回顶部
-│  │      index.vue
-│  │
 │  ├─Breadcrumb 面包屑
-│  │      index.vue
-│  │
 │  ├─Charts
 │  │  │  keyboard.vue
 │  │  │  lineMarker.vue
@@ -123,9 +82,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │  ├─Dropzone
 │  ├─ErrorLog
 │  ├─Hamburger
-│  ├─ImageCropper
-│  │  │  index.vue
-│  │  │
+│  ├─ImageCropper  图片裁剪
 │  │  └─utils
 │  │          data2blob.js
 │  │          effectRipple.js
@@ -136,8 +93,8 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │  ├─Kanban
 │  ├─LangSelect
 │  ├─MapTable
-│  ├─MarkdownEditor
-│  ├─MDinput  markdown编辑
+│  ├─MarkdownEditor  markdown编辑
+│  ├─MDinput
 │  ├─PanThumb
 │  ├─Screenfull
 │  ├─ScrollPane
@@ -147,33 +104,15 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │  ├─SvgIcon 图标
 │  ├─TextHoverEffect
 │  ├─ThemePicker
-│  ├─Tinymce
-│  │  │  index.vue
-│  │  │  plugins.js
-│  │  │  toolbar.js
-│  │  │
-│  │  └─components
-│  │          editorImage.vue
-│  │
+│  ├─Tinymce  可视化html编辑器
 │  ├─treeSelect 树形下拉选择
-│  │      el-tree-select.vue
-│  │
 │  ├─TreeTable  自定义的树形表格
-│  │      eval.js
-│  │      index.vue
-│  │      readme.md
-│  │
 │  ├─treeTable1
-│  │      dataTranslate.js
-│  │      index.vue
-│  │
 │  ├─Upload 图片上传
 │  │      singleImage.vue
 │  │      singleImage2.vue
 │  │      singleImage3.vue
-│  │
 │  └─UploadExcel excel文件上传
-│          index.vue
 │
 ├─directive
 │  │  sticky.js
@@ -261,18 +200,18 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │      transition.scss
 │      variables.scss
 │
-├─utils  实用的函数
+├─utils  实用的工具函数
 │      asyncRouter.js
-│      auth.js
+│      auth.js 用户权限相关
 │      btnPermissions.js
 │      clipboard.js
 │      createUniqueString.js
-│      DateUtil.js
-│      i18n.js
+│      DateUtil.js 日期
+│      i18n.js 切换语言相关
 │      index.js
 │      openWindow.js
 │      permission.js
-│      request.js
+│      request.js http请求
 │      validate.js 表单检验数据格式
 │
 ├─vendor
@@ -284,32 +223,26 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     ├─car  车辆管理
     │      car.vue
     │
-    ├─dashboard
+    ├─dashboard  首页(各种快捷方式)
     │  │  index.vue
     │  │
     │  └─components
     │          PanelGroup.vue
     │
     ├─department  部门管理
-    │      index.vue
-    │
     ├─device  设备管理
     │      channel.vue  设备通道
     │      index.vue
     │      liandong.vue  联动管理
-    │
     ├─errorLog
     │      errorTestA.vue
     │      errorTestB.vue
     │      index.vue
-    │
     ├─errorPage
     │      401.vue
     │      404.vue
-    │
     ├─fireCenter 消防中心
     │      extinguisher.vue 灭火器信息
-    │
     ├─font 字体
     │
     ├─layout
@@ -324,7 +257,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     │  │  └─Sidebar 侧边栏
     │  │          index.vue
     │  │          Item.vue
-    │  │          SidebarItem.vue 侧边栏的项目
+    │  │          SidebarItem.vue 侧边栏的菜单项目
     │  │
     │  └─mixin
     │          ResizeHandler.js
@@ -339,9 +272,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     │          LoginNavbar.vue
     │
     ├─redirect 重定向
-    │      index.vue
-    │
-    ├─svg-icons
+    ├─svg-icons 图标
     │      index.vue
     │      requireIcons.js
     │
@@ -351,7 +282,6 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     │      role.vue 角色管理
     │
     └─userManage  用户管理
-            index.vue
 ```
 
 ## src/icons/svg下的图标

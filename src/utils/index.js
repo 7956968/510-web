@@ -82,7 +82,11 @@ export function formatTime(time, option) {
   }
 }
 
-// 格式化时间
+/**
+ * 获取http请求参数对象
+ * @param url
+ * @return {{}}
+ */
 export function getQueryObject(url) {
   url = url == null ? window.location.href : url
   const search = url.substring(url.lastIndexOf('?') + 1)
@@ -150,6 +154,11 @@ export function param2Obj(url) {
   )
 }
 
+/**
+ * html转化为字符串形式的文本
+ * @param val
+ * @return {string}
+ */
 export function html2Text(val) {
   const div = document.createElement('div')
   div.innerHTML = val
@@ -469,6 +478,11 @@ export function f(de,user) {
   return de;
 }
 
+/**
+ * base64编码
+ * @param source 源
+ * @return {*}
+ */
 export function base64Encode(source) {
   let Base64 = require('js-base64').Base64;
   return  Base64.encode(source);

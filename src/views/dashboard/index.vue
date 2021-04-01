@@ -52,7 +52,9 @@
         </el-row>
         <div id="main" style="width: 100%;height: 400px"></div>
       </div>
-
+    <div>
+      <my-websocket></my-websocket>
+    </div>
   </div>
 
 </template>
@@ -64,14 +66,13 @@
   import {formatDate} from '@/utils/DateUtil'
   import {hasPermission} from '@/utils/permission' // 权限判断函数
   import PanelGroup from './components/PanelGroup'
-
-
-
+  import myWebsocket from '@/views/myWebsocket/myWebsocket';
 
   export default {
     name: 'Dashboard',
     components: {
-      PanelGroup
+      PanelGroup,
+      myWebsocket,
     },
     data() {
       return {
@@ -102,7 +103,6 @@
 
       },
       router_jump(path){
-
         this.$router.push({path:  path})
       }
     },

@@ -826,47 +826,6 @@ export default {
         }
       }).catch(err => {})
     },
-    ///// websocket test
-    // websocketTest(){
-    //   this.init();
-    // },
-    // init: function () {
-    //   if(typeof(WebSocket) === "undefined"){
-    //     alert("您的浏览器不支持socket")
-    //   }else{
-    //     // 实例化socket
-    //     //// ws://{baseURL}/websocket/stream/{sessionId}
-    //     this.path = "ws://localhost:8888/websocket/stream/9587";
-    //     this.socket = new WebSocket(this.path)
-    //     // 监听socket连接，错误，消息，关闭
-    //     this.socket.onopen = this.open;
-    //     this.socket.onerror = this.error;
-    //     this.socket.onmessage = this.getMessage;
-    //     this.socket.onclose = this.close;
-    //   }
-    // },
-    // open: function () {
-    //   let data = {
-    //     method: 'selectStream',
-    //   }
-    //   this.send(JSON.stringify(data))
-    //   console.log("socket连接成功")
-    //   let inputstr = prompt("请输入","");
-    //   this.socket.send(JSON.stringify({method:inputstr}));
-    // },
-    // error: function () {
-    //   console.log("连接错误")
-    // },
-    // getMessage: function (msg) {
-    //   console.log(msg.data)
-    // },
-    // send: function (data) {
-    //   this.socket.send(data)
-    //   console.log("data is " + data)
-    // },
-    // close: function (e) {
-    //   console.log("socket已经关闭")
-    // },
 
     // //// 上传excel相关
     // /**
@@ -907,8 +866,6 @@ export default {
     this.getGroupList();
     this.getDeviceList();
     this.currentUserId = JSON.parse(getUser()).id;
-    //////  ws test
-    // this.websocketTest();
   },
   watch: {
     // 如果分组被切换，通道不显示数据
