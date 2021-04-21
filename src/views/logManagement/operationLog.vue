@@ -7,7 +7,7 @@
                     placeholder="请输入关键字"
                     maxlength="255"
                     clearable
-                    @blur="getAlarmInfoList"
+                    @blur="getOperationLogList"
           />
         </el-form-item>
         <el-form-item>
@@ -39,29 +39,70 @@
 
 <script>
 import treeTable from '@/components/TreeTable';
-import {listToTree, copyProperties, setEachPid} from '@/utils';
+import {copyProperties} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth'
 
 export default {
-  name: "receiveAlarm",
+  name: "operationLog",
   components: {
     Dialog,
     treeTable,
     selectTree
   },
   data() {
-    return{
+    return {
       bttns: [],
       labelPosition: 'left',
       dialogFormVisible: false, // 弹窗不可见
       dialogName: '新增', // 弹窗名
       data: [],           // 表格数据
-      columns:[],
-      param: { keyword:null },
-      tableOption: [],
+      columns: [
+        {
+          text: '序号',
+          value: 'id',
+          width: 80,
+        },
+        {
+          text: '时间',
+          value: 'createTime',
+
+        },
+        {
+          text: '操作人',
+          value: 'userName',
+        },
+        {
+          text: '操作类型',
+          value: 'logName',
+        },
+        {
+          text: '状态',
+          value: 'succeedd',
+          formatter: val=>val===1?'成功':'失败',
+          // formatter: (row, column, cellValue, index)=>{return '--'}
+        }
+      ],
+      param: {
+        keyword: null,
+        status: null,
+        dateFrom:null,
+        dateTo:null,
+      },
+      tableOption: [
+        // {
+        //   text: '查看',
+        //   onclick: viewOption,
+        //   isShow: ()=>true,
+        // },
+        // {
+        //   text: '删除',
+        //   onclick: deleteOption,
+        //   isShow: isDeleteShow,
+        // },
+      ],
     }
   },
   methods: {
@@ -71,17 +112,28 @@ export default {
     search(){
       this.getAlarmLogList();
     },
-    // 批量删除
+
     deleteAll(){
 
     },
     /**
-     * 获取报警日志列表
+     * 获取操作日志列表
      */
-    getAlarmLogList(){
+    getOperationLogList() {
 
     },
   },
+  created() {
+    this.bttns = this.$route.meta.btnPermission;
+    let that = this;
+    this.bttns.forEach(function (item, index, array) {
+      if (item.methodd === 'deleteAll'){
+        that.canDelete = true;
+      }
+    })
+    this.getOperationLogList();
+    this.currentUserId = JSON.parse(getUser()).id;
+  }
 }
 </script>
 

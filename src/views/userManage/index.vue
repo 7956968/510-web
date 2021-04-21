@@ -323,6 +323,11 @@ export default {
           width: 150,
         },
         {
+          text: '邮箱',
+          value: 'email',
+          width: 150,
+        },
+        {
           text: '状态',
           value: 'itemStatus',
           width: 70,

@@ -14,16 +14,6 @@ export function getRoleList(params) {
   })
 }
 
-/**
- * 获取最后一个被添加的角色
- * @param params
- */
-export function getLast() {
-  return request({
-    url: '/role/select_last',
-    method: 'get',
-  })
-}
 // 添加角色(暂时不使用)
 export function add(params) {
   return request({

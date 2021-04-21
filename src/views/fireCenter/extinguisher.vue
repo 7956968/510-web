@@ -92,6 +92,7 @@ export default {
   data() {
     let updateOpen = (row) => {
       this.form = JSON.parse(JSON.stringify(row));//解除数据绑定
+      this.form.updateUser = this.currentUserId;
       this.dialogName = "修改";
       this.dialogFormVisible = true;
 
@@ -106,6 +107,7 @@ export default {
     return {
       canDelete: false,
       canUpdate: false,
+      currentUserId: null,
 
       bttns: [],
       labelPosition: 'left',
@@ -210,6 +212,8 @@ export default {
         expirationTime: null,
         status: null,
         inspectionCycle: 7,
+        createUser: this.currentUserId,
+        updateUser: this.currentUserId,
       };
       this.dialogName = "新增";
       this.dialogFormVisible = true;
