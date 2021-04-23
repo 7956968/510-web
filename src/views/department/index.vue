@@ -35,7 +35,12 @@
           <el-input v-model.trim="form.name" placeholder="名称" style="width: auto"/>
         </el-form-item>
         <el-form-item label="描述" prop="description">
-          <el-input v-model.trim="form.description" placeholder="描述" style="width: auto"/>
+          <el-input placeholder="描述"
+                    type="textarea"
+                    :rows="2"
+                    v-model.trim="form.description"
+                    style="width: auto"
+          />
         </el-form-item>
         <el-form-item label="父部门" prop="pid">
           <selectTree
