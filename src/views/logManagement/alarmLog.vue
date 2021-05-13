@@ -1,6 +1,11 @@
 <template>
   <div class="content_container">
     <div>
+      <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"
+                 v-if="!item.invisible"
+                 @click="handleMethod(item.methodd)">{{ item.name }}
+      </el-button>
+      <div style="height: 20px"/>
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
           <el-input v-model.trim="param.keyword"
@@ -10,19 +15,33 @@
                     @blur="getAlarmLogList"
           />
         </el-form-item>
-        <el-form-item>
-          <el-button v-for="(item,index) in bttns"
-                     :key="index"
-                     type="primary"
-                     size="mini"
-                     :icon="item.icon"
-                     v-if="!item.invisible"
-                     @click="handleMethod(item.methodd)">{{ item.name }}
-          </el-button>
+        <el-form-item label="状态">
+          <!-- 失去焦点触发可以添加属性@blur="getAlarmLogList"-->
+          <el-select v-model.trim="param.status"
+                     placeholder="请选择处理状态"
+                     clearable
+          >
+            <el-option
+              v-for="(item,idx) in statusOptions"
+              :key="item.index"
+              :label="item.text"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="日期范围">
+          <el-date-picker
+            v-model="param.dateFrom"
+            type="date"
+            placeholder="选择日期范围"
+            format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd"
+          />
         </el-form-item>
       </el-form>
     </div>
 
+    <!--  表格  -->
     <div>
       <tree-table :data="data"
                   :columns="columns"
@@ -31,6 +50,17 @@
                   not-tree
                   ref="curTable"
                   option-column-width="165"
+      />
+      <!-- 页码  -->
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :page-size.sync="pageSize"
+        :total="total"
+        :current-page="currentPage"
+        @current-change="changePage"
+        @prev-click="changePage"
+        @next-click="changePage"
       />
     </div>
 
@@ -97,8 +127,26 @@ export default {
         keyword: '',
         status: null,
         dateFrom:null,
-        dateTo:null,
+        // dateTo:null,
+        start: 0, // 起始位置
+        length: 10, // 页大小
       },
+      // 分页相关
+      total: 0, // 总条目数
+      pageSize: 10, // 每页显示条目数
+      currentPage: 1, // 当前页，从1开始
+
+      // 日志状态选择
+      statusOptions: [
+        {
+          value: 0,
+          text:'未处理',
+        },
+        {
+          value: 1,
+          text:'已处理',
+        },
+      ],
       tableOption: [
         {
           text: '处理',
@@ -143,6 +191,10 @@ export default {
         this.$message.error("查询失败，请稍后重试")
       })
     },
+    // 当前页码改变时，保存改变的页码
+    changePage(e){
+      this.currentPage = e;
+    },
   },
   created() {
     this.bttns = this.$route.meta.btnPermission;
@@ -154,6 +206,19 @@ export default {
     })
     this.getAlarmLogList();
     this.currentUserId = JSON.parse(getUser()).id;
+  },
+  watch: {
+    currentPage(newVal, oldVal){
+      this.param.start=(newVal-1)*this.pageSize;
+      this.param.length=this.pageSize;
+      this.getUserList();
+    }
+  },
+  computed: {
+    // 总页数
+    pageCount(){
+      return this.total / this.pageSize;
+    },
   }
 }
 </script>
