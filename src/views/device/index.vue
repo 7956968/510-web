@@ -319,7 +319,7 @@ import {listToTree, copyProperties, setEachPid, setNotLeafDisabled, normalizer} 
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth'
-import {getDeviceList, add, updateById, deleteById, deleteAll, countByGroupId,
+import {getDeviceList, add, updateById, deleteById, deleteAll,
   getGroupList, getGroupListByDeviceId, addGroup, updateGroupById, deleteAllGroups,
   distributeDevicesToGroups} from '@/api/device';
 import channel from "./channel";

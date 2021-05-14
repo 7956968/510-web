@@ -43,7 +43,8 @@ import {listToTree, copyProperties, setEachPid} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import {getUser} from '@/utils/auth'
+import {getUser} from '@/utils/auth';
+import store from '@/store';
 
 export default {
   name: "receiveAlarm",
@@ -78,10 +79,12 @@ export default {
     /**
      * 获取报警日志列表
      */
-    getAlarmLogList(){
-
+    getAlarmInfoList(){
+      console.log("undone");
     },
   },
+  created() {
+  }
 }
 </script>
 

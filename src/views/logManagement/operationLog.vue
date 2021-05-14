@@ -5,6 +5,7 @@
                  v-if="!item.invisible"
                  @click="handleMethod(item.methodd)">{{ item.name }}
       </el-button>
+      <div style="height: 20px"/>
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
           <el-input v-model.trim="param.keyword"

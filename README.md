@@ -245,7 +245,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     │      extinguisher.vue 灭火器信息
     ├─font 字体
     │
-    ├─layout
+    ├─layout(这个组件是不使用的，实际使用的是*/src/layout/components/Navbar.vue)
     │  │  Layout.vue
     │  │
     │  ├─components

@@ -14,9 +14,6 @@ export default {
     }
   },
   methods:{
-    websocketTest(){
-      this.init();
-    },
     /**
      * 初始化my-websocket
      */
@@ -84,8 +81,8 @@ export default {
           ]),
           dangerouslyUseHTMLString: true,
           type: 'warning',
-          offset: 100,  // 向下偏移100
-          duration: 5000,// =0不会自动关闭，>0表示x毫秒后自动关闭////记得修改停留时间，5秒太少（或者永久存在）
+          offset: 100,  // 窗口向下偏移100
+          duration: 0,// =0不会自动关闭，>0表示x毫秒后自动关闭////记得修改停留时间，5秒太少（或者永久存在）
           onClose: ()=>{
             delete notifications[createTime];
           }
@@ -108,10 +105,7 @@ export default {
     },
   },
   created() {
-    this.websocketTest();
-    setInterval(()=>{
-      console.log(sessionStorage.getItem("alarmMsgList"))
-    }, 5000)
+    this.init();
   }
 }
 </script>

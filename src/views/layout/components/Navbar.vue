@@ -89,9 +89,9 @@ export default {
     toggleSideBar() {
       this.$store.dispatch('toggleSideBar')
     },
-      createdTime() {
-          this.currentTime = formatDate(new Date(),"yyyy-MM-dd hh:mm:ss");
-      },
+    createdTime() {
+      this.currentTime = formatDate(new Date(),"yyyy-MM-dd HH:mm:ss");
+    },
     logout() {
       this.$store.dispatch('LogOut').then(() => {
         location.reload()// In order to re-instantiate the vue-router object to avoid bugs

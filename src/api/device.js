@@ -6,13 +6,17 @@ import request from '@/utils/request'
  *
  */
 
-export function countByGroupId(groupId){
-  return request({
-    url: '/device/count_by_group_id',
-    method: 'get',
-    params:{groupId: groupId},
-  })
-}
+/**
+ * 根据组id获取设备总数
+ * @param groupId
+ */
+// export function countByGroupId(groupId){
+//   return request({
+//     url: '/device/count_by_group_id',
+//     method: 'get',
+//     params:{groupId: groupId},
+//   })
+// }
 
 /**
  * 设备管理页面：获取设备列表
@@ -73,6 +77,18 @@ export function getGroupList(params) {
     url: '/group/select',
     method: 'get',
     params
+  })
+}
+
+/**
+ * 获取摄像头列表，摄像头包含它的通道列表
+ * @param idList
+ */
+export function getCameraList(idList){
+  return request({
+    url: '/device/select_cameras',
+    method: 'post',
+    data:{idList:idList},
   })
 }
 

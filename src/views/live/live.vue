@@ -50,6 +50,8 @@
 <script>
 import treeTable from '@/components/TreeTable';
 import {getRoleList, add, updateById, deleteById} from '@/api/role';
+import {getDeviceList,getGroupListWithDevices,getGroupList} from '@/api/device';
+import {getCamaraLive,getGroupLive} from '@/api/video.js'
 import {getPermissionListByRoleId, add as addRP, deleteById as deleteRPById} from '@/api/rolePermission';
 import {listToTree, copyProperties} from '@/utils';
 import Dialog from '@/components/dialog/index';
@@ -66,6 +68,44 @@ export default {
     selectTree
   },
   mounted() {
+  	getGroupListWithDevices().then(res=>{
+      //id为正则为摄像头，为负则为分组
+  	  if (res.data.errorCode == 200) {
+  	  	let result = []
+        for(let i=0;i<res.data.data.length;i++){
+          let item = res.data.data[i]
+          let insertItem = {id:-item.id,pid:-item.pid,name:item.name}
+          for(let j=0;j<item.deviceList.length;j++){
+            result.push({id:item.deviceList[j].id,pid:-item.id,name:item.deviceList[j].name})
+          }
+          result.push(insertItem)
+        }
+        let flag = true //表示此次循环是否移除节点
+        while(flag){
+          let tmp = []
+          flag = false
+          for(let i=0;i<result.length;i++){
+            if(result[i].id>0) {
+              tmp.push(result[i])
+              continue
+            }
+            for(let j=0;j<result.length;j++){
+              if(result[j].pid == result[i].id){//result[i]不是设备且不为叶子节点
+                tmp.push(result[i])
+                break
+              }
+            }
+          }
+          flag = !(tmp.length==result.length)
+          // console.log(result)
+          // console.log(tmp)
+          result = tmp
+        }
+        this.data = listToTree(result)
+      }
+  	}).catch(failResponse=>{
+      console.log(failResponse)
+    })
     let cnt = 0
     let _that = this
     let box = this.$refs.box
@@ -128,78 +168,10 @@ export default {
       urlList: new Array(4).fill(null),  //当前的url列表，项数为分屏数量的整倍数
       pageNum: 1,  //当前页
       pageMax: 1,
-      data: [{
-        label: '分组 1',
-        children: [{
-          label: '子分组 1-1',
-          children: [{
-            label: '视频1',
-            url: 'http://192.168.100.123:8080/live?port=1935&app=live&stream=1985'
-          }, {
-            label: '视频2',
-            url: 'http://192.168.100.123:8081/live?port=1935&app=live&stream=1986'
-          },{
-            label: '视频3',
-            url: 'http://192.168.100.123:8082/live?port=1987&app=live&stream=mystream'
-          }, {
-            label: '视频4',
-            url: 'http://192.168.100.123:8083/live?port=1985&app=live&stream=mystream'
-          },{
-            label: '视频5',
-            url: 'http://192.168.100.123:8084/live?port=1986&app=live&stream=mystream'
-          }, {
-            label: '视频6',
-            url: 'http://192.168.100.123:8085/live?port=1985&app=live&stream=mystream'
-          },{
-            label: '视频7',
-            url: 'http://192.168.100.123:8086/live?port=1986&app=live&stream=mystream'
-          }, {
-            label: '视频8',
-            url: 'http://192.168.100.123:8087/live?port=1985&app=live&stream=mystream'
-          },{
-            label: '视频9',
-            url: 'http://192.168.100.123:8080/live?port=1986&app=live&stream=mystream'
-          }, {
-            label: '视频10',
-            url: 'http://192.168.100.123:8081/live?port=1985&app=live&stream=mystream'
-          },{
-            label: '视频11',
-            url: 'http://192.168.100.123:8082/live?port=1986&app=live&stream=mystream'
-          }, {
-            label: '视频12',
-            url: 'http://192.168.100.123:8083/live?port=1985&app=live&stream=mystream'
-          },{
-            label: '视频13',
-            url: 'http://192.168.100.123:8084/live?port=1986&app=live&stream=mystream'
-          }, {
-            label: '视频14',
-            url: 'http://192.168.100.123:8085/live?port=1985&app=live&stream=mystream'
-          },{
-            label: '视频15',
-            url: 'http://192.168.100.123:8086/live?port=1986&app=live&stream=mystream'
-          }, {
-            label: '视频16',
-            url: 'http://192.168.100.123:8087/live?port=1985&app=live&stream=mystream'
-          }]
-        }]
-      }, {
-        label: '一级 2',
-        children: [{
-          label: '二级 2-1'
-        }, {
-          label: '二级 2-2'
-        }]
-      }, {
-        label: '一级 3',
-        children: [{
-          label: '二级 3-1'
-        }, {
-          label: '二级 3-2'
-        }]
-      }],
+      data: [],
       defaultProps: {
         children: 'children',
-        label: 'label'
+        label: 'name'
       },
       keyword:""
     }
@@ -325,10 +297,11 @@ export default {
     },
     //是否可拖拽节点，只有具体的摄像头可以直接拖拽播放
     judgeDrag(node){
-      return node.level===3
+      return node.isLeaf===true
     },
     renewDragging(node){
-      this.dragging = {name:node.data.label,url:node.data.url}
+      this.dragging = {id:node.id}
+      // this.dragging = {name:node.data.label,url:node.data.url}
     },
     //点击节点
     clickNode(obj,node){
@@ -336,28 +309,47 @@ export default {
          this.sgClick = node
        }
        else if(this.sgClick===node){
-        let list = []
-        switch (node.level){
-          case 1:{
-            for (let i=0;i<node.data.children.length;i++){
-              for (let j=0;j<node.data.children[i].children.length;j++){
-                list.push({name:node.data.children[i].children[j].label,url:node.data.children[i].children[j].url})
-              }
+        let leaves = []
+        let arr = [node]
+        while(arr.length>0){
+          let tmp = []
+          for(let i=0;i<arr.length;i++){
+            if(arr[i].isLeaf){
+              leaves.push(arr[i])
             }
-            break
-          }
-          case 2:{
-            for (let i=0;i<node.data.children.length;i++){
-              list.push({name:node.data.children[i].label,url:node.data.children[i].url})
+            else{
+              tmp.push(...arr[i].childNodes)
             }
-            break
           }
-          case 3:{
-            list.push({name:node.data.label,url:node.data.url})
-            break
-          }
+          arr = tmp
         }
-        this.urlList = list
+        console.log(leaves)
+        let cList = []
+        for(let i=0;i<leaves.length;i++){
+          cList.push(leaves[i].data.id)
+        }
+        getGroupLive(JSON.parse(getUser()).id,cList)
+        // switch (node.level){
+        //   case 1:{
+        //     for (let i=0;i<node.data.children.length;i++){
+        //       for (let j=0;j<node.data.children[i].children.length;j++){
+        //         list.push({name:node.data.children[i].children[j].label,url:node.data.children[i].children[j].url})
+        //       }
+        //     }
+        //     break
+        //   }
+        //   case 2:{
+        //     for (let i=0;i<node.data.children.length;i++){
+        //       list.push({name:node.data.children[i].label,url:node.data.children[i].url})
+        //     }
+        //     break
+        //   }
+        //   case 3:{
+        //     list.push({name:node.data.label,url:node.data.url})
+        //     break
+        //   }
+        // }
+        // this.urlList = list
       }
       return
     },
@@ -386,10 +378,11 @@ export default {
     //拖拽改变urlList,根据设计，拖拽不会增加列表中的项，只会更改值
     changeList(i){
       // console.log(this.division*(this.pageNum-1)+i-1)
-      // console.log(this.dragging)
-      this.urlList[this.division*(this.pageNum-1)+i-1] = this.dragging
+      console.log(this.dragging)
+      getCamaraLive(JSON.parse(getUser()).id,this.dragging.id)
+      // this.urlList[this.division*(this.pageNum-1)+i-1] = this.dragging
       this.dragging = {}
-      this.startPlay(0)
+      // this.startPlay(0)
     },
     deny(){
       return false

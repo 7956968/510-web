@@ -257,6 +257,7 @@ export default {
   },
   created() {
     this.currentUserId = JSON.parse(getUser()).id;
+    this.getChannelList();
   }
 }
 </script>

@@ -34,7 +34,7 @@
                ref="linkageForm"
                :rules="formRules">
         <el-form-item label="报警设备">
-          <el-input v-model.trim="deviceName" :disabled="true" style="width: auto"/>
+          <el-input v-model.trim="device.name || '--'" :disabled="true" style="width: auto"/>
         </el-form-item>
         <el-form-item label="摄像头所在分组">
           <selectTree
@@ -53,6 +53,7 @@
                      placeholder="选择摄像头(可多选)"
                      multiple
                      style="width: 60%"
+
           >
             <el-option
               v-for="item in cameraList"
@@ -113,7 +114,6 @@ export default {
     return {
       formVisible: false,
       dialogName: '添加"报警器-摄像头"联动',
-      deviceName:null,
       currentUserId:null,
       currentGroupId: null, // 对话框-选择分组-分组id
       cameraList: [],   // 为添加联动提供选项
@@ -137,7 +137,7 @@ export default {
         },
         {
           text: '端口号',
-          value: 'prot'
+          value: 'port'
         },
       ],
       linkageOptions: [ // 操作列选项
@@ -198,16 +198,14 @@ export default {
      *  更新表单的摄像头选项
      */
     getCameraList(){
-      getDeviceList({groupId:this.currentGroupId,type:'camera'})
+      getDeviceList({groupId:this.currentGroupId, type:'camera', start:0, length:30})
         .then(res => {
             if(res.data.errorCode===200){
-              this.cameraList = res.data.data;
+              this.cameraList = res.data.data.list;// 使用的查询带分页，数据在list属性中
               // 已经联动的摄像头idArray
               let cameraIdList = this.linkageData.map(e=>e.id);
               this.cameraList.forEach(item=>{
-                if(cameraIdList.indexOf(item.id)>-1){// 设置禁用
-                  item.disabled = true;
-                }
+                item.disabled = cameraIdList.indexOf(item.id) > -1;
               })
             }else{
               console.log(res.data.errorMsg)
@@ -215,6 +213,7 @@ export default {
           })
         .catch(err=>{});
     },
+    // 显示"添加"表单
     add(){
       if(this.device==null){
         this.$message.warning('未选中设备，左键点击以选择')
@@ -287,12 +286,11 @@ export default {
   },
   watch: {
     device(){
-      this.deviceName = this.device==null?'--':this.device.name;
       if(this.device==null){this.linkageData = [];}
       else this.getLinkageList()
     },
     currentGroupId(){
-      // 在分组选定/更改后, 更新选项
+      // 在分组选定/更改后, 更新选择器的摄像头选项
       this.getCameraList();
     },
   },
@@ -300,10 +298,11 @@ export default {
     this.currentUserId = JSON.parse(getUser()).id;
 
     this.getCameraList();
+    this.getLinkageList();
   },
   computed: {
     /**
-     * 获取分组列表 and 默认分组（id为0，数据库不存在实体）
+     * 获取分组列表 and 默认分组（默认分组id为0，数据库不存在记录）
      * @returns {*[]}
      */
     groupListAddDefaultGroup() {
