@@ -354,9 +354,13 @@ export default {
 
     this.currentUserId = JSON.parse(getUser()).id;
   },
-  mounted() {
-
-  }
+  watch: {
+    currentPage(newVal, oldVal){
+      this.param.start=newVal;
+      this.param.length=this.pageSize;
+      this.getUserList();
+    }
+  },
 }
 </script>
 

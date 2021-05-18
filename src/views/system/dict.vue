@@ -3,7 +3,12 @@
     <div>
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
-          <el-input v-model.trim="param.keyword" placeholder="请输入关键字" maxlength="255" clearable></el-input>
+          <el-input v-model.trim="param.keyword"
+                    placeholder="请输入关键字"
+                    maxlength="255"
+                    clearable
+                    @keydown.enter.native="getDictList"
+          />
         </el-form-item>
         <el-form-item>
           <el-button v-for="(item,index) in bttns" :key="index" type="primary" size="mini" :icon="item.icon"

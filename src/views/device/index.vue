@@ -6,7 +6,11 @@
         <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
           <el-form-item label="关键字">
             <!-- 失去焦点触发可以添加属性@blur="getDeviceList"-->
-            <el-input v-model.trim="param.keyword" placeholder="请输入关键字" maxlength="255" clearable/>
+            <el-input v-model.trim="param.keyword"
+                      placeholder="请输入关键字"
+                      maxlength="255" clearable
+                      @keydown.enter.native="getDeviceList"
+            />
           </el-form-item>
           <el-form-item label="设备类型" prop="">
             <!-- 失去焦点触发可以添加属性@blur="getDeviceList"-->
@@ -95,7 +99,7 @@
           />
           <!--与设备表格保持距离-->
           <div style="margin-top:40px;">
-            <span style="color:#5b47c9">当前选中设备: </span>{{ curDeviceName || '--' }}
+            <span style="color:#5b47c9">当前选中设备: </span>{{ (curDevice && curDevice.name) || '--' }}
           </div>
           <!--表格[通道, 联动摄像头]-->
           <el-tabs type="border-card">
@@ -437,7 +441,7 @@ export default {
         keyword:'',   // 关键字
         groupId:null, // 组id
         type:'', // 类型
-        start: 0, // 起始位置
+        start: 1, // 页号，从1开始
         length: 10, // 页大小
       },
       form: {
@@ -882,20 +886,10 @@ export default {
       this.currentPage = 1;
     },
     currentPage(newVal, oldVal){
-      this.param.start=(newVal-1)*this.pageSize;
+      this.param.start=newVal;
       this.param.length=this.pageSize;
       this.getDeviceList();
     }
-  },
-  computed:{
-    // 当前选中设备的名称
-    curDeviceName(){
-      return this.curDevice==null ? "--" : this.curDevice.name;
-    },
-    // 总页数
-    // pageCount(){
-    //   return this.total / this.pageSize;
-    // },
   },
 }
 </script>

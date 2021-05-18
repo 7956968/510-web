@@ -3,7 +3,13 @@
     <div>
       <el-form :label-position="labelPosition" :inline="true" :model="param" class="demo-form-inline" size="mini">
         <el-form-item label="关键字">
-          <el-input v-model.trim="param.keyword" placeholder="请输入关键字" maxlength="255" clearable @blur="getUserList"/>
+          <el-input v-model.trim="param.keyword"
+                    placeholder="请输入关键字"
+                    maxlength="255"
+                    clearable
+                    @blur="getUserList"
+                    @keydown.enter.native="getUserList"
+          />
         </el-form-item>
         <el-form-item>
           <!-- 失去焦点触发可以添加属性@blur="getUserList"-->
@@ -241,7 +247,7 @@ export default {
       param:{
         keyword: '',// 关键字
         itemStatus: null,// 用户状态
-        start: 0,// 起始偏移
+        start: 1,// 页号，从1开始
         length: 10,// 页大小
       },
       // 分页相关
@@ -532,16 +538,10 @@ export default {
   },
   watch: {
     currentPage(newVal, oldVal){
-      this.param.start=(newVal-1)*this.pageSize;
+      this.param.start=newVal;
       this.param.length=this.pageSize;
       this.getUserList();
     }
-  },
-  computed:{
-    // 总页数
-    pageCount(){
-      return this.total / this.pageSize;
-    },
   },
 }
 </script>
