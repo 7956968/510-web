@@ -22,6 +22,7 @@
             placeholder="选择日期范围"
             format="yyyy-MM-dd"
             value-format="yyyy-MM-dd"
+            @blur="getOperationLogList"
           />
         </el-form-item>
       </el-form>
@@ -57,8 +58,9 @@ import treeTable from '@/components/TreeTable';
 import {copyProperties} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from '@riophae/vue-treeselect'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import {getUser} from '@/utils/auth'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+import {getUser} from '@/utils/auth';
+import {getOperationLogList} from "@/api/operationLog";
 
 export default {
   name: "operationLog",
@@ -102,7 +104,7 @@ export default {
       ],
       param: {
         keyword: null,
-        dateFrom:null,
+        dateFrom: null,
         // dateTo:null,
         start: 0, // 起始位置
         length: 10, // 页大小
@@ -113,11 +115,6 @@ export default {
       currentPage: 1, // 当前页，从1开始
 
       tableOption: [
-        // {
-        //   text: '查看',
-        //   onclick: viewOption,
-        //   isShow: ()=>true,
-        // },
         // {
         //   text: '删除',
         //   onclick: deleteOption,
@@ -131,7 +128,7 @@ export default {
       this[ms]();
     },
     search(){
-      this.getAlarmLogList();
+      this.getOperationLogList();
     },
 
     deleteAll(){
@@ -141,7 +138,16 @@ export default {
      * 获取操作日志列表
      */
     getOperationLogList() {
-
+      getOperationLogList(this.param).then(res=>{
+        if(res.data.errorCode===200){
+          //// .list
+          this.data = res.data.data;
+        }else{
+         this.$message.error(res.data.errorMsg);
+        }
+      }).catch(err=>{
+        this.$message.error("查询失败，请稍后重试")
+      })
     },
     // 当前页码改变时，保存改变的页码
     changePage(e){

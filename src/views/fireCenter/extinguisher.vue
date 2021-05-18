@@ -60,7 +60,7 @@
 <!--          </el-radio-group>-->
 <!--        </el-form-item>-->
         <el-form-item label="巡检周期" prop="inspectionCycle">
-          <el-input type="number" v-model="form.inspectionCycle" placeholder="巡检周期" maxlength="10" style="width: auto"/>天
+          <el-input type="number" v-model.number="form.inspectionCycle" placeholder="巡检周期" maxlength="10" style="width: auto"/>天
         </el-form-item>
       </el-form>
       <div>

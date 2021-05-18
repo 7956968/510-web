@@ -18,6 +18,7 @@
                 border
                 ref="channelTable"
                 not-tree
+                empty-text="请添加通道，否则摄像头无法使用"
     />
 
     <!--表单-->
@@ -31,7 +32,7 @@
                ref="channelForm"
                :rules="formRules">
         <el-form-item label="设备名">
-          <el-input v-model.trim="deviceName" :disabled="true" style="width: auto"/>
+          <el-input v-model.trim="device.name || '--'" :disabled="true" style="width: auto"/>
         </el-form-item>
         <el-form-item label="通道名" prop="name">
           <el-input v-model.trim="form.name" placeholder="通道名" maxlength="30" style="width: auto"/>
@@ -40,7 +41,7 @@
           <el-input v-model.trim="form.serialNumber" placeholder="序列号" maxlength="30" style="width: auto"/>
         </el-form-item>
         <el-form-item label="通道号" prop="number">
-          <el-input type="number" v-model="form.number" placeholder="通道号" maxlength="11" style="width: auto"/>
+          <el-input type="number" v-model.number="form.number" placeholder="通道号" maxlength="11" style="width: auto"/>
         </el-form-item>
       </el-form>
       <div>
@@ -87,7 +88,6 @@ export default {
     return {
       formVisible: false,// 表单可见性
       dialogName: '添加通道',
-      deviceName: '--',
       channelData:[],
       channelColumns:[
         {
@@ -121,6 +121,7 @@ export default {
         deviceId: null,
         name: '', // 通道名
         serialNumber: null, // 序列号
+        number: null,
         createUser: null,
         updateUser: null,
       },
@@ -174,7 +175,9 @@ export default {
         deviceId: this.device.id,
         createUser: this.currentUserId,
         updateUser: this.currentUserId,
-        name: '',
+        name: '',// 通道名
+        number: null,// 通道号
+        serialNumber: null, // 序列号
       }
       this.formVisible=true;
       this.dialogName="添加通道";
@@ -250,7 +253,6 @@ export default {
   },
   watch:{
     device(){
-      this.deviceName = this.device==null?'--':this.device.name;
       if(this.device==null){this.channelData = [];}
       else this.getChannelList()
     },

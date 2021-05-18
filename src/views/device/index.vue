@@ -893,9 +893,9 @@ export default {
       return this.curDevice==null ? "--" : this.curDevice.name;
     },
     // 总页数
-    pageCount(){
-      return this.total / this.pageSize;
-    },
+    // pageCount(){
+    //   return this.total / this.pageSize;
+    // },
   },
 }
 </script>

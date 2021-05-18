@@ -20,6 +20,7 @@
           <el-select v-model.trim="param.status"
                      placeholder="请选择处理状态"
                      clearable
+                     @blur="getAlarmLogList"
           >
             <el-option
               v-for="(item,idx) in statusOptions"
@@ -36,6 +37,7 @@
             placeholder="选择日期范围"
             format="yyyy-MM-dd"
             value-format="yyyy-MM-dd"
+            @blur="getAlarmLogList"
           />
         </el-form-item>
       </el-form>
@@ -183,9 +185,9 @@ export default {
     getAlarmLogList() {
       getAlarmLogList().then(res =>{
         if(res.data.errorCode===200){
-          this.data = res.data.data;
+          this.data = res.data.data.list;
         }else{
-          this.$message.error("查询失败，请稍后重试")
+          this.$message.error(res.data.errorMsg);
         }
       }).catch(err=> {
         this.$message.error("查询失败，请稍后重试")

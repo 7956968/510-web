@@ -92,6 +92,18 @@ export function getCameraList(idList){
   })
 }
 
+/**
+ * 通过报警设备id，获取它联动的摄像头列表
+ * @param alarmId{number}
+ */
+export function getCameraListByAlarmId(alarmId){
+  return request({
+    url: '/device/select_cameras_by_alarm_id',
+    method: 'get',
+    params:{alarmId:alarmId},
+  })
+}
+
 export function getGroupListByDeviceId(deviceId) {
   return request({
     url: '/group/select_by_device_id',
@@ -165,18 +177,6 @@ export function deleteAllGroups(data) {
  */
 
 /**
- * 把未分组的设备添加到某组
- * @param data {deviceIdList: [xxx,xxx,xxx,...], groupId: *}
- */
-// export function addDevicesToGroups(data) {
-//   return request({
-//     url: '/group/add_devices',
-//     method: 'post',
-//     data: data,
-//   })
-// }
-
-/**
  * 为多个设备分配多个分组
  * @param data
  *    deviceIdList: 设备id的数组
@@ -190,18 +190,6 @@ export function distributeDevicesToGroups(data) {
     data: data,
   })
 }
-
-/**
- * 把已分组的设备移除出某组
- * @param data {deviceIdList: [xxx,xxx,xxx,...]}
- */
-// export function removeDevices(data) {
-//   return request({
-//     url: '/group/remove_devices',
-//     method: 'post',
-//     data: data,
-//   })
-// }
 
 /**
  * 管理摄像头-报警设备联动关系

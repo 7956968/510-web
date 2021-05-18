@@ -41,7 +41,7 @@
           <el-input v-model.trim="form.path" placeholder="路径" maxlength="50" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="顺序" prop="sortOrder">
-          <el-input type="number" min="1" v-model="form.sortOrder" placeholder="顺序" style="width: auto"></el-input>
+          <el-input type="number" min="1" v-model.number="form.sortOrder" placeholder="顺序" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="控件" prop="component" v-show="!isButton">
           <el-input v-model.trim="form.component" placeholder="控件" maxlength="50" style="width: auto"></el-input>
