@@ -13,6 +13,7 @@
                     maxlength="255"
                     clearable
                     @blur="getAlarmLogList"
+                    @keydown.enter.native="getAlarmLogList"
           />
         </el-form-item>
         <el-form-item label="状态">
@@ -130,7 +131,7 @@ export default {
         status: null,
         dateFrom:null,
         // dateTo:null,
-        start: 0, // 起始位置
+        start: 1, // 页号，从1开始
         length: 10, // 页大小
       },
       // 分页相关
@@ -183,8 +184,9 @@ export default {
      * 获取报警日志列表
      */
     getAlarmLogList() {
-      getAlarmLogList().then(res =>{
+      getAlarmLogList(this.param).then(res =>{
         if(res.data.errorCode===200){
+          this.total = res.data.data.total;
           this.data = res.data.data.list;
         }else{
           this.$message.error(res.data.errorMsg);
@@ -211,17 +213,11 @@ export default {
   },
   watch: {
     currentPage(newVal, oldVal){
-      this.param.start=(newVal-1)*this.pageSize;
+      this.param.start=newVal;
       this.param.length=this.pageSize;
-      this.getUserList();
+      this.getAlarmLogList();
     }
   },
-  computed: {
-    // 总页数
-    pageCount(){
-      return this.total / this.pageSize;
-    },
-  }
 }
 </script>
 

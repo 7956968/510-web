@@ -8,6 +8,7 @@
                     maxlength="255"
                     clearable
                     @blur="getExtinguisherList"
+                    @keydown.enter.native="getExtinguisherList"
           />
         </el-form-item>
         <el-form-item>
@@ -31,6 +32,16 @@
                   not-tree
                   ref="curTable"
                   option-column-width="165"
+      />
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :page-size.sync="pageSize"
+        :total="total"
+        :current-page="currentPage"
+        @current-change="changePage"
+        @prev-click="changePage"
+        @next-click="changePage"
       />
     </div>
 
@@ -124,8 +135,14 @@ export default {
       },
       param:{
         // 查询的关键字
-        keyword: ''
+        keyword: '',
+        start: 1, // 页号，从1开始
+        length: 10, // 页大小
       },
+      // 分页相关
+      total: 0, // 总条目数
+      pageSize: 10, // 每页显示条目数
+      currentPage: 1, // 当前页，从1开始
       form: {
         id: null,
         name: '',
@@ -223,9 +240,13 @@ export default {
     getExtinguisherList() {
       getExtinguisherList(this.param).then(res => {
         if (res.data.errorCode === 200) {
-          this.data = res.data.data;
-          setEachPid(this.data, 0);
+          this.total = res.data.data.total;
+          this.data = res.data.data.list;
+        }else{
+          this.$message.error(res.data.errorMsg);
         }
+      }).catch(err=>{
+        this.$message.error("查询失败，请稍后重试")
       })
     },
     /**
@@ -312,6 +333,10 @@ export default {
           this.$message.error(res.data.errorMsg);
         }
       }).catch(err=>{})
+    },
+    // 当前页码改变时，保存改变的页码
+    changePage(e){
+      this.currentPage = e;
     },
   },
   created() {

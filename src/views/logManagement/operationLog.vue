@@ -13,6 +13,7 @@
                     maxlength="255"
                     clearable
                     @blur="getOperationLogList"
+                    @keydown.enter.native="getOperationLogList"
           />
         </el-form-item>
         <el-form-item label="日期范围">
@@ -97,8 +98,7 @@ export default {
         },
         {
           text: '状态',
-          value: 'succeedd',
-          formatter: val=>val===1?'成功':'失败',
+          value: 'succeed',
           // formatter: (row, column, cellValue, index)=>{return '--'}
         }
       ],
@@ -106,7 +106,7 @@ export default {
         keyword: null,
         dateFrom: null,
         // dateTo:null,
-        start: 0, // 起始位置
+        start: 1, // 页号，从1开始
         length: 10, // 页大小
       },
       // 分页相关
@@ -140,8 +140,8 @@ export default {
     getOperationLogList() {
       getOperationLogList(this.param).then(res=>{
         if(res.data.errorCode===200){
-          //// .list
-          this.data = res.data.data;
+          this.total = res.data.data.total;
+          this.data = res.data.data.list;
         }else{
          this.$message.error(res.data.errorMsg);
         }
@@ -167,9 +167,9 @@ export default {
   },
   watch: {
     currentPage(newVal, oldVal){
-      this.param.start=(newVal-1)*this.pageSize;
+      this.param.start=newVal;
       this.param.length=this.pageSize;
-      this.getUserList();
+      this.getOperationLogList();
     }
   },
 }
