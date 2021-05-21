@@ -900,7 +900,7 @@ export default {
 /deep/.el-tree--highlight-current
 .el-tree-node.is-current
 > .el-tree-node__content {
-  background-color:  rgba(35, 220, 205, 0.78);
+  background-color: rgb(188, 194, 201);
 }
 
 /*分组设置中的组树的样式*/

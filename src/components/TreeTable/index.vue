@@ -286,7 +286,7 @@ table td {
 <!--修改选中行的高亮色，不能放在有scoped属性的style标签中-->
 <style>
 .el-table__body tr.current-row>td{
-  background-color: #a7bd81 !important;
+  background-color: #7e8186 !important;
   color: #fff;
 }
 </style>
