@@ -42,14 +42,26 @@ export function deleteAll(idList) {
 }
 
 /**
- * 为报警日志添加'报警处理日志'
- * @param alarmHandleLog 报警处理日志
+ * 添加报警处理日志
+ * @param alarmLogIdList
+ * @param alarmHandleLog
  */
-export function handleAlarmLog(alarmHandleLog){
+export function addAlarmHandleLog(alarmLogIdList,alarmHandleLog){
   return request({
-    url: '/alarm_log/handle',
+    url: '/alarm_log/add_alarm_handle_log',
     method: 'post',
-    data:{alarmHandleLog:alarmHandleLog}
+    data:{alarmLogIdList:alarmLogIdList,alarmHandleLog:alarmHandleLog}
   })
 }
 
+/**
+ * 获取报警处理日志
+ * @param id 报警处理日志的id
+ */
+export function selectAlarmHandleLogById(id){
+  return request({
+    url: '/alarm_log/select_alarm_handle_log',
+    method: 'get',
+    params:{id:id}
+  })
+}

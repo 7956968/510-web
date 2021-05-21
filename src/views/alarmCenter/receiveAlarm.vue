@@ -46,6 +46,7 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import {getUser} from '@/utils/auth';
 import store from '@/store';
 import {getCameraListByAlarmId} from "@/api/device";
+import {concatAddress} from "@/utils/rtspAddress";
 
 export default {
   name: "receiveAlarm",
@@ -85,9 +86,7 @@ export default {
     },
   },
   created() {
-    getCameraListByAlarmId(36).then(res => {
-      console.log(res)
-    })
+
   }
 }
 </script>

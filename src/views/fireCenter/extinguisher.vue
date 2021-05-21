@@ -318,7 +318,7 @@ export default {
       }
       let checkedRowList = this.$refs.curTable.getSelectedRows(); // 被勾选的列数组
       let deletedNameList = checkedRowList.map(e=>e.name);  // 待删除列的名字列表
-      this.$confirm('即将删除[' + deletedNameList + '], 是否继续?', '提示', {
+      this.$confirm('即将删除 [' + deletedNameList + '] 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -358,7 +358,7 @@ export default {
     currentPage(newVal, oldVal){
       this.param.start=newVal;
       this.param.length=this.pageSize;
-      this.getUserList();
+      this.getExtinguisherList();
     }
   },
 }
