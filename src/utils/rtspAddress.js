@@ -1,5 +1,4 @@
 /*
- * 前面的字符串暂时不使用，只使用后面的各个拼接方法
  * 如果有更多的摄像头品牌，需要补充字符串和方法
  *
  *
@@ -30,7 +29,7 @@ const HIKVISION_FORMAT =
  * port: 端口号默认为554，若为默认可不填写.
  * subtype: 码流类型，主码流为1，辅码流为2，第三码流为3.
  */
-const HIKVISION_FORMAT_2 =
+const HIKVISION_NEW_FORMAT =
   "rtsp://[username]:[password]@[ip]:[port]/Streaming/Channels/[subtype]";
 
 /**
@@ -228,3 +227,34 @@ export function concatAddress(camera){
   }
 }
 
+const rtspFormatOptions = [
+  {
+    label: '海康（旧）',
+    value: 'HIKVISION',
+    formatString: HIKVISION_FORMAT,
+  },
+  {
+    label: '海康（新）',
+    value: 'HIKVISION_NEW',
+    formatString: HIKVISION_NEW_FORMAT,
+  },
+  {
+    label: '大华',
+    value: 'DAHUA',
+    formatString: DAHUA_FORMAT,
+  },
+  {
+    label: '友讯',
+    value: 'DLINK',
+    formatString: DLINK_FORMAT,
+  },
+  {
+    label: '安迅士',
+    value: 'AXIS',
+    formatString: AXIS_FORMAT,
+  },
+]
+
+export default {
+  rtspFormatOptions,
+}

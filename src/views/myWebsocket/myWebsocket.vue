@@ -102,6 +102,7 @@ export default {
      */
     close: function (e) {
       console.log("websocket closed",e)
+      // if(e[""])
     },
   },
   created() {

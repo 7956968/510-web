@@ -75,7 +75,7 @@
         <!-- 表格-->
         <el-main>
           <div>
-            <span style="color:#5b47c9">当前所在组: </span>{{ curGroupName }}
+            <span style="color:#5b47c9">当前所在组: </span>{{ curGroupName || '全部' }}
           </div>
           <tree-table :data="data"
                       :columns="columns"
@@ -119,8 +119,25 @@
     </el-container>
     <!--add/modify 设备表单-->
     <el-dialog :title="dialogName" :visible.sync="dialogFormVisible" @close="" center :close-on-click-modal="false">
-      <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="100px"
+      <el-form :model="form" ref="dialogForm" :rules="formRules" :label-position="labelPosition" label-width="140px"
                size="mini">
+        <el-form-item label="设备类型" prop="type">
+          <el-select
+            placeholder="请选择设备类型"
+            v-model="form.type"
+            filterable
+            allow-create
+            @change.native="selectDeviceTypeBlur"
+            @blur.native="selectDeviceTypeBlur"
+            style="width: 79%">
+            <el-option
+              v-for="(item,idx) in deviceTypeOptions"
+              :key="item.index"
+              :label="item.text"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="厂家" prop="manufacturers">
           <el-select
             placeholder="请选择厂家"
@@ -142,23 +159,6 @@
         <el-form-item label="设备名称" prop="name">
           <el-input v-model.trim="form.name" placeholder="名称" maxlength="30" style="width: auto"></el-input>
         </el-form-item>
-        <el-form-item label="设备类型" prop="type">
-          <el-select
-            placeholder="请选择"
-            v-model="form.type"
-            filterable
-            allow-create
-            @change.native="selectDeviceTypeBlur"
-            @blur.native="selectDeviceTypeBlur"
-            style="width: 79%">
-            <el-option
-              v-for="(item,idx) in deviceTypeOptions"
-              :key="item.index"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
         <el-form-item label="序列号" prop="serialNumber">
           <el-input v-model.trim="form.serialNumber" placeholder="序列号" maxlength="30" style="width: auto"></el-input>
         </el-form-item>
@@ -173,6 +173,27 @@
         </el-form-item>
         <el-form-item label="端口" prop="port">
           <el-input v-model.trim="form.port" placeholder="请输入端口号" maxlength="10" style="width: auto"></el-input>
+        </el-form-item>
+        <el-form-item label="RTSP地址格式" prop="rtspFormat" v-show="form.type==='camera'">
+          <el-select
+            placeholder="请选择RTSP地址类型"
+            v-model="form.rtspFormat"
+            filterable
+            @change.native="selectRtspFormatBlur"
+            @blur.native="selectRtspFormatBlur"
+            style="width: 79%">
+            <el-option
+              v-for="(item,idx) in rtspFormatOptions"
+              :key="item.index"
+              :label="item.label"
+              :value="item.value"
+            >
+              <el-tooltip effect="dark" placement="top">
+                <div slot="content">{{item.formatString}}</div>
+                <div>{{ item.label }}</div>
+              </el-tooltip>
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div>
@@ -329,6 +350,7 @@ import {getDeviceList, add, updateById, deleteById, deleteAll,
 import channel from "./channel";
 import linkage from "./linkage";
 import UploadExcel from "@/components/UploadExcel";
+import rtspAddress from '@/utils/rtspAddress';
 //// 右键菜单组件
 // import VueContextMenu from "vue-contextmenu"
 
@@ -342,6 +364,7 @@ export default {
     treeTable,
     selectTree,
     UploadExcel,
+    rtspAddress,
     // VueContextMenu,
   },
   data() {
@@ -410,6 +433,7 @@ export default {
 
       manufacturersOptions: [
         "海康",
+        "大华",
         "豪恩",
         "华拓",
       ],
@@ -423,6 +447,7 @@ export default {
         // children: [],
 
       }],
+      rtspFormatOptions: rtspAddress.rtspFormatOptions,// rtsp地址格式选项
       groupList: [], // 分组列表
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入名称"}],
@@ -454,6 +479,7 @@ export default {
         port: '',       // 端口号
         loginName: '',
         password: '',
+        rtspFormat: null,
         createUser: this.currentUserId,
         updateUser: this.currentUserId,
 
@@ -547,6 +573,9 @@ export default {
     // 在失去焦点时，保存用户自己添加的设备类型
     selectDeviceTypeBlur(event){
       this.form.type = event.target.value;
+    },
+    selectRtspFormatBlur(event){
+      this.form.rtspFormat = event.target.value;
     },
     // 显示"添加表单"
     add() {
@@ -872,7 +901,7 @@ export default {
     this.currentUserId = JSON.parse(getUser()).id;
   },
   watch: {
-    // 如果分组被切换，通道不显示数据
+    // 如果分组被切换，”通道/联动“列表不显示数据
     'param.groupId'(newVal, oldVal){
       this.curDevice = null;
     },
@@ -885,11 +914,13 @@ export default {
       }
       this.currentPage = 1;
     },
+    // 页号变化，切换数据
     currentPage(newVal, oldVal){
       this.param.start=newVal;
       this.param.length=this.pageSize;
       this.getDeviceList();
-    }
+    },
+
   },
 }
 </script>
