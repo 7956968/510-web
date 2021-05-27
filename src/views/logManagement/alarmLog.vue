@@ -165,7 +165,7 @@ export default {
         {
           text: '报警时间',
           value: 'alarmTime',
-
+          sortable: true,
         },
         {
           text: '报警主机',

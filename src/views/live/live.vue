@@ -51,7 +51,7 @@
 import treeTable from '@/components/TreeTable';
 import {getRoleList, add, updateById, deleteById} from '@/api/role';
 import {getDeviceList,getGroupListWithDevices,getGroupList} from '@/api/device';
-import {getCamaraLive,getGroupLive} from '@/api/video.js'
+import {getGroupLive,stop} from '@/api/video.js'
 import {getPermissionListByRoleId, add as addRP, deleteById as deleteRPById} from '@/api/rolePermission';
 import {listToTree, copyProperties} from '@/utils';
 import Dialog from '@/components/dialog/index';
@@ -76,7 +76,7 @@ export default {
           let item = res.data.data[i]
           let insertItem = {id:-item.id,pid:-item.pid,name:item.name}
           for(let j=0;j<item.deviceList.length;j++){
-            result.push({id:item.deviceList[j].id,pid:-item.id,name:item.deviceList[j].name})
+            result.push({id:item.deviceList[j].id,pid:-item.id,name:item.deviceList[j].name,addr:item.deviceList[j].ip+":"+item.deviceList[j].prot})
           }
           result.push(insertItem)
         }
@@ -189,14 +189,10 @@ export default {
   },
   methods: {
     //播放i分屏的url对应的视屏
-    start(i) {
+     start(i) {
       if (flvjs.isSupported()) {
         let videoElement = document.getElementById('live_'+i);
         let _that = this
-        // console.log(this.urlList)
-        // console.log('dividion:'+_that.division)
-        // console.log('pageNum:'+_that.pageNum)
-        // console.log(_that.division*(_that.pageNum-1)+i-1)
         let url = _that.urlList[_that.division*(_that.pageNum-1)+i-1].url
         _that.playList[i-1] = flvjs.createPlayer({
           type: 'flv',
@@ -225,11 +221,11 @@ export default {
     },
     //延时校准
     correct(){
-      for(let i=0;i<this.playList.length;i++){
-        if(this.playList[i]!=null){
-          this.playList[i].currentTime=this.playList[i].buffered.end(0)-0.2
-        }
-      }
+      // for(let i=0;i<this.playList.length;i++){
+      //   if(this.playList[i]!=null){
+      //     this.playList[i].currentTime=this.playList[i].buffered.end(0)-0.2
+      //   }
+      // }
     },
     //播放组件大小自适应
     resize(box){
@@ -300,7 +296,7 @@ export default {
       return node.isLeaf===true
     },
     renewDragging(node){
-      this.dragging = {id:node.id}
+      this.dragging = {id:node.data.id,name:node.data.label,url:node.data.url}
       // this.dragging = {name:node.data.label,url:node.data.url}
     },
     //点击节点
@@ -323,33 +319,15 @@ export default {
           }
           arr = tmp
         }
-        console.log(leaves)
-        let cList = []
-        for(let i=0;i<leaves.length;i++){
-          cList.push(leaves[i].data.id)
+        let list = [];
+        for(let i=0;i<leaves.length;i++) {
+          list.push({id:leaves[i].data.id, addr:leaves[i].data.addr,name:leaves[i].data.name,url:""})
         }
-        getGroupLive(JSON.parse(getUser()).id,cList)
-        // switch (node.level){
-        //   case 1:{
-        //     for (let i=0;i<node.data.children.length;i++){
-        //       for (let j=0;j<node.data.children[i].children.length;j++){
-        //         list.push({name:node.data.children[i].children[j].label,url:node.data.children[i].children[j].url})
-        //       }
-        //     }
-        //     break
-        //   }
-        //   case 2:{
-        //     for (let i=0;i<node.data.children.length;i++){
-        //       list.push({name:node.data.children[i].label,url:node.data.children[i].url})
-        //     }
-        //     break
-        //   }
-        //   case 3:{
-        //     list.push({name:node.data.label,url:node.data.url})
-        //     break
-        //   }
-        // }
-        // this.urlList = list
+        let  n = ( this.division - list.length%this.division ) % this.division;
+        for (let i=0;i<n;i++){
+          list.push({id:"", addr:"",name:"",url:""})
+        }
+        this.urlList = list;
       }
       return
     },
@@ -357,31 +335,62 @@ export default {
     startPlay(way){
       let offset = this.pageNum-1
       let div = this.division
-      // console.log("offset:"+offset+";div:"+div+"\n")
-      // console.log(this.urlList)
-      for(let i=0;i<div;i++){
-        if(this.playList[i]==null){
-          if(this.urlList[i+offset*div]==null) {}
-          else {
-            this.start(i + 1)
+      let cList = [];
+      let aList = [];
+      for(let i=0;i<this.urlList.length;i++){
+        cList.push(this.urlList[i].id)
+        aList.push(this.urlList[i].addr)
+      }
+      let _that = this
+      getGroupLive(JSON.parse(getUser()).id,cList,aList).then(res=>{
+        if(res.data.errorCode==200){
+          console.log(res.data)
+          for(let i=0;i<res.data.data.length;i++){
+            _that.urlList[i].url = res.data.data[i]
+          }
+          for(let i=0;i<div;i++){
+            if(_that.playList[i]==null){
+              console.log(i+offset*div)
+              console.log(_that.urlList[1])
+              if(_that.urlList[i+offset*div]==null||_that.urlList[i+offset*div].url == "") {
+                console.log("No.1")
+              }
+              else {
+                _that.start(i + 1)
+                console.log("No.2")
+              }
+            }
+            else if(_that.urlList[offset*div+i]==null||_that.urlList[i+offset*div].url == ""){
+              _that.end(i+1)
+              console.log("No.3")
+            }
+            else if(_that.urlList[offset*div+i].url!==_that.playList[i]._statisticsInfo.url||way===1){
+              console.log("No.4")
+              _that.end(i+1)
+              _that.start(i+1)
+            }
           }
         }
-        else if(this.urlList[offset*div+i]==null){
-          this.end(i+1)
-        }
-        else if(this.urlList[offset*div+i].url!==this.playList[i]._statisticsInfo.url||way===1){
-          this.end(i+1)
-          this.start(i+1)
-        }
-      }
+      }).catch(error=>{
+        console.log(error)
+      })
     },
     //拖拽改变urlList,根据设计，拖拽不会增加列表中的项，只会更改值
     changeList(i){
       // console.log(this.division*(this.pageNum-1)+i-1)
-      console.log(this.dragging)
-      getCamaraLive(JSON.parse(getUser()).id,this.dragging.id)
-      // this.urlList[this.division*(this.pageNum-1)+i-1] = this.dragging
-      this.dragging = {}
+      // let clist = []
+      // let alist = []
+      // clist.push(this.dragging.id)
+      // alist.push(this.dragging.addr)
+      // getGroupLive(JSON.parse(getUser()).id,clist,alist)
+      // clist = []
+      // alist = []
+      // let replaced = this.urlList[this.division*(this.pageNum-1)+i-1]
+      // clist.push(replaced.id)
+      // alist.push(replaced.url)
+      // stop(JSON.parse(getUser()).id,clist,alist)
+      // // this.urlList[this.division*(this.pageNum-1)+i-1] = this.dragging
+      // this.dragging = {}
       // this.startPlay(0)
     },
     deny(){
