@@ -94,12 +94,20 @@
 
     <!--  查看处理信息的对话框  -->
     <el-dialog title="报警处理结果" :visible.sync="dialogFormVisible2" @close="" center :close-on-click-modal="false">
-
-      <div>
-        <div><span>处理人：</span><span>{{ (alarmHandleLog&&alarmHandleLog.userName) || '--' }}</span></div>
-        <div><span>处理类型：</span><span>{{ (alarmHandleLog&&alarmHandleLog.type) || '--' }}</span></div>
-        <div><span>处理描述：</span><span>{{ (alarmHandleLog&&alarmHandleLog.description) || '--' }}</span></div>
-      </div>
+      <el-row>
+        <el-col :span="6">处理人：</el-col>
+        <el-col :span="18">{{ (alarmHandleLog&&alarmHandleLog.userName) || '--' }}</el-col>
+      </el-row>
+      <div style="margin-top:20px;"/>
+      <el-row>
+        <el-col :span="6">处理类型：</el-col>
+        <el-col :span="18">{{ (alarmHandleLog&&alarmHandleLog.type) || '--' }}</el-col>
+      </el-row>
+      <div style="margin-top:20px;"/>
+      <el-row>
+        <el-col :span="6">处理描述：</el-col>
+        <el-col :span="18">{{ (alarmHandleLog&&alarmHandleLog.description) || '--' }}</el-col>
+      </el-row>
     </el-dialog>
   </div>
 </template>
