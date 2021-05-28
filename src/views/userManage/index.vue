@@ -95,13 +95,13 @@
           <el-input v-model.trim="form.email" placeholder="请输入邮箱" maxlength="30" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model.trim="form.password" placeholder="请输入密码" maxlength="50" style="width: auto" >
-<!--            <i slot="suffix" class="el-input_icon el-icon-view" @click="showPsw"></i>-->
+          <el-input v-model.trim="form.password" placeholder="请输入密码" maxlength="50" style="width: auto" :type="passwordType">
+            <i slot="suffix" :class="passwordIcon" @click="showPwd"/>
           </el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="passwordAgain">
-          <el-input v-model.trim="form.passwordAgain" placeholder="请再次输入密码" maxlength="50" style="width: auto" >
-
+          <el-input v-model.trim="form.passwordAgain" placeholder="请再次输入密码" maxlength="50" style="width: auto" :type="password2Type">
+            <i slot="suffix" :class="password2Icon" @click="showPwd2"/>
           </el-input>
         </el-form-item>
         <el-form-item label="状态" prop="itemStatus">
@@ -212,6 +212,10 @@ export default {
       defaultProps:{  // el-tree的props
         label: 'name',   // 权限列表的name作为展示文字
       },
+      passwordType: 'password',
+      password2Type: 'password',
+      passwordIcon: 'el-input__icon el-icon-view',
+      password2Icon: 'el-input__icon el-icon-view',
       formRules: {
         name: [{required: true, trigger: 'blur', message: "请输入姓名"}],
         jobNumber: [{required: true, trigger: 'blur', message: "请输入工号"}],
@@ -519,9 +523,26 @@ export default {
     changePage(e){
       this.currentPage = e;
     },
-    showPsw(){
-      console.log("in showPsw")
-    }
+    // 添加/修改用户表单，密码的显示隐藏
+    showPwd() {
+      if (this.passwordType === 'password') {
+        this.passwordType = '';
+        this.passwordIcon = 'el-input__icon el-icon-minus';
+      } else {
+        this.passwordType = 'password'
+        this.passwordIcon = 'el-input__icon el-icon-view';
+      }
+    },
+    // 添加/修改用户表单，二次输入密码的显示隐藏
+    showPwd2() {
+      if (this.password2Type === 'password') {
+        this.password2Type = '';
+        this.password2Icon = 'el-input__icon el-icon-minus';
+      } else {
+        this.password2Type = 'password'
+        this.password2Icon = 'el-input__icon el-icon-view';
+      }
+    },
   },
   created() {
     this.bttns = this.$route.meta.btnPermission;
