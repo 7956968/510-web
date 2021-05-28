@@ -110,7 +110,7 @@ export default {
     close: function (e) {
       console.log("websocket closed",e)
       if(e["code"]===1008){
-        this.$message.warning("与服务器实时连接断开，无法监听报警信息，尝试重连中");
+        // this.$message.warning("与服务器实时连接断开，无法监听报警信息，尝试重连中");
         let that = this;
         // 重复执行重连直到重连成功
         let t1 = window.setInterval(()=>{
