@@ -8,7 +8,7 @@
     <!--</div>-->
 
     <el-col :span="14" class="login_pic_container">
-      <img class="logo_img"  src="@/assets/login1.jpg"/>
+      <img class="logo_img"  src="@/assets/login_background.png"/>
     </el-col>
     <el-col :span="10" class="login_form_container ">
       <LoginForm></LoginForm>

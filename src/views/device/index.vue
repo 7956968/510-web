@@ -169,7 +169,11 @@
           <el-input v-model.trim="form.loginName" placeholder="请输入用户名" maxlength="10" style="width: auto"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model.trim="form.password" placeholder="请输入密码" maxlength="20" style="width: auto"></el-input>
+          <el-input v-model.trim="form.password" placeholder="请输入密码" maxlength="20" style="width: auto" :type="passwordType"
+
+          >
+            <i slot="suffix" :class="passwordIcon" @click="showPwd"/>
+          </el-input>
         </el-form-item>
         <el-form-item label="端口" prop="port">
           <el-input v-model.trim="form.port" placeholder="请输入端口号" maxlength="10" style="width: auto"></el-input>
@@ -430,7 +434,7 @@ export default {
       total: 0, // 总条目数
       pageSize: 10, // 每页显示条目数
       currentPage: 1, // 当前页，从1开始
-
+      passwordType: 'password',
       manufacturersOptions: [
         "海康",
         "大华",
@@ -559,6 +563,8 @@ export default {
           isShow: isDeleteShow,
         }
       ],
+
+      passwordIcon: 'el-input__icon el-icon-view', // 设备表单中密码的显示隐藏图标的样式
     }
   },
   methods: {
@@ -858,6 +864,16 @@ export default {
           this.$message.error(res.data.errorMsg);
         }
       }).catch(err => {})
+    },
+    // 添加/修改设备表单，密码的显示隐藏
+    showPwd() {
+      if (this.passwordType === 'password') {
+        this.passwordType = '';
+        this.passwordIcon = 'el-input__icon el-icon-minus';
+      } else {
+        this.passwordType = 'password'
+        this.passwordIcon = 'el-input__icon el-icon-view';
+      }
     },
 
     // //// 上传excel相关

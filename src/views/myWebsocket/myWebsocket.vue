@@ -102,24 +102,24 @@ export default {
      * websocket关闭时触发的事件
      * @param e 事件
      *          e.code
-     *          1006  服务器的线程关闭（比如执行sql异常
+     *          1006  服务器的线程关闭（如果重连会报异常：failed: HTTP Authentication failed; no valid credentials available）
      *          1008  浏览器退出； http会话结束（连接太久，测试的时候是登陆后31分钟断连）。 后者需要重连
      *          1001  刷新页面（不用重连，创建组件的时候自动连接新的ws）
      *
      */
     close: function (e) {
       console.log("websocket closed",e)
-      if(e["code"]===1006 || e["code"]===1008){
+      if(e["code"]===1008){
         this.$message.warning("与服务器实时连接断开，无法监听报警信息，尝试重连中");
         let that = this;
-        //重复执行某个方法
+        // 重复执行重连直到重连成功
         let t1 = window.setInterval(()=>{
           that.socket = new WebSocket(that.path);
-          that.loadWsEvent();
-          //去掉定时器的方法
-          if(that.socket){
-            window.clearInterval(t1);
+          if(that.socket.readyState===1){// 如果重连成功
+            window.clearInterval(t1);// 去除定时重连方法
+            that.loadWsEvent();
             this.$message.success("重连成功");
+            console.log("重连成功")
           }
         },5000);
 

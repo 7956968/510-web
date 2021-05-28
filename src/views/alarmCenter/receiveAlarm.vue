@@ -129,7 +129,7 @@ export default {
       pageMax: 1,
       data: [],
       defaultProps: {
-        label: 'desc'
+        label: 'description'
       },
       keyword:""
     }

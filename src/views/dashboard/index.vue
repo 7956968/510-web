@@ -8,22 +8,23 @@
       <div class="el-row information_container " style="margin-top:20px">
         <h4>快捷方式:</h4>
         <el-row class="page-guide">
-
+          <!--
           <el-col  class="container"   v-if="this.userInfo.type == ''">
             <img src="@/assets/visitor.jpg" alt="Norway" width="1000" height="300">
             <div class="center" @click="router_jump('/appointment/index')">访客预约</div>
           </el-col>
+          -->
+          <el-col  class="container" v-show="hasPermission('m_access')" >
+            <img src="@/assets/camera.png" alt="Norway" width="1000" height="300">
+            <div class="center" @click="router_jump('/live')">实时视频</div>
+          </el-col>
           <el-col  class="container" v-show="hasPermission('m_user')" >
             <img src="@/assets/yuangong.png" alt="Norway" width="1000" height="300"  >
-            <div class="center" @click="router_jump('/user.vue/user.vue')">员工管理</div>
+            <div class="center" @click="router_jump('/userManage/index')">用户管理</div>
           </el-col>
           <el-col  class="container" v-show="hasPermission('m_device')">
             <img src="@/assets/device.png" alt="Norway" width="1000" height="300">
-            <div class="center"  @click="router_jump('/device/info')">设备管理</div>
-          </el-col>
-          <el-col  class="container" v-show="hasPermission('m_access')" >
-            <img src="@/assets/attendance.png" alt="Norway" width="1000" height="300">
-            <div class="center" @click="router_jump('/access/index')">出入记录</div>
+            <div class="center"  @click="router_jump('/device/index')">设备管理</div>
           </el-col>
         </el-row>
       </div>
