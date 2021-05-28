@@ -82,7 +82,7 @@
                     type="textarea"
                     placeholder="描述"
                     maxlength="255"
-                    :autosize="{ minRows: 2 }"
+                    :autosize="{ minRows: 4 }"
                     style="width: auto"/>
         </el-form-item>
       </el-form>
@@ -92,8 +92,9 @@
       </div>
     </el-dialog>
 
-    <!--  填写处理信息的对话框  -->
+    <!--  查看处理信息的对话框  -->
     <el-dialog title="报警处理结果" :visible.sync="dialogFormVisible2" @close="" center :close-on-click-modal="false">
+
       <div>
         <div><span>处理人：</span><span>{{ (alarmHandleLog&&alarmHandleLog.userName) || '--' }}</span></div>
         <div><span>处理类型：</span><span>{{ (alarmHandleLog&&alarmHandleLog.type) || '--' }}</span></div>
@@ -212,11 +213,11 @@ export default {
       // 日志状态选择
       statusOptions: [
         {
-          value: 0,
+          value: '未处理',
           text:'未处理',
         },
         {
-          value: 1,
+          value: '已处理',
           text:'已处理',
         },
       ],
