@@ -61,7 +61,7 @@ import Dialog from '@/components/dialog/index';
 import selectTree from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 import {getUser} from '@/utils/auth';
-import {getOperationLogList} from "@/api/operationLog";
+import {getOperationLogList, deleteAll, deleteById} from "@/api/operationLog";
 
 export default {
   name: "operationLog",
@@ -71,6 +71,8 @@ export default {
     selectTree
   },
   data() {
+    let isDeleteShow = (row)=>true;
+    let deleteOption = (row)=>{this.delete(row);}
     return {
       bttns: [],
       labelPosition: 'left',
@@ -99,6 +101,7 @@ export default {
         {
           text: '状态',
           value: 'succeed',
+          width: 80,
           // formatter: (row, column, cellValue, index)=>{return '--'}
         }
       ],
@@ -115,11 +118,11 @@ export default {
       currentPage: 1, // 当前页，从1开始
 
       tableOption: [
-        // {
-        //   text: '删除',
-        //   onclick: deleteOption,
-        //   isShow: isDeleteShow,
-        // },
+        {
+          text: '删除',
+          onclick: deleteOption,
+          isShow: isDeleteShow,
+        },
       ],
     }
   },
@@ -130,9 +133,48 @@ export default {
     search(){
       this.getOperationLogList();
     },
-
+    delete(row) {
+      this.$confirm('即将删除操作日志' + ', 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        return deleteById(row.id);
+      }).then(res => {
+        if (res.data.errorCode === 200) {
+          this.$message.success("删除成功");
+          this.getOperationLogList();
+        }else{
+          this.$message.error(res.data.errorMsg);
+        }
+      }).catch(err=>{});
+    },
     deleteAll(){
-
+      let checkedIdList = this.$refs.curTable.getSelectedKeys();
+      // 判空
+      if( ! checkedIdList.length ){
+        this.$message.warning("未勾选数据");
+        return ;
+      }
+      // let checkedRowList = this.$refs.curTable.getSelectedRows(); // 被勾选的列数组
+      // let deletedNameList = checkedRowList.map(e=>e.name);  // 待删除列的名字列表
+      this.$confirm('即将批量删除操作日志, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 调用接口
+        return deleteAll(checkedIdList);
+      }).then(res => {
+        if(res.data.errorCode === 200){
+          this.$message.success("批量删除成功");
+          this.getOperationLogList();
+        }else{
+          this.$message.error(res.data.errorMsg);
+        }
+      }).catch(err=>{
+        console.log(err);
+      })
     },
     /**
      * 获取操作日志列表

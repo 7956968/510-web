@@ -25,6 +25,8 @@ npm run e2e
 
 # run all tests
 npm test
+
+# 可以在package.json中编辑"scripts"属性来自定义命令
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
@@ -36,20 +38,20 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │  main.js
 │  permission.js
 │
-├─api  后端接口
-│      channel.js
-│      department.js
-│      device.js
-│      dict.js
-│      log.js
-│      login.js
-│      permission.js
-│      role.js
-│      rolePermission.js
-│      selectOption.js
+├─api  调用后端接口
+│      channel.js 摄像头通道
+│      department.js 部门管理
+│      device.js 设备
+│      dict.js 数据字典
+│      log.js 日志
+│      login.js 登录
+│      permission.js 菜单权限
+│      role.js 角色
+│      rolePermission.js 角色-权限关系
+│      selectOption.js 从数据字典中获取选项
 │      url.js
-│      userManage.js
-│      video.js
+│      userManage.js 用户管理
+│      video.js 视频管理
 │
 ├─assets 资源文件（存放各种图片，字体）
 │  │  ...
@@ -178,7 +180,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 ├─select
 │      index.js
 │
-├─store
+├─store 存放多个模块共用的数据
 │  │  getters.js
 │  │  index.js
 │  │
@@ -211,8 +213,9 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │      index.js
 │      openWindow.js
 │      permission.js
-│      request.js http请求
-│      validate.js 表单检验数据格式
+│      request.js  http请求
+│      rtspAddress.js  rtsp地址拼接
+│      validate.js  表单检验数据格式
 │
 ├─vendor
 │      Blob.js
@@ -220,10 +223,10 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 │      Export2Zip.js 导出zip压缩包
 │
 └─views  页面组件
-    ├─car  车辆管理
+    ├─car  车辆管理（未完成）
     │      car.vue
     │
-    ├─dashboard  首页(各种快捷方式)
+    ├─dashboard  首页(显示跳转至各个页面的快捷方式)
     │  │  index.vue
     │  │
     │  └─components
@@ -232,7 +235,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     ├─department  部门管理
     ├─device  设备管理
     │      channel.vue  设备通道
-    │      index.vue
+    │      index.vue  设备+分组
     │      liandong.vue  联动管理
     ├─errorLog
     │      errorTestA.vue
@@ -245,7 +248,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     │      extinguisher.vue 灭火器信息
     ├─font 字体
     │
-    ├─layout(这个组件是不使用的，实际使用的是*/src/layout/components/Navbar.vue)
+    ├─layout(这个组件是不使用的，实际使用的是*/src/layout/components/...)
     │  │  Layout.vue
     │  │
     │  ├─components
@@ -272,7 +275,7 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     │          LoginNavbar.vue
     │
     ├─redirect 重定向
-    ├─svg-icons 图标
+    ├─svg-icons 图标映射
     │      index.vue
     │      requireIcons.js
     │
@@ -284,55 +287,3 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
     └─userManage  用户管理
 ```
 
-## src/icons/svg下的图标
-|文件名|解释|
-|----|----|
-|alarm|报警|
-|butterfly|蝶阀检测|
-|car|汽车|
-|dealWith|待处理|
-|delete|删除|
-|device|设备|
-|diagnostics|诊断|
-|export|导出|
-|firefighting|灭火器|
-|home|首页|
-|import|导入|
-|inbreak|（周界）入侵|
-|linkage|联动|
-|log|日志|
-|m_analysis|数据分析|
-|map|地图|
-|matrix|矩阵管理|
-|newly|添加|
-|nightPatrol|夜晚巡更|
-|permission|权限|
-|playback|视频回放|
-|select|查找（放大镜）|
-|sys|系统设置|
-|trueTime|实时视频|
-|untreated|未处理|
-|update|修改|
-|user|用户|
-|visitory|访客|
-|waterTank|水箱|
-
-## 常见问题
-
-### treeselect组件变得巨大，影响正常使用
-```javascript
-import selectTree from "@riophae/vue-treeselect";
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-```
-第二行影响样式，如果缺少第二行，组件变得巨大
-
-### watch监听某对象变化时，只想监听某对象的某个属性的变化
-使用单引号，'对象名.属性名'
-```vue
-watch: {
-    // 如果分组被切换，通道不显示数据
-    'param.groupId'(newVal, oldVal){
-      dosth();
-    }
-  },
-```
