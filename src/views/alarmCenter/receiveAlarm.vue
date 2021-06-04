@@ -45,10 +45,8 @@
 
 <script>
 import treeTable from '@/components/TreeTable';
-import {getRoleList, add, updateById, deleteById} from '@/api/role';
 import {getCameraListByAlarmId,getDeviceList,getGroupListWithDevices,getGroupList} from '@/api/device';
 import {getGroupLive,stop} from '@/api/video.js'
-import {getPermissionListByRoleId, add as addRP, deleteById as deleteRPById} from '@/api/rolePermission';
 import {listToTree, copyProperties} from '@/utils';
 import Dialog from '@/components/dialog/index';
 import selectTree from '@riophae/vue-treeselect'
